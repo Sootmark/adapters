@@ -13,6 +13,7 @@ Native parsers:
 
 - `prefetch` (`windows.prefetch`): Prefetch files, compressed or not: what ran, how often, when (up to eight run times), from where. Checked against PECmd.
 - `utmp` (`linux.utmp`): Linux login records (`wtmp`, `btmp`, `utmp`, rotated copies included): logins with the account, terminal and source address, failed logins (from `btmp`), logouts, boots, run level and clock changes. Checked on plaso's test files.
+- `history` (`unix.shell_history`): shell history files (`.bash_history`, `.zsh_history`, `.histfile`, `fish_history`): one record per command, with its time when the shell wrote one (bash only with `HISTTIMEFORMAT`; never dated by the file), zsh's duration, fish's paths, and the account whose home holds the file. Checked on plaso's test files.
 - `syslog` (`linux.syslog`): Linux syslog files (`syslog`, `messages`, `auth.log`, `secure`, `kern.log`, `cron`, rotated copies included; classic, RFC 3339 and RFC 5424 lines): every entry, and SSH logins and failures, sudo, su, cron commands and account changes with the account and source address. Classic lines carry no year: it is inferred from the file's modification time and marked. Checked on plaso's test files.
 - `registry` (`windows.registry.*`): hives. SYSTEM: ShimCache and services; NTUSER.DAT: UserAssist; SOFTWARE and NTUSER.DAT: Run and RunOnce; UsrClass.dat and NTUSER.DAT: ShellBags; Amcache.hve: every entry (`windows.registry.amcache.*`: files with their SHA-1 and program, programs, shortcuts, driver binaries and packages, devices), both layouts; SYSTEM, every control set: BAM and DAM (`windows.registry.bam`: per user, programs and their last run). A dirty hive is read as it is and reported as skipped. Checked against RECmd, AppCompatCacheParser, SBECmd, AmcacheParser and plaso.
 - `lnk` (`windows.lnk`): LNK files: the target, its times as the link saw them, the volume and the machine it was made on.
@@ -32,6 +33,7 @@ Adapters pass the `conformance` suite. Every fixture is open data or our own syn
 - Prefetch: the open files of `sootmark-prefetch` (Eric Zimmerman's test set, MIT, and plaso's, Apache-2.0; `tests/fixtures/prefetch/`). PECmd ran on Windows (that repository's `oracle` workflow); plaso and Velociraptor on the same files, each checked against PECmd, as is the native adapter.
 - Linux login records: plaso's utmp test files (Apache-2.0, `tests/fixtures/utmp/`).
 - Linux syslog: plaso's syslog test files (Apache-2.0, `tests/fixtures/syslog/`).
+- Shell history: plaso's bash, zsh and fish test files (Apache-2.0, `tests/fixtures/history/`).
 - Registry: AppCompatCacheParser, SBECmd and RECmd on the MIT-licensed test hives of EZ's [Registry](https://github.com/EricZimmerman/Registry) library (excerpts; RECmd's re-serialised as minimal-quoted CSV); AmcacheParser on plaso's Windows 10 `Amcache.hve` (Apache-2.0).
 - SRUM: Velociraptor on plaso's `SRUDB.dat` (Apache-2.0), the first rows of each table.
 - The synthetic FIN-WKS-07 artifacts (MFT, USN journal, LNK, jump lists, recycle bin; generated, no real data): EZ Tools, plaso 20260720 and Velociraptor 0.77.2, with the analysis machine's paths replaced.

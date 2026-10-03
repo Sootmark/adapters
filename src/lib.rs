@@ -8,6 +8,7 @@ mod csv;
 pub mod evtx;
 pub mod ez;
 pub mod hayabusa;
+pub mod history;
 pub mod jumplist;
 pub mod lnk;
 pub mod plaso;

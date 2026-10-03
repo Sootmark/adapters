@@ -4,11 +4,12 @@ version = 3
 
 [[package]]
 name = "sootmark-adapters"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "sootmark-common",
  "sootmark-conformance",
  "sootmark-evtx",
+ "sootmark-history",
  "sootmark-model",
  "sootmark-prefetch",
  "sootmark-registry",
@@ -37,6 +38,15 @@ name = "sootmark-evtx"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a2f25e75bdbe98bb81378b377c0cfaa61c9cd06b75af8b89ee5987fabe8a835"
+dependencies = [
+ "sootmark-common",
+]
+
+[[package]]
+name = "sootmark-history"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e8bf85cd07eb7b924a707e191c13f05aedeef8a1b84ec7510fa5262c55e80315"
 dependencies = [
  "sootmark-common",
 ]
