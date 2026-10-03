@@ -28,6 +28,7 @@ fn parse(bytes: &[u8]) -> Collected {
         evidence: EvidenceId::of_content(bytes),
         name: "Security.evtx",
         data: bytes,
+        modified: None,
     };
     let mut sink = Collected::default();
     EvtxAdapter
@@ -65,6 +66,7 @@ fn rejects_files_that_are_not_event_logs() {
         evidence: EvidenceId::of_content(&bytes),
         name: "x.evtx",
         data: &bytes,
+        modified: None,
     };
     let error = EvtxAdapter
         .parse(&input, &mut Collected::default())

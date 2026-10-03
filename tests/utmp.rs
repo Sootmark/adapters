@@ -21,6 +21,7 @@ fn parse(name: &str) -> Collected {
         evidence: EvidenceId::of_content(&data),
         name,
         data: &data,
+        modified: None,
     };
     let mut sink = Collected::default();
     UtmpAdapter.parse(&input, &mut sink).expect("login records");
@@ -76,6 +77,7 @@ fn records_say_what_happened() {
         evidence: EvidenceId::of_content(&data),
         name: "btmp.1",
         data: &data,
+        modified: None,
     };
     let mut sink = Collected::default();
     UtmpAdapter.parse(&input, &mut sink).unwrap();

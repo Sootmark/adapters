@@ -21,6 +21,7 @@ fn parse(name: &str) -> (Vec<u8>, Collected) {
         evidence: EvidenceId::of_content(&bytes),
         name,
         data: &bytes,
+        modified: None,
     };
     let mut sink = Collected::default();
     LnkAdapter.parse(&input, &mut sink).expect("a link");
@@ -84,6 +85,7 @@ fn rejects_what_isnt_a_link() {
         evidence: EvidenceId::of_content(&bytes),
         name: "x.lnk",
         data: &bytes,
+        modified: None,
     };
     assert!(LnkAdapter.parse(&input, &mut Collected::default()).is_err());
 }

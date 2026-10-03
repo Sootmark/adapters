@@ -30,6 +30,7 @@ fn parse(name: &str, bytes: &[u8]) -> Collected {
         evidence: EvidenceId::of_content(bytes),
         name,
         data: bytes,
+        modified: None,
     };
     let mut sink = Collected::default();
     PlasoAdapter.parse(&input, &mut sink).expect("psort output");
@@ -161,6 +162,7 @@ fn every_native_event_log_record_is_in_plasos_timeline() {
             evidence: EvidenceId::of_content(&log),
             name,
             data: &log,
+            modified: None,
         };
         EvtxAdapter
             .parse(&input, &mut native)

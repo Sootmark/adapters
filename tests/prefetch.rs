@@ -18,6 +18,7 @@ fn parse(adapter: &dyn Adapter, name: &str, bytes: &[u8]) -> Collected {
         evidence: EvidenceId::of_content(bytes),
         name,
         data: bytes,
+        modified: None,
     };
     let mut sink = Collected::default();
     adapter.parse(&input, &mut sink).expect("parses");
@@ -168,6 +169,7 @@ fn rejects_what_isnt_prefetch() {
         evidence: EvidenceId::of_content(&bytes),
         name: "x.pf",
         data: &bytes,
+        modified: None,
     };
     assert!(PrefetchAdapter
         .parse(&input, &mut Collected::default())

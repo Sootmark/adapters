@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "sootmark-adapters"
-version = "0.1.21"
+version = "0.2.0"
 dependencies = [
  "sootmark-common",
  "sootmark-conformance",
@@ -24,9 +24,9 @@ checksum = "bafd4296b9b9d7da9946442ba093f0c53362ae32d0e8f9b6d8497902ca5c5307"
 
 [[package]]
 name = "sootmark-conformance"
-version = "0.1.5"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a08b7913d65e59ee142f06ddf4713ec03df453d94731d323915e9491132ab48b"
+checksum = "cc88bbc58b6cd7367e524c2aeec9fd03bfef53da6fd946c13f1e44ecea275489"
 dependencies = [
  "sootmark-model",
 ]
@@ -42,9 +42,9 @@ dependencies = [
 
 [[package]]
 name = "sootmark-model"
-version = "0.1.4"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a74be8f3382f658e361589a7922d72d5009c1cb1470c7f89f7fcbb020884c87"
+checksum = "a46e3ede178441a9200ec2249aaaec66c92d522a6429a19883158e11578c297d"
 dependencies = [
  "sootmark-common",
 ]

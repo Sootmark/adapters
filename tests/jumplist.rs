@@ -25,6 +25,7 @@ fn parse(name: &str) -> (Vec<u8>, Collected) {
         evidence: EvidenceId::of_content(&bytes),
         name,
         data: &bytes,
+        modified: None,
     };
     let mut sink = Collected::default();
     JumpListAdapter
@@ -134,6 +135,7 @@ fn rejects_what_isnt_a_jump_list() {
             evidence: EvidenceId::of_content(&bytes),
             name,
             data: &bytes,
+            modified: None,
         };
         assert!(
             JumpListAdapter

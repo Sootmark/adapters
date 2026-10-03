@@ -35,6 +35,7 @@ fn parse(name: &str, bytes: &[u8]) -> Collected {
         evidence: EvidenceId::of_content(bytes),
         name,
         data: bytes,
+        modified: None,
     };
     let mut sink = Collected::default();
     RegistryAdapter

@@ -25,6 +25,7 @@ fn parse(name: &str, bytes: &[u8]) -> Collected {
         evidence: EvidenceId::of_content(bytes),
         name,
         data: bytes,
+        modified: None,
     };
     let mut sink = Collected::default();
     EzAdapter.parse(&input, &mut sink).expect("EZ output");
@@ -166,6 +167,7 @@ fn evtxecmd_agrees_with_the_native_parser() {
             evidence: EvidenceId::of_content(&log),
             name,
             data: &log,
+            modified: None,
         };
         EvtxAdapter
             .parse(&input, &mut native)

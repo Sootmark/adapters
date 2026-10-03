@@ -16,6 +16,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         evidence: EvidenceId::of_content(&bytes),
         name: &path,
         data: &bytes,
+        modified: None,
     };
     let mut sink = Collected::default();
     EvtxAdapter.parse(&input, &mut sink)?;
