@@ -1,0 +1,101 @@
+ControlSet,CacheEntryPosition,Path,LastModifiedTimeUTC,Executed,Duplicate,SourceFile
+1,0,SYSVOL\Program Files\CrashPlan\jre\bin\java.exe,2013-12-04 23:47:23,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,1,SYSVOL\Windows\System32\rundll32.exe,2013-08-22 11:03:41,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,2,SYSVOL\Users\eric\AppData\Roaming\Spotify\Data\SpotifyHelper.exe,2014-12-18 19:48:38,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,3,SYSVOL\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static\CLI.exe,2013-05-07 16:52:24,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,4,SYSVOL\Windows\System32\LogonUI.exe,2013-08-22 11:32:21,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,5,SYSVOL\Windows\WinSxS\amd64_microsoft-windows-servicingstack_31bf3856ad364e35_6.3.9600.17477_none_fa2b7d3b9b36c7b4\TiWorker.exe,2014-10-30 22:33:40,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,6,SYSVOL\Windows\servicing\TrustedInstaller.exe,2014-03-18 10:05:07,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,7,SYSVOL\Windows\System32\svchost.exe,2013-08-22 12:45:17,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,8,SYSVOL\Windows\System32\dllhost.exe,2013-08-22 12:35:25,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,9,SYSVOL\Windows\System32\ThumbnailExtractionHost.exe,2013-08-22 11:01:57,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,10,SYSVOL\Windows\System32\sc.exe,2013-08-22 10:03:11,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,11,SYSVOL\Program Files (x86)\Google\Update\GoogleUpdate.exe,2014-05-20 14:23:06,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,12,SYSVOL\Windows\System32\taskeng.exe,2014-03-18 10:05:16,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,13,F:\15b25f69aaa0999d37f224116fca\SetupUtility.exe,2015-02-04 23:01:12,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,14,SYSVOL\Windows\System32\wuauclt.exe,2014-10-18 09:55:17,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,15,SYSVOL\Windows\SysWOW64\wusa.exe,2014-03-13 06:51:36,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,16,SYSVOL\Program Files (x86)\Stardock\Fences\Fences.exe,2013-11-26 13:49:20,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,17,F:\15b25f69aaa0999d37f224116fca\Setup.exe,2015-02-04 23:01:12,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,18,SYSVOL\ProgramData\Package Cache\4FF9C5BBD102B4816BE0FB4E642AE94BFE4B73A5\packages\dotNetFramework\dotNetFx-Web.exe,2015-02-07 03:52:24,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,19,SYSVOL\ProgramData\Package Cache\EAB498DF-5BB7-3C58-8372-A49DFB746FDF\packages\vcRedistD11\1033\vcredist_x64.exe,2013-09-11 23:57:37,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,20,SYSVOL\ProgramData\Package Cache\55A8C911-B754-3175-81B6-FBD60A02A43D\packages\vcRedistD11\1033\vcredist_x86.exe,2013-09-11 23:57:37,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,21,SYSVOL\Windows\System32\wusa.exe,2014-03-13 07:42:24,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,22,SYSVOL\ProgramData\Package Cache\030A711C-C11D-38B8-B196-2ADA3437B07F\packages\vcRedistD14\VC_redist.x64.exe,2015-02-09 08:20:40,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,23,SYSVOL\ProgramData\Package Cache\{6f37e351-1f71-421c-8da2-4f59999ca8b3}\VC_redist.x64.exe,2015-02-05 03:37:22,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,24,SYSVOL\ProgramData\Package Cache\{42e575c4-2dbe-4135-bb27-5d61236dc38b}\VC_redist.x86.exe,2015-02-05 03:37:19,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,25,SYSVOL\Windows\System32\msiexec.exe,2013-08-22 11:23:10,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,26,SYSVOL\ProgramData\Package Cache\030A711C-C11D-38B8-B196-2ADA3437B07F\packages\vcRedistD14\VC_redist.x86.exe,2015-02-09 08:19:29,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,27,SYSVOL\ProgramData\Package Cache\CD352CDE-1F90-3778-933D-CCFA47816544\packages\vcRedistD12\1033\vcredist_x64.exe,2014-11-08 02:10:54,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,28,SYSVOL\ProgramData\Package Cache\030A711C-C11D-38B8-B196-2ADA3437B07F\packages\vs_ultimate\Preparation.exe,2015-02-09 07:46:35,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,29,SYSVOL\ProgramData\Package Cache\9DC86A6B0534C26B102557208303047BF62C2BAD\packages\VS_Clean\VS_PreClean_vs.exe,2015-02-09 07:46:35,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,30,F:\8d3e7ea380b1d79c3aab5583bfaa\VSSetupUtility.exe,2015-02-09 07:46:36,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,31,SYSVOL\ProgramData\Package Cache\7E32123E-082A-3C58-B56C-AACDAFD73A8F\packages\vs_ultimate\VSSetupUtility.exe,2015-02-09 08:42:29,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,32,SYSVOL\Windows\System32\SrTasks.exe,2014-03-18 10:06:07,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,33,SYSVOL\Windows\System32\VSSVC.exe,2014-03-27 03:10:11,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,34,SYSVOL\Windows\System32\sppsvc.exe,2014-03-18 10:05:26,No,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,35,SYSVOL\Users\eric\AppData\Local\Temp\{afbcbdef-e5df-4a94-bb7d-792f755778c3}\.be\vs_ultimate.exe,2015-02-24 02:39:06,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,36,SYSVOL\Windows\System32\consent.exe,2014-10-13 02:33:24,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,37,SYSVOL\Windows\Microsoft.NET\Framework\v2.0.50727\cvtres.exe,2014-05-27 04:39:14,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,38,SYSVOL\Windows\Microsoft.NET\Framework\v2.0.50727\csc.exe,2014-05-27 04:39:13,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,39,SYSVOL\Windows\Microsoft.NET\Framework\v4.0.30319\mscorsvw.exe,2014-12-11 21:51:49,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,40,SYSVOL\Windows\Microsoft.NET\Framework\v4.0.30319\ngen.exe,2014-12-11 21:51:50,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,41,SYSVOL\Windows\Microsoft.NET\Framework64\v3.0\WPF\PresentationFontCache.exe,2013-08-03 04:47:59,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,42,SYSVOL\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\devenv.exe,2014-11-01 07:46:50,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,43,SYSVOL\Users\eric\Desktop\vs_ultimate.exe,2015-02-24 02:38:01,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,44,SYSVOL\Windows\SysWOW64\Macromed\Flash\FlashPlayerUpdateService.exe,2015-02-04 18:38:46,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,45,SYSVOL\Program Files (x86)\Google\Chrome\Application\chrome.exe,2015-02-17 22:45:00,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,46,SYSVOL\Program Files (x86)\TeamViewer\TeamViewer_Desktop.exe,2015-02-17 09:05:26,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,47,SYSVOL\Users\eric\AppData\Local\Citrix\GoToMeeting\2352\g2mupdate.exe,2015-02-18 19:39:09,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,48,SYSVOL\Windows\System32\gpupdate.exe,2013-08-22 11:31:21,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,49,SYSVOL\Windows\System32\schtasks.exe,2013-08-22 10:42:55,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,50,SYSVOL\Windows\System32\wsqmcons.exe,2014-03-18 10:05:38,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,51,SYSVOL\Program Files\Internet Explorer\ielowutil.exe,2014-10-31 04:55:28,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,52,SYSVOL\Windows\System32\msfeedssync.exe,2014-10-31 05:08:00,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,53,SYSVOL\Program Files\Microsoft Office\Office15\msoia.exe,2014-01-22 10:11:30,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,54,SYSVOL\Windows\System32\taskhost.exe,2014-03-18 10:05:16,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,55,SYSVOL\Windows\System32\MRT.exe,2015-02-11 14:22:36,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,56,SYSVOL\Windows\System32\taskhostex.exe,2014-03-18 10:05:16,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,57,SYSVOL\Program Files (x86)\Google\Update\1.3.26.9\GoogleCrashHandler64.exe,2015-02-03 22:45:20,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,58,SYSVOL\Program Files (x86)\Google\Update\1.3.26.9\GoogleCrashHandler.exe,2015-02-03 22:45:20,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,59,SYSVOL\Windows\System32\ROUTE.EXE,2013-08-22 09:53:49,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,60,SYSVOL\Windows\System32\cmd.exe,2013-08-22 10:03:31,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,61,SYSVOL\Windows\System32\NETSTAT.EXE,2013-08-22 09:52:25,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,62,SYSVOL\Program Files (x86)\DU Meter\DUMeter.exe,2014-11-13 21:01:02,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,63,SYSVOL\Program Files (x86)\Microsoft Office\Office15\MSOSYNC.EXE,2015-01-21 21:59:44,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,64,SYSVOL\ProjectWorkingFolder\Registry2\Registry\ExampleApp\bin\Debug\ExampleApp.vshost.exe,2015-02-23 21:06:56,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,65,SYSVOL\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\Remote Debugger\x64\msvsmon.exe,2014-11-01 03:44:52,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,66,SYSVOL\Users\eric\AppData\Local\JetBrains\Installations\ReSharperPlatformVs12\JetBrains.dotCover.WorkspaceHost.exe,2015-02-05 13:55:30,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,67,SYSVOL\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\Extensions\BugAid Software\BugAid\1.0\OzCode.MetadataLoader.exe,2014-06-23 07:42:44,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,68,SYSVOL\Program Files (x86)\Microsoft Office\Office15\POWERPNT.EXE,2015-02-12 20:22:16,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,69,SYSVOL\Program Files (x86)\Git\bin\git.exe,2015-02-03 17:24:45,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,70,SYSVOL\Program Files\7-Zip\7zG.exe,2010-11-19 04:11:38,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,71,SYSVOL\Program Files (x86)\Google\Chrome\Application\40.0.2214.115\delegate_execute.exe,2015-02-17 22:44:49,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,72,SYSVOL\Program Files (x86)\Mailbird\Mailbird_awesomium_process,2014-12-23 02:42:32,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,73,SYSVOL\ProjectWorkingFolder\ShellBagsExplorer\ShellBagsExplorer\bin\Debug\ShellBagsExplorer.vshost.exe,2015-02-23 19:42:31,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,74,SYSVOL\Windows\Microsoft.NET\Framework\v4.0.30319\cvtres.exe,2013-08-10 00:53:16,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,75,SYSVOL\Program Files (x86)\MSBuild\12.0\Bin\csc.exe,2014-11-01 07:46:50,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,76,SYSVOL\Program Files (x86)\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\lc.exe,2013-08-07 02:36:00,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,77,SYSVOL\ProgramData\PostSharp\4.0.42\bin.Release\postsharp.srv.4.0-x86.exe,2015-02-13 09:44:29,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,78,SYSVOL\Program Files (x86)\DevExpress 14.2\Components\Tools\Components\ProjectConverter.exe,2015-02-19 18:15:07,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,79,SYSVOL\Program Files (x86)\MSBuild\12.0\Bin\MSBuild.exe,2014-11-01 07:46:50,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,80,SYSVOL\Users\eric\AppData\Local\Temp\JetPackages\d42b6806-aa33-463b-a757-33f57592420b\JetBrains.Platform.Installer.exe,2015-02-23 19:33:35,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,81,SYSVOL\Users\eric\AppData\Local\JetBrains\Installations\ReSharperPlatformVs12\JetBrains.Platform.Installer.Bootstrap.exe,2015-02-05 13:55:31,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,82,SYSVOL\Program Files\Microsoft Visual Studio 12.0\Common7\Packages\Debugger\Services\VsEtwService.exe,2014-07-23 04:17:28,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,83,SYSVOL\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\PerfWatson2.exe,2014-05-01 08:50:20,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,84,SYSVOL\Windows\System32\wbem\WmiApSrv.exe,2013-08-22 09:48:06,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,85,SYSVOL\Windows\System32\wbem\WmiPrvSE.exe,2013-08-22 11:45:14,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,86,SYSVOL\xwf\WinHex.exe,2015-02-23 01:01:02,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,87,SYSVOL\xwf\xwforensics.exe,2015-02-23 01:01:02,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,88,SYSVOL\Program Files\010 Editor\010Editor.exe,2015-01-28 20:14:52,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,89,SYSVOL\Windows\splwow64.exe,2013-08-22 11:03:57,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,90,SYSVOL\Program Files (x86)\Siber Systems\AI RoboForm\identities.exe,2015-01-22 15:35:55,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,91,SYSVOL\Program Files\7-Zip\7zFM.exe,2010-11-19 04:10:48,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,92,SYSVOL\Program Files\Just Great Software\EditPad Pro 7\EditPadPro7.exe,2014-12-05 14:36:00,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,93,SYSVOL\Windows\SysWOW64\dllhost.exe,2013-08-22 05:21:45,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,94,SYSVOL\$Recycle.Bin\S-1-5-21-2417227394-2575385136-2411922467-1105\$RDQCOAE.exe,2015-02-19 17:52:42,No,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,95,SYSVOL\Windows\System32\wbem\WMIADAP.exe,2014-05-03 07:47:00,Yes,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,96,J:\ShellBagsExplorer.exe,2014-08-10 16:48:04,No,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,97,J:\SetupRegexBuddy3EricPeterson.exe,2013-06-07 15:06:04,No,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,98,J:\SetupEditPadLite.exe,2013-06-10 13:31:14,No,False,E:\triage\C\Windows\System32\config\SYSTEM
+1,99,J:\PortableRoboForm.exe,2014-05-22 14:38:19,No,False,E:\triage\C\Windows\System32\config\SYSTEM

@@ -1,0 +1,10 @@
+/target
+.DS_Store
+# Local files, never committed.
+/tests/fixtures/*.evtx
+/tests/fixtures/hayabusa-real/
+/tests/fixtures/ez-real/
+/tests/fixtures/plaso-real/
+/tests/fixtures/velociraptor-real/
+/tests/fixtures/prefetch-real/
+/tests/fixtures/hives/

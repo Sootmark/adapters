@@ -1,0 +1,174 @@
+﻿Name,Extension,EntryNumber,SequenceNumber,ParentEntryNumber,ParentSequenceNumber,ParentPath,UpdateSequenceNumber,UpdateTimestamp,UpdateReasons,FileAttributes,OffsetToData,SourceFile
+MPLog-20260901-081533.log,.log,120,3,83,1,.\ProgramData\Microsoft\Windows Defender\Support,65536,2026-09-14 10:00:12.4180000,DataExtend,Archive,65536,E:\triage\FIN-WKS-07\C\$Extend\$J
+MPLog-20260901-081533.log,.log,120,3,83,1,.\ProgramData\Microsoft\Windows Defender\Support,65648,2026-09-14 10:00:12.4180000,DataExtend|Close,Archive,65648,E:\triage\FIN-WKS-07\C\$Extend\$J
+SRUDB.dat,.dat,121,1,63,1,.\Windows\System32\sru,65760,2026-09-14 10:00:31.9020000,DataOverwrite,Archive,65760,E:\triage\FIN-WKS-07\C\$Extend\$J
+SRUDB.dat,.dat,121,1,63,1,.\Windows\System32\sru,65840,2026-09-14 10:00:32.1150000,DataOverwrite|Close,Archive,65840,E:\triage\FIN-WKS-07\C\$Extend\$J
+wct8F3A.tmp,.tmp,140,9,64,1,.\Windows\Temp,65920,2026-09-14 10:01:04.3300000,FileCreate,Archive,65920,E:\triage\FIN-WKS-07\C\$Extend\$J
+wct8F3A.tmp,.tmp,140,9,64,1,.\Windows\Temp,66008,2026-09-14 10:01:04.3300000,DataExtend|FileCreate,Archive,66008,E:\triage\FIN-WKS-07\C\$Extend\$J
+wct8F3A.tmp,.tmp,140,9,64,1,.\Windows\Temp,66096,2026-09-14 10:01:04.5120000,DataExtend|FileCreate|Close,Archive,66096,E:\triage\FIN-WKS-07\C\$Extend\$J
+wct8F3A.tmp,.tmp,140,9,64,1,.\Windows\Temp,66184,2026-09-14 10:01:05.0770000,FileDelete|Close,Archive,66184,E:\triage\FIN-WKS-07\C\$Extend\$J
+svc_backup,,210,4,100,1,.\Users,66272,2026-09-14 10:02:11.6400000,FileCreate,Directory,66272,E:\triage\FIN-WKS-07\C\$Extend\$J
+svc_backup,,210,4,100,1,.\Users,66352,2026-09-14 10:02:11.6400000,FileCreate|SecurityChange,Directory,66352,E:\triage\FIN-WKS-07\C\$Extend\$J
+svc_backup,,210,4,100,1,.\Users,66432,2026-09-14 10:02:11.6400000,FileCreate|SecurityChange|Close,Directory,66432,E:\triage\FIN-WKS-07\C\$Extend\$J
+AppData,,211,2,210,4,.\Users\svc_backup,66512,2026-09-14 10:02:11.7020000,FileCreate,Hidden|Directory,66512,E:\triage\FIN-WKS-07\C\$Extend\$J
+AppData,,211,2,210,4,.\Users\svc_backup,66592,2026-09-14 10:02:11.7020000,FileCreate|Close,Hidden|Directory,66592,E:\triage\FIN-WKS-07\C\$Extend\$J
+Local,,212,2,211,2,.\Users\svc_backup\AppData,66672,2026-09-14 10:02:11.7150000,FileCreate,Directory,66672,E:\triage\FIN-WKS-07\C\$Extend\$J
+Local,,212,2,211,2,.\Users\svc_backup\AppData,66744,2026-09-14 10:02:11.7150000,FileCreate|Close,Directory,66744,E:\triage\FIN-WKS-07\C\$Extend\$J
+Roaming,,213,2,211,2,.\Users\svc_backup\AppData,66816,2026-09-14 10:02:11.7210000,FileCreate,Directory,66816,E:\triage\FIN-WKS-07\C\$Extend\$J
+Roaming,,213,2,211,2,.\Users\svc_backup\AppData,66896,2026-09-14 10:02:11.7210000,FileCreate|Close,Directory,66896,E:\triage\FIN-WKS-07\C\$Extend\$J
+LocalLow,,214,3,211,2,.\Users\svc_backup\AppData,66976,2026-09-14 10:02:11.7260000,FileCreate,Directory,66976,E:\triage\FIN-WKS-07\C\$Extend\$J
+LocalLow,,214,3,211,2,.\Users\svc_backup\AppData,67056,2026-09-14 10:02:11.7260000,FileCreate|Close,Directory,67056,E:\triage\FIN-WKS-07\C\$Extend\$J
+Desktop,,215,2,210,4,.\Users\svc_backup,67136,2026-09-14 10:02:11.7900000,FileCreate,Directory,67136,E:\triage\FIN-WKS-07\C\$Extend\$J
+Desktop,,215,2,210,4,.\Users\svc_backup,67216,2026-09-14 10:02:11.7900000,FileCreate|Close,Directory,67216,E:\triage\FIN-WKS-07\C\$Extend\$J
+Documents,,216,5,210,4,.\Users\svc_backup,67296,2026-09-14 10:02:11.8120000,FileCreate,Directory,67296,E:\triage\FIN-WKS-07\C\$Extend\$J
+Documents,,216,5,210,4,.\Users\svc_backup,67376,2026-09-14 10:02:11.8120000,FileCreate|Close,Directory,67376,E:\triage\FIN-WKS-07\C\$Extend\$J
+Downloads,,217,3,210,4,.\Users\svc_backup,67456,2026-09-14 10:02:11.8380000,FileCreate,Directory,67456,E:\triage\FIN-WKS-07\C\$Extend\$J
+Downloads,,217,3,210,4,.\Users\svc_backup,67536,2026-09-14 10:02:11.8380000,FileCreate|Close,Directory,67536,E:\triage\FIN-WKS-07\C\$Extend\$J
+NTUSER.DAT,.DAT,218,2,210,4,.\Users\svc_backup,67616,2026-09-14 10:02:11.9010000,FileCreate,Hidden|Archive|NotContentIndexed,67616,E:\triage\FIN-WKS-07\C\$Extend\$J
+NTUSER.DAT,.DAT,218,2,210,4,.\Users\svc_backup,67696,2026-09-14 10:02:11.9010000,DataExtend|FileCreate,Hidden|Archive|NotContentIndexed,67696,E:\triage\FIN-WKS-07\C\$Extend\$J
+NTUSER.DAT,.DAT,218,2,210,4,.\Users\svc_backup,67776,2026-09-14 10:02:12.2440000,DataExtend|FileCreate|Close,Hidden|Archive|NotContentIndexed,67776,E:\triage\FIN-WKS-07\C\$Extend\$J
+ntuser.dat.LOG1,.LOG1,219,2,210,4,.\Users\svc_backup,67856,2026-09-14 10:02:12.2500000,FileCreate,Hidden|System|Archive|NotContentIndexed,67856,E:\triage\FIN-WKS-07\C\$Extend\$J
+ntuser.dat.LOG1,.LOG1,219,2,210,4,.\Users\svc_backup,67952,2026-09-14 10:02:12.2500000,DataExtend|FileCreate,Hidden|System|Archive|NotContentIndexed,67952,E:\triage\FIN-WKS-07\C\$Extend\$J
+ntuser.dat.LOG1,.LOG1,219,2,210,4,.\Users\svc_backup,68048,2026-09-14 10:02:12.2510000,DataExtend|FileCreate|Close,Hidden|System|Archive|NotContentIndexed,68048,E:\triage\FIN-WKS-07\C\$Extend\$J
+ntuser.dat.LOG2,.LOG2,220,2,210,4,.\Users\svc_backup,68144,2026-09-14 10:02:12.2530000,FileCreate,Hidden|System|Archive|NotContentIndexed,68144,E:\triage\FIN-WKS-07\C\$Extend\$J
+ntuser.dat.LOG2,.LOG2,220,2,210,4,.\Users\svc_backup,68240,2026-09-14 10:02:12.2530000,DataExtend|FileCreate,Hidden|System|Archive|NotContentIndexed,68240,E:\triage\FIN-WKS-07\C\$Extend\$J
+ntuser.dat.LOG2,.LOG2,220,2,210,4,.\Users\svc_backup,68336,2026-09-14 10:02:12.2540000,DataExtend|FileCreate|Close,Hidden|System|Archive|NotContentIndexed,68336,E:\triage\FIN-WKS-07\C\$Extend\$J
+Microsoft,,221,1,213,2,.\Users\svc_backup\AppData\Roaming,68432,2026-09-14 10:02:12.4100000,FileCreate,Directory,68432,E:\triage\FIN-WKS-07\C\$Extend\$J
+Microsoft,,221,1,213,2,.\Users\svc_backup\AppData\Roaming,68512,2026-09-14 10:02:12.4100000,FileCreate|Close,Directory,68512,E:\triage\FIN-WKS-07\C\$Extend\$J
+Windows,,222,1,221,1,.\Users\svc_backup\AppData\Roaming\Microsoft,68592,2026-09-14 10:02:12.4180000,FileCreate,Directory,68592,E:\triage\FIN-WKS-07\C\$Extend\$J
+Windows,,222,1,221,1,.\Users\svc_backup\AppData\Roaming\Microsoft,68672,2026-09-14 10:02:12.4180000,FileCreate|Close,Directory,68672,E:\triage\FIN-WKS-07\C\$Extend\$J
+Recent,,223,1,222,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows,68752,2026-09-14 10:02:12.4310000,FileCreate,ReadOnly|Directory,68752,E:\triage\FIN-WKS-07\C\$Extend\$J
+Recent,,223,1,222,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows,68824,2026-09-14 10:02:12.4310000,FileCreate|Close,ReadOnly|Directory,68824,E:\triage\FIN-WKS-07\C\$Extend\$J
+PowerShell,,224,1,222,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows,68896,2026-09-14 10:02:12.4600000,FileCreate,Directory,68896,E:\triage\FIN-WKS-07\C\$Extend\$J
+PowerShell,,224,1,222,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows,68976,2026-09-14 10:02:12.4600000,FileCreate|Close,Directory,68976,E:\triage\FIN-WKS-07\C\$Extend\$J
+Microsoft,,226,1,212,2,.\Users\svc_backup\AppData\Local,69056,2026-09-14 10:02:12.5020000,FileCreate,Directory,69056,E:\triage\FIN-WKS-07\C\$Extend\$J
+Microsoft,,226,1,212,2,.\Users\svc_backup\AppData\Local,69136,2026-09-14 10:02:12.5020000,FileCreate|Close,Directory,69136,E:\triage\FIN-WKS-07\C\$Extend\$J
+NTUSER.DAT,.DAT,218,2,210,4,.\Users\svc_backup,69216,2026-09-14 10:02:14.9800000,DataOverwrite,Hidden|Archive|NotContentIndexed,69216,E:\triage\FIN-WKS-07\C\$Extend\$J
+NTUSER.DAT,.DAT,218,2,210,4,.\Users\svc_backup,69296,2026-09-14 10:02:15.0020000,DataOverwrite|Close,Hidden|Archive|NotContentIndexed,69296,E:\triage\FIN-WKS-07\C\$Extend\$J
+CONHOST.EXE-292A38CF.pf,.pf,132,2,61,1,.\Windows\Prefetch,69376,2026-09-14 10:03:02.7710000,DataTruncation,Archive|NotContentIndexed,69376,E:\triage\FIN-WKS-07\C\$Extend\$J
+CONHOST.EXE-292A38CF.pf,.pf,132,2,61,1,.\Windows\Prefetch,69488,2026-09-14 10:03:02.7710000,DataExtend|DataTruncation,Archive|NotContentIndexed,69488,E:\triage\FIN-WKS-07\C\$Extend\$J
+CONHOST.EXE-292A38CF.pf,.pf,132,2,61,1,.\Windows\Prefetch,69600,2026-09-14 10:03:02.7710000,DataExtend|DataTruncation|Close,Archive|NotContentIndexed,69600,E:\triage\FIN-WKS-07\C\$Extend\$J
+PSReadLine,,225,1,224,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows\PowerShell,69712,2026-09-14 10:04:48.1200000,FileCreate,Directory,69712,E:\triage\FIN-WKS-07\C\$Extend\$J
+PSReadLine,,225,1,224,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows\PowerShell,69792,2026-09-14 10:04:48.1200000,FileCreate|Close,Directory,69792,E:\triage\FIN-WKS-07\C\$Extend\$J
+ConsoleHost_history.txt,.txt,230,1,225,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine,69872,2026-09-14 10:04:48.1330000,FileCreate,Archive,69872,E:\triage\FIN-WKS-07\C\$Extend\$J
+ConsoleHost_history.txt,.txt,230,1,225,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine,69984,2026-09-14 10:04:48.1330000,DataExtend|FileCreate,Archive,69984,E:\triage\FIN-WKS-07\C\$Extend\$J
+ConsoleHost_history.txt,.txt,230,1,225,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine,70096,2026-09-14 10:04:48.1400000,DataExtend|FileCreate|Close,Archive,70096,E:\triage\FIN-WKS-07\C\$Extend\$J
+WHOAMI.EXE-EF4957EC.pf,.pf,131,4,61,1,.\Windows\Prefetch,70208,2026-09-14 10:04:59.5120000,DataTruncation,Archive|NotContentIndexed,70208,E:\triage\FIN-WKS-07\C\$Extend\$J
+WHOAMI.EXE-EF4957EC.pf,.pf,131,4,61,1,.\Windows\Prefetch,70312,2026-09-14 10:04:59.5120000,DataExtend|DataTruncation,Archive|NotContentIndexed,70312,E:\triage\FIN-WKS-07\C\$Extend\$J
+WHOAMI.EXE-EF4957EC.pf,.pf,131,4,61,1,.\Windows\Prefetch,70416,2026-09-14 10:04:59.5120000,DataExtend|DataTruncation|Close,Archive|NotContentIndexed,70416,E:\triage\FIN-WKS-07\C\$Extend\$J
+NLTEST.EXE-244AA0B9.pf,.pf,231,3,61,1,.\Windows\Prefetch,70520,2026-09-14 10:05:21.0040000,FileCreate,Archive|NotContentIndexed,70520,E:\triage\FIN-WKS-07\C\$Extend\$J
+NLTEST.EXE-244AA0B9.pf,.pf,231,3,61,1,.\Windows\Prefetch,70624,2026-09-14 10:05:21.0040000,DataExtend|FileCreate,Archive|NotContentIndexed,70624,E:\triage\FIN-WKS-07\C\$Extend\$J
+NLTEST.EXE-244AA0B9.pf,.pf,231,3,61,1,.\Windows\Prefetch,70728,2026-09-14 10:05:21.0190000,DataExtend|FileCreate|Close,Archive|NotContentIndexed,70728,E:\triage\FIN-WKS-07\C\$Extend\$J
+ConsoleHost_history.txt,.txt,230,1,225,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine,70832,2026-09-14 10:05:34.6100000,DataExtend,Archive,70832,E:\triage\FIN-WKS-07\C\$Extend\$J
+ConsoleHost_history.txt,.txt,230,1,225,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine,70944,2026-09-14 10:05:34.6110000,DataExtend|Close,Archive,70944,E:\triage\FIN-WKS-07\C\$Extend\$J
+MPLog-20260901-081533.log,.log,120,3,83,1,.\ProgramData\Microsoft\Windows Defender\Support,71056,2026-09-14 10:07:45.0930000,DataExtend,Archive,71056,E:\triage\FIN-WKS-07\C\$Extend\$J
+MPLog-20260901-081533.log,.log,120,3,83,1,.\ProgramData\Microsoft\Windows Defender\Support,71168,2026-09-14 10:07:45.0930000,DataExtend|Close,Archive,71168,E:\triage\FIN-WKS-07\C\$Extend\$J
+Edge,,227,1,226,1,.\Users\svc_backup\AppData\Local\Microsoft,71280,2026-09-14 10:13:40.0180000,FileCreate,Directory,71280,E:\triage\FIN-WKS-07\C\$Extend\$J
+Edge,,227,1,226,1,.\Users\svc_backup\AppData\Local\Microsoft,71352,2026-09-14 10:13:40.0180000,FileCreate|Close,Directory,71352,E:\triage\FIN-WKS-07\C\$Extend\$J
+User Data,,228,1,227,1,.\Users\svc_backup\AppData\Local\Microsoft\Edge,71424,2026-09-14 10:13:40.0310000,FileCreate,Directory,71424,E:\triage\FIN-WKS-07\C\$Extend\$J
+User Data,,228,1,227,1,.\Users\svc_backup\AppData\Local\Microsoft\Edge,71504,2026-09-14 10:13:40.0310000,FileCreate|Close,Directory,71504,E:\triage\FIN-WKS-07\C\$Extend\$J
+Default,,229,1,228,1,.\Users\svc_backup\AppData\Local\Microsoft\Edge\User Data,71584,2026-09-14 10:13:40.2070000,FileCreate,Directory,71584,E:\triage\FIN-WKS-07\C\$Extend\$J
+Default,,229,1,228,1,.\Users\svc_backup\AppData\Local\Microsoft\Edge\User Data,71664,2026-09-14 10:13:40.2070000,FileCreate|Close,Directory,71664,E:\triage\FIN-WKS-07\C\$Extend\$J
+History,,232,1,229,1,.\Users\svc_backup\AppData\Local\Microsoft\Edge\User Data\Default,71744,2026-09-14 10:13:41.5500000,FileCreate,Archive,71744,E:\triage\FIN-WKS-07\C\$Extend\$J
+History,,232,1,229,1,.\Users\svc_backup\AppData\Local\Microsoft\Edge\User Data\Default,71824,2026-09-14 10:13:41.5500000,DataExtend|FileCreate,Archive,71824,E:\triage\FIN-WKS-07\C\$Extend\$J
+History,,232,1,229,1,.\Users\svc_backup\AppData\Local\Microsoft\Edge\User Data\Default,71904,2026-09-14 10:13:42.0130000,DataExtend|FileCreate|Close,Archive,71904,E:\triage\FIN-WKS-07\C\$Extend\$J
+MSEDGE.EXE-0927F917.pf,.pf,133,6,61,1,.\Windows\Prefetch,71984,2026-09-14 10:13:51.3770000,DataTruncation,Archive|NotContentIndexed,71984,E:\triage\FIN-WKS-07\C\$Extend\$J
+MSEDGE.EXE-0927F917.pf,.pf,133,6,61,1,.\Windows\Prefetch,72088,2026-09-14 10:13:51.3770000,DataExtend|DataTruncation,Archive|NotContentIndexed,72088,E:\triage\FIN-WKS-07\C\$Extend\$J
+MSEDGE.EXE-0927F917.pf,.pf,133,6,61,1,.\Windows\Prefetch,72192,2026-09-14 10:13:51.3770000,DataExtend|DataTruncation|Close,Archive|NotContentIndexed,72192,E:\triage\FIN-WKS-07\C\$Extend\$J
+Unconfirmed 481516.crdownload,.crdownload,240,7,217,3,.\Users\svc_backup\Downloads,72296,2026-09-14 10:14:03.2500000,FileCreate,Archive,72296,E:\triage\FIN-WKS-07\C\$Extend\$J
+Unconfirmed 481516.crdownload,.crdownload,240,7,217,3,.\Users\svc_backup\Downloads,72416,2026-09-14 10:14:03.2680000,DataExtend|FileCreate,Archive,72416,E:\triage\FIN-WKS-07\C\$Extend\$J
+History-journal,,233,2,229,1,.\Users\svc_backup\AppData\Local\Microsoft\Edge\User Data\Default,72536,2026-09-14 10:14:03.3010000,FileCreate,Archive,72536,E:\triage\FIN-WKS-07\C\$Extend\$J
+History-journal,,233,2,229,1,.\Users\svc_backup\AppData\Local\Microsoft\Edge\User Data\Default,72632,2026-09-14 10:14:03.3010000,DataExtend|FileCreate,Archive,72632,E:\triage\FIN-WKS-07\C\$Extend\$J
+History-journal,,233,2,229,1,.\Users\svc_backup\AppData\Local\Microsoft\Edge\User Data\Default,72728,2026-09-14 10:14:03.3200000,DataExtend|FileCreate|Close,Archive,72728,E:\triage\FIN-WKS-07\C\$Extend\$J
+History-journal,,233,2,229,1,.\Users\svc_backup\AppData\Local\Microsoft\Edge\User Data\Default,72824,2026-09-14 10:14:03.3440000,FileDelete|Close,Archive,72824,E:\triage\FIN-WKS-07\C\$Extend\$J
+Unconfirmed 481516.crdownload,.crdownload,240,7,217,3,.\Users\svc_backup\Downloads,72920,2026-09-14 10:14:09.8710000,DataExtend|FileCreate|RenameOldName,Archive,72920,E:\triage\FIN-WKS-07\C\$Extend\$J
+tools.zip,.zip,240,7,217,3,.\Users\svc_backup\Downloads,73040,2026-09-14 10:14:09.8710000,DataExtend|FileCreate|RenameNewName,Archive,73040,E:\triage\FIN-WKS-07\C\$Extend\$J
+tools.zip,.zip,240,7,217,3,.\Users\svc_backup\Downloads,73120,2026-09-14 10:14:09.8900000,DataExtend|NamedDataExtend|FileCreate|RenameNewName|StreamChange,Archive,73120,E:\triage\FIN-WKS-07\C\$Extend\$J
+tools.zip,.zip,240,7,217,3,.\Users\svc_backup\Downloads,73200,2026-09-14 10:14:09.9020000,DataExtend|NamedDataExtend|FileCreate|RenameNewName|StreamChange|Close,Archive,73200,E:\triage\FIN-WKS-07\C\$Extend\$J
+History,,232,1,229,1,.\Users\svc_backup\AppData\Local\Microsoft\Edge\User Data\Default,73280,2026-09-14 10:14:10.1150000,DataOverwrite,Archive,73280,E:\triage\FIN-WKS-07\C\$Extend\$J
+History,,232,1,229,1,.\Users\svc_backup\AppData\Local\Microsoft\Edge\User Data\Default,73360,2026-09-14 10:14:10.1200000,DataOverwrite|Close,Archive,73360,E:\triage\FIN-WKS-07\C\$Extend\$J
+tools.lnk,.lnk,241,1,223,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows\Recent,73440,2026-09-14 10:15:58.0040000,FileCreate,Archive,73440,E:\triage\FIN-WKS-07\C\$Extend\$J
+tools.lnk,.lnk,241,1,223,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows\Recent,73520,2026-09-14 10:15:58.0040000,DataExtend|FileCreate,Archive,73520,E:\triage\FIN-WKS-07\C\$Extend\$J
+tools.lnk,.lnk,241,1,223,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows\Recent,73600,2026-09-14 10:15:58.0100000,DataExtend|FileCreate|Close,Archive,73600,E:\triage\FIN-WKS-07\C\$Extend\$J
+tools,,242,1,217,3,.\Users\svc_backup\Downloads,73680,2026-09-14 10:16:02.4150000,FileCreate,Directory,73680,E:\triage\FIN-WKS-07\C\$Extend\$J
+tools,,242,1,217,3,.\Users\svc_backup\Downloads,73752,2026-09-14 10:16:02.4150000,FileCreate|Close,Directory,73752,E:\triage\FIN-WKS-07\C\$Extend\$J
+m64.exe,.exe,243,3,242,1,.\Users\svc_backup\Downloads\tools,73824,2026-09-14 10:16:02.4980000,FileCreate,Archive,73824,E:\triage\FIN-WKS-07\C\$Extend\$J
+m64.exe,.exe,243,3,242,1,.\Users\svc_backup\Downloads\tools,73904,2026-09-14 10:16:02.4980000,DataExtend|FileCreate,Archive,73904,E:\triage\FIN-WKS-07\C\$Extend\$J
+m64.exe,.exe,243,3,242,1,.\Users\svc_backup\Downloads\tools,73984,2026-09-14 10:16:02.4980000,DataExtend|NamedDataExtend|FileCreate|StreamChange,Archive,73984,E:\triage\FIN-WKS-07\C\$Extend\$J
+m64.exe,.exe,243,3,242,1,.\Users\svc_backup\Downloads\tools,74064,2026-09-14 10:16:02.4980000,DataExtend|NamedDataExtend|FileCreate|BasicInfoChange|StreamChange,Archive,74064,E:\triage\FIN-WKS-07\C\$Extend\$J
+m64.exe,.exe,243,3,242,1,.\Users\svc_backup\Downloads\tools,74144,2026-09-14 10:16:02.4980000,DataExtend|NamedDataExtend|FileCreate|BasicInfoChange|StreamChange|Close,Archive,74144,E:\triage\FIN-WKS-07\C\$Extend\$J
+rclone.exe,.exe,244,2,242,1,.\Users\svc_backup\Downloads\tools,74224,2026-09-14 10:16:03.7020000,FileCreate,Archive,74224,E:\triage\FIN-WKS-07\C\$Extend\$J
+rclone.exe,.exe,244,2,242,1,.\Users\svc_backup\Downloads\tools,74304,2026-09-14 10:16:03.7020000,DataExtend|FileCreate,Archive,74304,E:\triage\FIN-WKS-07\C\$Extend\$J
+rclone.exe,.exe,244,2,242,1,.\Users\svc_backup\Downloads\tools,74384,2026-09-14 10:16:03.7020000,DataExtend|NamedDataExtend|FileCreate|StreamChange,Archive,74384,E:\triage\FIN-WKS-07\C\$Extend\$J
+rclone.exe,.exe,244,2,242,1,.\Users\svc_backup\Downloads\tools,74464,2026-09-14 10:16:03.7020000,DataExtend|NamedDataExtend|FileCreate|BasicInfoChange|StreamChange,Archive,74464,E:\triage\FIN-WKS-07\C\$Extend\$J
+rclone.exe,.exe,244,2,242,1,.\Users\svc_backup\Downloads\tools,74544,2026-09-14 10:16:03.7020000,DataExtend|NamedDataExtend|FileCreate|BasicInfoChange|StreamChange|Close,Archive,74544,E:\triage\FIN-WKS-07\C\$Extend\$J
+readme.txt,.txt,245,1,242,1,.\Users\svc_backup\Downloads\tools,74624,2026-09-14 10:16:03.7600000,FileCreate,Archive,74624,E:\triage\FIN-WKS-07\C\$Extend\$J
+readme.txt,.txt,245,1,242,1,.\Users\svc_backup\Downloads\tools,74704,2026-09-14 10:16:03.7600000,DataExtend|FileCreate,Archive,74704,E:\triage\FIN-WKS-07\C\$Extend\$J
+readme.txt,.txt,245,1,242,1,.\Users\svc_backup\Downloads\tools,74784,2026-09-14 10:16:03.7600000,DataExtend|NamedDataExtend|FileCreate|StreamChange,Archive,74784,E:\triage\FIN-WKS-07\C\$Extend\$J
+readme.txt,.txt,245,1,242,1,.\Users\svc_backup\Downloads\tools,74864,2026-09-14 10:16:03.7600000,DataExtend|NamedDataExtend|FileCreate|BasicInfoChange|StreamChange,Archive,74864,E:\triage\FIN-WKS-07\C\$Extend\$J
+readme.txt,.txt,245,1,242,1,.\Users\svc_backup\Downloads\tools,74944,2026-09-14 10:16:03.7600000,DataExtend|NamedDataExtend|FileCreate|BasicInfoChange|StreamChange|Close,Archive,74944,E:\triage\FIN-WKS-07\C\$Extend\$J
+MPLog-20260901-081533.log,.log,120,3,83,1,.\ProgramData\Microsoft\Windows Defender\Support,75024,2026-09-14 10:16:40.5510000,DataExtend,Archive,75024,E:\triage\FIN-WKS-07\C\$Extend\$J
+MPLog-20260901-081533.log,.log,120,3,83,1,.\ProgramData\Microsoft\Windows Defender\Support,75136,2026-09-14 10:16:40.5510000,DataExtend|Close,Archive,75136,E:\triage\FIN-WKS-07\C\$Extend\$J
+Intel,,250,2,80,1,.\ProgramData,75248,2026-09-14 10:18:27.3390000,FileCreate,Directory,75248,E:\triage\FIN-WKS-07\C\$Extend\$J
+Intel,,250,2,80,1,.\ProgramData,75320,2026-09-14 10:18:27.3390000,FileCreate|Close,Directory,75320,E:\triage\FIN-WKS-07\C\$Extend\$J
+Intel,,250,2,80,1,.\ProgramData,75392,2026-09-14 10:18:41.0060000,BasicInfoChange,Hidden|System|Directory,75392,E:\triage\FIN-WKS-07\C\$Extend\$J
+Intel,,250,2,80,1,.\ProgramData,75464,2026-09-14 10:18:41.0070000,BasicInfoChange|Close,Hidden|System|Directory,75464,E:\triage\FIN-WKS-07\C\$Extend\$J
+m64.exe,.exe,243,3,242,1,.\Users\svc_backup\Downloads\tools,75536,2026-09-14 10:19:02.1140000,RenameOldName,Archive,75536,E:\triage\FIN-WKS-07\C\$Extend\$J
+m64.exe,.exe,243,3,250,2,.\ProgramData\Intel,75616,2026-09-14 10:19:02.1140000,RenameNewName,Archive,75616,E:\triage\FIN-WKS-07\C\$Extend\$J
+m64.exe,.exe,243,3,250,2,.\ProgramData\Intel,75696,2026-09-14 10:19:02.1140000,RenameNewName|Close,Archive,75696,E:\triage\FIN-WKS-07\C\$Extend\$J
+ConsoleHost_history.txt,.txt,230,1,225,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine,75776,2026-09-14 10:19:02.4100000,DataExtend,Archive,75776,E:\triage\FIN-WKS-07\C\$Extend\$J
+ConsoleHost_history.txt,.txt,230,1,225,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine,75888,2026-09-14 10:19:02.4110000,DataExtend|Close,Archive,75888,E:\triage\FIN-WKS-07\C\$Extend\$J
+CMD.EXE-ABAC3614.pf,.pf,130,2,61,1,.\Windows\Prefetch,76000,2026-09-14 10:20:58.3010000,DataTruncation,Archive|NotContentIndexed,76000,E:\triage\FIN-WKS-07\C\$Extend\$J
+CMD.EXE-ABAC3614.pf,.pf,130,2,61,1,.\Windows\Prefetch,76104,2026-09-14 10:20:58.3010000,DataExtend|DataTruncation,Archive|NotContentIndexed,76104,E:\triage\FIN-WKS-07\C\$Extend\$J
+CMD.EXE-ABAC3614.pf,.pf,130,2,61,1,.\Windows\Prefetch,76208,2026-09-14 10:20:58.3010000,DataExtend|DataTruncation|Close,Archive|NotContentIndexed,76208,E:\triage\FIN-WKS-07\C\$Extend\$J
+M64.EXE-F1AA9B09.pf,.pf,251,1,61,1,.\Windows\Prefetch,76312,2026-09-14 10:21:14.6620000,FileCreate,Archive|NotContentIndexed,76312,E:\triage\FIN-WKS-07\C\$Extend\$J
+M64.EXE-F1AA9B09.pf,.pf,251,1,61,1,.\Windows\Prefetch,76416,2026-09-14 10:21:14.6620000,DataExtend|FileCreate,Archive|NotContentIndexed,76416,E:\triage\FIN-WKS-07\C\$Extend\$J
+M64.EXE-F1AA9B09.pf,.pf,251,1,61,1,.\Windows\Prefetch,76520,2026-09-14 10:21:14.6800000,DataExtend|FileCreate|Close,Archive|NotContentIndexed,76520,E:\triage\FIN-WKS-07\C\$Extend\$J
+creds.txt,.txt,252,5,250,2,.\ProgramData\Intel,76624,2026-09-14 10:21:39.1180000,FileCreate,Archive,76624,E:\triage\FIN-WKS-07\C\$Extend\$J
+creds.txt,.txt,252,5,250,2,.\ProgramData\Intel,76704,2026-09-14 10:21:39.1200000,DataExtend|FileCreate,Archive,76704,E:\triage\FIN-WKS-07\C\$Extend\$J
+creds.txt,.txt,252,5,250,2,.\ProgramData\Intel,76784,2026-09-14 10:21:39.2410000,DataExtend|FileCreate|Close,Archive,76784,E:\triage\FIN-WKS-07\C\$Extend\$J
+creds.txt,.txt,252,5,250,2,.\ProgramData\Intel,76864,2026-09-14 10:23:05.7720000,DataExtend,Archive,76864,E:\triage\FIN-WKS-07\C\$Extend\$J
+creds.txt,.txt,252,5,250,2,.\ProgramData\Intel,76944,2026-09-14 10:23:05.7900000,DataExtend|Close,Archive,76944,E:\triage\FIN-WKS-07\C\$Extend\$J
+MPLog-20260901-081533.log,.log,120,3,83,1,.\ProgramData\Microsoft\Windows Defender\Support,77024,2026-09-14 10:24:12.8060000,DataExtend,Archive,77024,E:\triage\FIN-WKS-07\C\$Extend\$J
+MPLog-20260901-081533.log,.log,120,3,83,1,.\ProgramData\Microsoft\Windows Defender\Support,77136,2026-09-14 10:24:12.8060000,DataExtend|Close,Archive,77136,E:\triage\FIN-WKS-07\C\$Extend\$J
+rclone.exe,.exe,260,2,101,1,.\Users\Public,77248,2026-09-14 10:26:44.0900000,FileCreate,Archive,77248,E:\triage\FIN-WKS-07\C\$Extend\$J
+rclone.exe,.exe,260,2,101,1,.\Users\Public,77328,2026-09-14 10:26:44.0910000,DataExtend|FileCreate,Archive,77328,E:\triage\FIN-WKS-07\C\$Extend\$J
+rclone.exe,.exe,260,2,101,1,.\Users\Public,77408,2026-09-14 10:26:44.3700000,DataExtend|NamedDataExtend|FileCreate|StreamChange,Archive,77408,E:\triage\FIN-WKS-07\C\$Extend\$J
+rclone.exe,.exe,260,2,101,1,.\Users\Public,77488,2026-09-14 10:26:44.3710000,DataExtend|NamedDataExtend|FileCreate|BasicInfoChange|StreamChange,Archive,77488,E:\triage\FIN-WKS-07\C\$Extend\$J
+rclone.exe,.exe,260,2,101,1,.\Users\Public,77568,2026-09-14 10:26:44.3720000,DataExtend|NamedDataExtend|FileCreate|BasicInfoChange|StreamChange|Close,Archive,77568,E:\triage\FIN-WKS-07\C\$Extend\$J
+ConsoleHost_history.txt,.txt,230,1,225,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine,77648,2026-09-14 10:26:44.9050000,DataExtend,Archive,77648,E:\triage\FIN-WKS-07\C\$Extend\$J
+ConsoleHost_history.txt,.txt,230,1,225,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine,77760,2026-09-14 10:26:44.9060000,DataExtend|Close,Archive,77760,E:\triage\FIN-WKS-07\C\$Extend\$J
+rclone,,261,1,213,2,.\Users\svc_backup\AppData\Roaming,77872,2026-09-14 10:28:10.2270000,FileCreate,Directory,77872,E:\triage\FIN-WKS-07\C\$Extend\$J
+rclone,,261,1,213,2,.\Users\svc_backup\AppData\Roaming,77944,2026-09-14 10:28:10.2270000,FileCreate|Close,Directory,77944,E:\triage\FIN-WKS-07\C\$Extend\$J
+rclone.conf,.conf,262,1,261,1,.\Users\svc_backup\AppData\Roaming\rclone,78016,2026-09-14 10:28:10.2310000,FileCreate,Archive,78016,E:\triage\FIN-WKS-07\C\$Extend\$J
+rclone.conf,.conf,262,1,261,1,.\Users\svc_backup\AppData\Roaming\rclone,78104,2026-09-14 10:28:10.2310000,DataExtend|FileCreate,Archive,78104,E:\triage\FIN-WKS-07\C\$Extend\$J
+rclone.conf,.conf,262,1,261,1,.\Users\svc_backup\AppData\Roaming\rclone,78192,2026-09-14 10:28:10.2400000,DataExtend|FileCreate|Close,Archive,78192,E:\triage\FIN-WKS-07\C\$Extend\$J
+rc.log,.log,264,1,101,1,.\Users\Public,78280,2026-09-14 10:30:57.9020000,FileCreate,Archive,78280,E:\triage\FIN-WKS-07\C\$Extend\$J
+rc.log,.log,264,1,101,1,.\Users\Public,78352,2026-09-14 10:30:57.9020000,DataExtend|FileCreate,Archive,78352,E:\triage\FIN-WKS-07\C\$Extend\$J
+rc.log,.log,264,1,101,1,.\Users\Public,78424,2026-09-14 10:30:57.9100000,DataExtend|FileCreate|Close,Archive,78424,E:\triage\FIN-WKS-07\C\$Extend\$J
+RCLONE.EXE-506C7A7E.pf,.pf,263,1,61,1,.\Windows\Prefetch,78496,2026-09-14 10:31:07.5100000,FileCreate,Archive|NotContentIndexed,78496,E:\triage\FIN-WKS-07\C\$Extend\$J
+RCLONE.EXE-506C7A7E.pf,.pf,263,1,61,1,.\Windows\Prefetch,78600,2026-09-14 10:31:07.5100000,DataExtend|FileCreate,Archive|NotContentIndexed,78600,E:\triage\FIN-WKS-07\C\$Extend\$J
+RCLONE.EXE-506C7A7E.pf,.pf,263,1,61,1,.\Windows\Prefetch,78704,2026-09-14 10:31:07.5330000,DataExtend|FileCreate|Close,Archive|NotContentIndexed,78704,E:\triage\FIN-WKS-07\C\$Extend\$J
+MPLog-20260901-081533.log,.log,120,3,83,1,.\ProgramData\Microsoft\Windows Defender\Support,78808,2026-09-14 10:32:30.1170000,DataExtend,Archive,78808,E:\triage\FIN-WKS-07\C\$Extend\$J
+MPLog-20260901-081533.log,.log,120,3,83,1,.\ProgramData\Microsoft\Windows Defender\Support,78920,2026-09-14 10:32:30.1170000,DataExtend|Close,Archive,78920,E:\triage\FIN-WKS-07\C\$Extend\$J
+rc.log,.log,264,1,101,1,.\Users\Public,79032,2026-09-14 10:33:12.0040000,DataExtend,Archive,79032,E:\triage\FIN-WKS-07\C\$Extend\$J
+rc.log,.log,264,1,101,1,.\Users\Public,79104,2026-09-14 10:33:12.0040000,DataExtend|Close,Archive,79104,E:\triage\FIN-WKS-07\C\$Extend\$J
+rc.log,.log,264,1,101,1,.\Users\Public,79176,2026-09-14 10:36:40.7710000,DataExtend,Archive,79176,E:\triage\FIN-WKS-07\C\$Extend\$J
+rc.log,.log,264,1,101,1,.\Users\Public,79248,2026-09-14 10:36:40.7710000,DataExtend|Close,Archive,79248,E:\triage\FIN-WKS-07\C\$Extend\$J
+rc.log,.log,264,1,101,1,.\Users\Public,79320,2026-09-14 10:39:58.3100000,DataExtend,Archive,79320,E:\triage\FIN-WKS-07\C\$Extend\$J
+rc.log,.log,264,1,101,1,.\Users\Public,79392,2026-09-14 10:39:58.3100000,DataExtend|Close,Archive,79392,E:\triage\FIN-WKS-07\C\$Extend\$J
+SRUDB.dat,.dat,121,1,63,1,.\Windows\System32\sru,79464,2026-09-14 10:40:31.8840000,DataOverwrite,Archive,79464,E:\triage\FIN-WKS-07\C\$Extend\$J
+SRUDB.dat,.dat,121,1,63,1,.\Windows\System32\sru,79544,2026-09-14 10:40:32.0500000,DataOverwrite|Close,Archive,79544,E:\triage\FIN-WKS-07\C\$Extend\$J
+MPLog-20260901-081533.log,.log,120,3,83,1,.\ProgramData\Microsoft\Windows Defender\Support,79624,2026-09-14 10:41:02.6900000,DataExtend,Archive,79624,E:\triage\FIN-WKS-07\C\$Extend\$J
+MPLog-20260901-081533.log,.log,120,3,83,1,.\ProgramData\Microsoft\Windows Defender\Support,79736,2026-09-14 10:41:02.6900000,DataExtend|Close,Archive,79736,E:\triage\FIN-WKS-07\C\$Extend\$J
+rc.log,.log,264,1,101,1,.\Users\Public,79848,2026-09-14 10:43:21.5550000,DataExtend,Archive,79848,E:\triage\FIN-WKS-07\C\$Extend\$J
+rc.log,.log,264,1,101,1,.\Users\Public,79920,2026-09-14 10:43:21.5550000,DataExtend|Close,Archive,79920,E:\triage\FIN-WKS-07\C\$Extend\$J
+rc.log,.log,264,1,101,1,.\Users\Public,79992,2026-09-14 10:47:49.0190000,DataExtend,Archive,79992,E:\triage\FIN-WKS-07\C\$Extend\$J
+rc.log,.log,264,1,101,1,.\Users\Public,80064,2026-09-14 10:47:49.0190000,DataExtend|Close,Archive,80064,E:\triage\FIN-WKS-07\C\$Extend\$J
+ConsoleHost_history.txt,.txt,230,1,225,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine,80136,2026-09-14 10:51:58.3400000,DataExtend,Archive,80136,E:\triage\FIN-WKS-07\C\$Extend\$J
+ConsoleHost_history.txt,.txt,230,1,225,1,.\Users\svc_backup\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine,80248,2026-09-14 10:51:58.3410000,DataExtend|Close,Archive,80248,E:\triage\FIN-WKS-07\C\$Extend\$J
+creds.txt,.txt,252,5,250,2,.\ProgramData\Intel,80360,2026-09-14 10:52:06.4480000,FileDelete|Close,Archive,80360,E:\triage\FIN-WKS-07\C\$Extend\$J
+ntuser.dat.LOG1,.LOG1,219,2,210,4,.\Users\svc_backup,80440,2026-09-14 10:54:30.0010000,DataOverwrite,Hidden|System|Archive|NotContentIndexed,80440,E:\triage\FIN-WKS-07\C\$Extend\$J
+ntuser.dat.LOG1,.LOG1,219,2,210,4,.\Users\svc_backup,80536,2026-09-14 10:54:30.0040000,DataOverwrite|Close,Hidden|System|Archive|NotContentIndexed,80536,E:\triage\FIN-WKS-07\C\$Extend\$J
+MPLog-20260901-081533.log,.log,120,3,83,1,.\ProgramData\Microsoft\Windows Defender\Support,80632,2026-09-14 10:54:51.2120000,DataExtend,Archive,80632,E:\triage\FIN-WKS-07\C\$Extend\$J
+MPLog-20260901-081533.log,.log,120,3,83,1,.\ProgramData\Microsoft\Windows Defender\Support,80744,2026-09-14 10:54:51.2120000,DataExtend|Close,Archive,80744,E:\triage\FIN-WKS-07\C\$Extend\$J
