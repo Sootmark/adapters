@@ -11,7 +11,9 @@ Parsers are independent libraries that know nothing about Sootmark. Each module 
 
 Native parsers:
 
+- `mft` (`windows.mft`): loose NTFS `$MFT` files, as triage collections copy them: one record per named file, deleted and orphaned ones included, with the drive when the collection's path names it, `$STANDARD_INFORMATION` times and `$FILE_NAME` creation, size, alternate data streams and `Zone.Identifier` content; possible timestomping flagged (`$STANDARD_INFORMATION` creation before `$FILE_NAME` creation, whole-second creation times). Checked on the `disk` crate's synthetic volumes.
 - `prefetch` (`windows.prefetch`): Prefetch files, compressed or not: what ran, how often, when (up to eight run times), from where. Checked against PECmd.
+- `usn` (`windows.usn`): the NTFS USN change journal (`$UsnJrnl:$J`): one record per change with its reasons, the file's name and the MFT references of the file and its folder. Checked on plaso's `UsnJrnl.raw`.
 - `utmp` (`linux.utmp`): Linux login records (`wtmp`, `btmp`, `utmp`, rotated copies included): logins with the account, terminal and source address, failed logins (from `btmp`), logouts, boots, run level and clock changes. Checked on plaso's test files.
 - `history` (`unix.shell_history`): shell history files (`.bash_history`, `.zsh_history`, `.histfile`, `fish_history`): one record per command, with its time when the shell wrote one (bash only with `HISTTIMEFORMAT`; never dated by the file), zsh's duration, fish's paths, and the account whose home holds the file. Checked on plaso's test files.
 - `journal` (`linux.journal`): systemd journal files (`*.journal`, `*.journal~`): one record per entry with every field under its own name, and sshd logins and failures, sudo, su, cron and account changes read from the messages as in syslog files (where there is no `auth.log`, the journal is where logins are). Entries recovered from a damaged file are marked. Checked on journals made for the `journal` crate.
@@ -35,6 +37,8 @@ Adapters pass the `conformance` suite. Every fixture is open data or our own syn
 - Linux login records: plaso's utmp test files (Apache-2.0, `tests/fixtures/utmp/`).
 - Linux syslog: plaso's syslog test files (Apache-2.0, `tests/fixtures/syslog/`).
 - Shell history: plaso's bash, zsh and fish test files (Apache-2.0, `tests/fixtures/history/`).
+- `$MFT`: loose MFTs from the `disk` crate's synthetic volumes (`tests/fixtures/mft/`).
+- USN journal: plaso's `UsnJrnl.raw` (Apache-2.0, `tests/fixtures/usn/`).
 - systemd journal: synthetic journals made for the `journal` crate (`tests/fixtures/journal/`, gzipped).
 - Registry: AppCompatCacheParser, SBECmd and RECmd on the MIT-licensed test hives of EZ's [Registry](https://github.com/EricZimmerman/Registry) library (excerpts; RECmd's re-serialised as minimal-quoted CSV); AmcacheParser on plaso's Windows 10 `Amcache.hve` (Apache-2.0).
 - SRUM: Velociraptor on plaso's `SRUDB.dat` (Apache-2.0), the first rows of each table.
