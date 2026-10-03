@@ -21,6 +21,7 @@ Native parsers:
 - `registry` (`windows.registry.*`): hives. SYSTEM: ShimCache and services; NTUSER.DAT: UserAssist; SOFTWARE and NTUSER.DAT: Run and RunOnce; UsrClass.dat and NTUSER.DAT: ShellBags; Amcache.hve: every entry (`windows.registry.amcache.*`: files with their SHA-1 and program, programs, shortcuts, driver binaries and packages, devices), both layouts; SYSTEM, every control set: BAM and DAM (`windows.registry.bam`: per user, programs and their last run). A dirty hive is read as it is and reported as skipped. Checked against RECmd, AppCompatCacheParser, SBECmd, AmcacheParser and plaso.
 - `lnk` (`windows.lnk`): LNK files: the target, its times as the link saw them, the volume and the machine it was made on.
 - `jumplist` (`windows.jumplist`): jump lists, one record per entry. Automatic: last use, pin, access count, machine and MAC, path and link; custom: the category and the link (target and arguments). The application identifier is the file name.
+- `audit` (`linux.audit`): Linux audit logs (`audit.log`, rotated copies included): one record per event, and commands (with their login user), sudo, SSH and other logins and failures, account and group changes and network connections read from them in the words the syslog records use. Checked on plaso's audit log and a lab log made for the `audit` crate.
 - `evtx`: Windows event logs. One record per event, located by file offset, timed by `TimeCreated`, facets from `System` and `EventData`, descriptive timeline summaries.
 
 Importers of other tools' output:
@@ -37,6 +38,7 @@ Adapters pass the `conformance` suite. Every fixture is open data or our own syn
 - Linux login records: plaso's utmp test files (Apache-2.0, `tests/fixtures/utmp/`).
 - Linux syslog: plaso's syslog test files (Apache-2.0, `tests/fixtures/syslog/`).
 - Shell history: plaso's bash, zsh and fish test files (Apache-2.0, `tests/fixtures/history/`).
+- Linux audit: plaso's `audit.log` (Apache-2.0) and a lab log recorded for the `audit` crate (`tests/fixtures/audit/`).
 - `$MFT`: loose MFTs from the `disk` crate's synthetic volumes (`tests/fixtures/mft/`).
 - USN journal: plaso's `UsnJrnl.raw` (Apache-2.0, `tests/fixtures/usn/`).
 - systemd journal: synthetic journals made for the `journal` crate (`tests/fixtures/journal/`, gzipped).

@@ -4,6 +4,7 @@
 //! module here wraps one of them and maps its output into [`model::Record`]s,
 //! keeping the promises of [`model::adapter`].
 
+pub mod audit;
 mod csv;
 pub mod evtx;
 pub mod ez;
