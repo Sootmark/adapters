@@ -13,6 +13,7 @@ pub mod lnk;
 pub mod plaso;
 pub mod prefetch;
 pub mod registry;
+pub mod syslog;
 mod timestamp;
 pub mod utmp;
 pub mod velociraptor;

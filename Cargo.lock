@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "sootmark-adapters"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "sootmark-common",
  "sootmark-conformance",
@@ -13,6 +13,7 @@ dependencies = [
  "sootmark-prefetch",
  "sootmark-registry",
  "sootmark-shell",
+ "sootmark-syslog",
  "sootmark-utmp",
 ]
 
@@ -69,6 +70,15 @@ name = "sootmark-shell"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "efc653982a3873efbbde539a649d80b335f96520a68ab561f06b1ec17626a836"
+
+[[package]]
+name = "sootmark-syslog"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c6b8ffb4af422a7bce4a66e54fc851916f41dde871ffdc21d0b553d81b171b4"
+dependencies = [
+ "sootmark-common",
+]
 
 [[package]]
 name = "sootmark-utmp"
