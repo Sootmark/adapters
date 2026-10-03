@@ -88,7 +88,7 @@ fn files_with_their_drive_times_and_flags() {
         download.fields.get("Streams"),
         Some(&Value::from("Zone.Identifier"))
     );
-    assert!(download.fields.get("Timestomp").is_none());
+    assert!(!download.fields.contains_key("Timestomp"));
 
     assert!(records
         .iter()
