@@ -125,7 +125,9 @@ impl SyslogAdapter {
             ..Facets::default()
         };
         record.fields = fields(entry, event.as_ref());
-        record.summary = event.as_ref().map_or_else(|| plain_summary(entry), summary);
+        record.summary = event
+            .as_ref()
+            .map_or_else(|| plain_summary(entry), event_summary);
         record
     }
 }
@@ -145,7 +147,8 @@ fn plain_summary(entry: &Entry) -> String {
     }
 }
 
-fn summary(event: &Event) -> String {
+/// What an sshd, sudo, cron or account tool event says, in a line.
+pub(crate) fn event_summary(event: &Event) -> String {
     let user = event.user.as_deref().unwrap_or("?");
     let target = event.target_user.as_deref().unwrap_or("?");
     let from = event
@@ -205,16 +208,6 @@ fn fields(entry: &Entry, event: Option<&Event>) -> Fields {
     text("Level", entry.level.as_deref());
     text("MessageId", entry.message_id.as_deref());
     text("Message", Some(&entry.message));
-    if let Some(event) = event {
-        text("Action", Some(event.action));
-        text("User", event.user.as_deref());
-        text("TargetUser", event.target_user.as_deref());
-        text("SourceIp", event.source_ip.as_deref());
-        text("Method", event.method.as_deref());
-        text("Fingerprint", event.fingerprint.as_deref());
-        text("Command", event.command.as_deref());
-        text("Group", event.group.as_deref());
-    }
     if entry.format == Format::Classic {
         fields.insert("YearInferred".into(), Value::Bool(entry.time.is_some()));
     }
@@ -226,12 +219,30 @@ fn fields(entry: &Entry, event: Option<&Event>) -> Fields {
         fields.insert("Severity".into(), Value::UInt(u64::from(severity)));
     }
     if let Some(event) = event {
-        if let Some(port) = event.port {
-            fields.insert("Port".into(), Value::UInt(u64::from(port)));
-        }
-        if event.invalid_user {
-            fields.insert("InvalidUser".into(), Value::Bool(true));
-        }
+        event_fields(&mut fields, event);
     }
     fields
+}
+
+/// An event's account, address, command and the rest, as fields.
+pub(crate) fn event_fields(fields: &mut Fields, event: &Event) {
+    let mut text = |name: &str, value: Option<&str>| {
+        if let Some(value) = value.filter(|v| !v.is_empty()) {
+            fields.insert(name.into(), Value::from(value));
+        }
+    };
+    text("Action", Some(event.action));
+    text("User", event.user.as_deref());
+    text("TargetUser", event.target_user.as_deref());
+    text("SourceIp", event.source_ip.as_deref());
+    text("Method", event.method.as_deref());
+    text("Fingerprint", event.fingerprint.as_deref());
+    text("Command", event.command.as_deref());
+    text("Group", event.group.as_deref());
+    if let Some(port) = event.port {
+        fields.insert("Port".into(), Value::UInt(u64::from(port)));
+    }
+    if event.invalid_user {
+        fields.insert("InvalidUser".into(), Value::Bool(true));
+    }
 }
