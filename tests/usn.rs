@@ -67,3 +67,20 @@ fn changes_with_names_reasons_and_references() {
     let name = first.facets.file_path.clone().unwrap();
     assert_eq!(first.summary, format!("{name}: file create"));
 }
+
+#[test]
+fn streaming_gives_the_same_records() {
+    let data = read();
+    let input = model::adapter::StreamInput {
+        evidence: EvidenceId::of_content(&data),
+        name: "C/$Extend/$UsnJrnl:$J",
+        size: data.len() as u64,
+        modified: None,
+    };
+    let mut streamed = Collected::default();
+    UsnAdapter
+        .parse_stream(&input, &mut data.as_slice(), &mut streamed)
+        .expect("streams")
+        .unwrap();
+    assert_eq!(streamed.records, parse().records);
+}

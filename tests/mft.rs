@@ -103,3 +103,23 @@ fn orphans_and_no_drive() {
     assert_eq!(lost.fields.get("Orphan"), Some(&Value::Bool(true)));
     by_path(&records, r"\Users\alice\report.txt");
 }
+
+#[test]
+fn streaming_gives_the_same_records() {
+    let data = read("fin-wks-07.mft");
+    let input = model::adapter::StreamInput {
+        evidence: EvidenceId::of_content(&data),
+        name: "WS07/C/$MFT",
+        size: data.len() as u64,
+        modified: None,
+    };
+    let mut streamed = Collected::default();
+    MftAdapter
+        .parse_stream(&input, &mut data.as_slice(), &mut streamed)
+        .expect("streams")
+        .unwrap();
+    assert_eq!(
+        streamed.records,
+        parse("fin-wks-07.mft", "WS07/C/$MFT").records
+    );
+}

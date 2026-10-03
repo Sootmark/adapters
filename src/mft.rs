@@ -10,10 +10,12 @@
 //! give whole seconds).
 
 use disk::{FileName, Mft, MftFile, Namespace};
-use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
+use std::io::Read;
+
+use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped, StreamInput};
 use model::{
-    Facets, Fields, Locator, Namespace as RecordNamespace, ParserInfo, Record, RecordTime,
-    TimeKind, Value,
+    EvidenceId, Facets, Fields, Locator, Namespace as RecordNamespace, ParserInfo, Record,
+    RecordTime, TimeKind, Value,
 };
 
 /// Records of `$MFT` files.
@@ -51,28 +53,51 @@ impl Adapter for MftAdapter {
     }
 
     fn parse(&self, input: &Input<'_>, sink: &mut dyn Sink) -> Result<(), ParseError> {
-        let mft = Mft::parse(input.data);
+        self.emit(&Mft::parse(input.data), input.evidence, input.name, sink)
+    }
+
+    /// An `$MFT` is read a record at a time; only the files it lists are
+    /// kept.
+    fn parse_stream(
+        &self,
+        input: &StreamInput<'_>,
+        content: &mut dyn Read,
+        sink: &mut dyn Sink,
+    ) -> Option<Result<(), ParseError>> {
+        Some(match Mft::read(content) {
+            Ok(mft) => self.emit(&mft, input.evidence, input.name, sink),
+            Err(error) => Err(ParseError::at(0, error.to_string())),
+        })
+    }
+}
+
+impl MftAdapter {
+    fn emit(
+        self,
+        mft: &Mft,
+        evidence: EvidenceId,
+        name: &str,
+        sink: &mut dyn Sink,
+    ) -> Result<(), ParseError> {
         for problem in &mft.problems {
             sink.skipped(Skipped {
                 locator: Locator::ByteOffset(0),
                 reason: problem.to_string(),
             });
         }
-        if mft.files.is_empty() && !input.data.is_empty() {
+        if mft.files.is_empty() && !mft.problems.is_empty() {
             return Err(ParseError::at(0, "no MFT records"));
         }
-        let drive = drive_of(input.name);
+        let drive = drive_of(name);
         for file in mft.files.iter().filter(|f| !f.names.is_empty()) {
-            sink.record(self.to_record(input, file, drive));
+            sink.record(self.to_record(evidence, file, drive));
         }
         Ok(())
     }
-}
 
-impl MftAdapter {
-    fn to_record(self, input: &Input<'_>, file: &MftFile, drive: Option<char>) -> Record {
+    fn to_record(self, evidence: EvidenceId, file: &MftFile, drive: Option<char>) -> Record {
         let mut record = Record::new(
-            input.evidence,
+            evidence,
             NAMESPACE,
             Locator::MftEntry {
                 entry: file.record,

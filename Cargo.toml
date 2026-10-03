@@ -1,6 +1,6 @@
 [package]
 name = "sootmark-adapters"
-version = "0.2.5"
+version = "0.2.6"
 edition = "2021"
 rust-version = "1.80"
 description = "One adapter per parser dependency: the parser's native output mapped into the Sootmark model."
@@ -14,7 +14,7 @@ include = ["/src", "/README.md", "/LICENSE-APACHE", "/LICENSE-MIT"]
 [dependencies]
 audit = { package = "sootmark-audit", version = "0.1.0" }
 common = { package = "sootmark-common", version = "0.3.6" }
-model = { package = "sootmark-model", version = "0.2.0" }
+model = { package = "sootmark-model", version = "0.2.1" }
 evtx = { package = "sootmark-evtx", version = "0.2.0" }
 prefetch = { package = "sootmark-prefetch", version = "0.1.0" }
 registry = { package = "sootmark-registry", version = "0.6.2" }

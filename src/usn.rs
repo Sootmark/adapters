@@ -6,10 +6,17 @@
 //!
 //! Range-tracking records (version 4) say which byte ranges of a file were
 //! written, alongside a version 3 record of the same change: not kept.
+//!
+//! A journal is read as a stream, so one of many gigabytes (mostly the
+//! zeros of its freed pages) is never held in memory.
 
-use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
-use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Value};
-use usn::Record as UsnRecord;
+use std::io::Read;
+
+use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped, StreamInput};
+use model::{
+    EvidenceId, Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Value,
+};
+use usn::{Entry, Record as UsnRecord};
 
 /// Records of USN change journals.
 pub const NAMESPACE: Namespace = Namespace::new("windows.usn");
@@ -44,24 +51,51 @@ impl Adapter for UsnAdapter {
     }
 
     fn parse(&self, input: &Input<'_>, sink: &mut dyn Sink) -> Result<(), ParseError> {
-        let journal = usn::parse(input.data);
-        for problem in &journal.problems {
-            sink.skipped(Skipped {
-                locator: Locator::ByteOffset(problem.offset),
-                reason: problem.to_string(),
-            });
-        }
-        for record in &journal.records {
-            sink.record(self.to_record(input, record));
-        }
-        Ok(())
+        let mut content = input.data;
+        self.read(input.evidence, &mut content, sink)
+    }
+
+    /// Journals are read a megabyte at a time, whatever their size.
+    fn parse_stream(
+        &self,
+        input: &StreamInput<'_>,
+        content: &mut dyn Read,
+        sink: &mut dyn Sink,
+    ) -> Option<Result<(), ParseError>> {
+        Some(self.read(input.evidence, content, sink))
     }
 }
 
 impl UsnAdapter {
-    fn to_record(self, input: &Input<'_>, change: &UsnRecord) -> Record {
+    fn read(
+        self,
+        evidence: EvidenceId,
+        content: &mut dyn Read,
+        sink: &mut dyn Sink,
+    ) -> Result<(), ParseError> {
+        let mut read_to = 0;
+        for entry in usn::read(content) {
+            match entry.map_err(|error| ParseError::at(read_to, error.to_string()))? {
+                Entry::Record(change) => {
+                    read_to = change.offset;
+                    sink.record(self.to_record(evidence, &change));
+                }
+                Entry::Problem(problem) => {
+                    read_to = problem.offset;
+                    sink.skipped(Skipped {
+                        locator: Locator::ByteOffset(problem.offset),
+                        reason: problem.to_string(),
+                    });
+                }
+                Entry::Ranges(_) => {}
+            }
+        }
+        Ok(())
+    }
+
+    fn to_record(self, evidence: EvidenceId, change: &UsnRecord) -> Record {
         let mut record = Record::new(
-            input.evidence,
+            evidence,
             NAMESPACE,
             Locator::ByteOffset(change.offset),
             self.parser(),
