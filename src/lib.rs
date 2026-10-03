@@ -14,4 +14,5 @@ pub mod plaso;
 pub mod prefetch;
 pub mod registry;
 mod timestamp;
+pub mod utmp;
 pub mod velociraptor;
