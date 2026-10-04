@@ -81,3 +81,35 @@ fn zsh_and_fish_commands() {
     assert_eq!(fish[0].facets.user_name, None);
     assert_eq!(fish[3].fields.get("Paths"), Some(&Value::from("test")));
 }
+
+/// A PSReadLine history (`tests/fixtures/history-powershell/`): its own
+/// namespace, the account from the profile, backtick continuations joined.
+#[test]
+fn powershell_history() {
+    use sootmark_adapters::history::POWERSHELL;
+    let data = std::fs::read(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/fixtures/history-powershell/ConsoleHost_history.txt"
+    ))
+    .unwrap();
+    let path = r"C:\Users\alice\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt";
+    assert_eq!(HistoryAdapter.probe(path, &data), Confidence::Certain);
+    assert_conforms(&HistoryAdapter, path, &data);
+    let input = Input {
+        evidence: EvidenceId::of_content(&data),
+        name: path,
+        data: &data,
+        modified: None,
+    };
+    let mut sink = Collected::default();
+    HistoryAdapter.parse(&input, &mut sink).unwrap();
+    let records = &sink.records;
+    assert_eq!(records.len(), 3);
+    assert!(records.iter().all(|r| r.namespace() == POWERSHELL));
+    assert_eq!(records[0].summary, "alice PS> Get-Process");
+    assert!(records[1]
+        .facets
+        .process_command_line
+        .as_deref()
+        .is_some_and(|c| c.contains("-Uri http://192.0.2.4/a.ps1")));
+}
