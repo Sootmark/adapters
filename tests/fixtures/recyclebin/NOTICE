@@ -1,0 +1,9 @@
+These files are plaso's test data, under the Apache License 2.0 (LICENSE,
+in this directory). Copyright the plaso authors.
+
+Source: https://github.com/log2timeline/plaso, test_data/recycler/, at
+commit a70dde825618050f6ce6c646f12fed386a9b4d73, unmodified. SHA-256:
+
+  $II3DF3L.zip   016d798595fe02bc19ee53511055a3ab3343a81a5ecc1301e606c5646b8b1ce8
+  $I103S5F.jpg   23c233e261b9b496f547dfc7447050fbae452dffbdd135a43d1bad31bc7b0df9
+  INFO2          92b3ccd7393474754d2453338b65e0c910c3f074dccc243deae072c62f9bbb1e

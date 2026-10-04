@@ -22,6 +22,7 @@ pub mod packages;
 pub mod persistence;
 pub mod plaso;
 pub mod prefetch;
+pub mod recyclebin;
 pub mod registry;
 pub mod search;
 pub mod srum;
