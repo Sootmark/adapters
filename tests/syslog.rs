@@ -167,3 +167,37 @@ fn esxi_shell_commands_and_vsphere_logins() {
     );
     assert_eq!(records[1].summary, "vSphere login root from 198.51.100.7");
 }
+
+#[test]
+fn esxi_vm_tasks_and_power_states() {
+    // Synthetic lines in the format ESXi's hostd and vobd write.
+    let data = b"2023-02-03T10:10:00.000Z In(14) vobd[2097695]: [UserLevelCorrelator] 2341ms: [esx.audit.ssh.enabled] SSH access has been enabled.\n\
+2023-02-03T10:12:01.123Z info hostd[2099566] [Originator@6876 sub=Vimsvc.TaskManager opID=esxui-1a2b user=root] Task Created : haTask-12-vim.VirtualMachine.powerOff-110732\n\
+2023-02-03T10:12:01.456Z info hostd[2099567] [Originator@6876 sub=Vmsvc.vm:/vmfs/volumes/63d0f2a1/dc01/dc01.vmx opID=esxui-1a2b user=root] State Transition (VM_STATE_ON -> VM_STATE_POWERING_OFF)\n";
+    let input = Input {
+        evidence: EvidenceId::of_content(data),
+        name: "var/log/hostd.log",
+        data,
+        modified: None,
+    };
+    let mut sink = Collected::default();
+    SyslogAdapter.parse(&input, &mut sink).unwrap();
+    let summaries: Vec<&str> = sink.records.iter().map(|r| r.summary.as_str()).collect();
+    assert_eq!(
+        summaries,
+        [
+            "ESXi: SSH enabled",
+            "ESXi task (root): vim.VirtualMachine.powerOff",
+            "VM /vmfs/volumes/63d0f2a1/dc01/dc01.vmx: VM_STATE_ON -> VM_STATE_POWERING_OFF",
+        ]
+    );
+    let state = &sink.records[2];
+    assert_eq!(
+        state.facets.file_path.as_deref(),
+        Some("/vmfs/volumes/63d0f2a1/dc01/dc01.vmx")
+    );
+    assert_eq!(
+        state.fields.get("State"),
+        Some(&Value::from("VM_STATE_ON -> VM_STATE_POWERING_OFF"))
+    );
+}

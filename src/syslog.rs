@@ -128,6 +128,7 @@ impl SyslogAdapter {
             user_name: event.as_ref().and_then(|e| e.user.clone()),
             source_ip: event.as_ref().and_then(|e| e.source_ip.clone()),
             process_command_line: event.as_ref().and_then(|e| e.command.clone()),
+            file_path: event.as_ref().and_then(|e| e.target.clone()),
             ..Facets::default()
         };
         record.fields = fields(entry, event.as_ref());
@@ -195,6 +196,17 @@ pub(crate) fn event_summary(event: &Event) -> String {
         ),
         "vsphere login" => format!("vSphere login {user}{from}"),
         "vsphere failed login" => format!("vSphere failed login {user}{from}"),
+        "esxi task" => format!(
+            "ESXi task ({user}): {}",
+            event.command.as_deref().unwrap_or("?")
+        ),
+        "vm state" => format!(
+            "VM {}: {}",
+            event.target.as_deref().unwrap_or("?"),
+            event.state.as_deref().unwrap_or("?")
+        ),
+        "esxi ssh enabled" => "ESXi: SSH enabled".to_owned(),
+        "esxi shell enabled" => "ESXi: ESXi Shell enabled".to_owned(),
         action => action.to_owned(),
     }
 }
@@ -251,6 +263,8 @@ pub(crate) fn event_fields(fields: &mut Fields, event: &Event) {
     text("Fingerprint", event.fingerprint.as_deref());
     text("Command", event.command.as_deref());
     text("Group", event.group.as_deref());
+    text("Target", event.target.as_deref());
+    text("State", event.state.as_deref());
     if let Some(port) = event.port {
         fields.insert("Port".into(), Value::UInt(u64::from(port)));
     }
