@@ -103,8 +103,12 @@ impl BrowserAdapter {
         number(&mut fields, "FromVisit", visit.from_visit);
         number(&mut fields, "VisitCount", visit.visit_count);
         number(&mut fields, "TypedCount", visit.typed_count);
-        fields.insert("Typed".into(), Value::Bool(visit.typed));
-        fields.insert("Hidden".into(), Value::Bool(visit.hidden));
+        text(&mut fields, "Account", visit.user.as_deref());
+        // WebCache records neither: absent, not false.
+        if history.kind != Kind::WebCache {
+            fields.insert("Typed".into(), Value::Bool(visit.typed));
+            fields.insert("Hidden".into(), Value::Bool(visit.hidden));
+        }
         record.fields = fields;
         let title = if visit.title.is_empty() {
             String::new()

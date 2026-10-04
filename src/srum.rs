@@ -104,8 +104,10 @@ fn fields(entry: &Entry) -> Fields {
         None => entry.table.as_str(),
     };
     fields.insert("Provider".into(), Value::from(provider));
-    if let Some(app) = &entry.app {
-        fields.insert("App".into(), Value::from(app.as_str()));
+    // A path is the record's process; a service or packaged app's name,
+    // which isn't, stays here.
+    if let Some(app) = entry.app.as_deref().filter(|a| !a.contains('\\')) {
+        fields.insert("App".into(), Value::from(app));
     }
     for (name, id) in [("AppId", entry.app_id), ("UserId", entry.user_id)] {
         if let Some(id) = id {
