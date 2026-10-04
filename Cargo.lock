@@ -28,6 +28,7 @@ dependencies = [
  "sootmark-syslog",
  "sootmark-usn",
  "sootmark-utmp",
+ "sootmark-wintimeline",
 ]
 
 [[package]]
@@ -243,4 +244,14 @@ checksum = "dd9cbbbea76cc2b90170f39dfa146bba5de148dc5585233d847ad5894bed1ad1"
 dependencies = [
  "sootmark-common",
  "sootmark-sqlite 0.1.1",
+]
+
+[[package]]
+name = "sootmark-wintimeline"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fd2786f4a0f2c974e0fb70126189c0395a42a427be803e5d770c1bd0952ae384"
+dependencies = [
+ "sootmark-common",
+ "sootmark-sqlite 0.2.0",
 ]

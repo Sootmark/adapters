@@ -33,6 +33,7 @@ srum = { package = "sootmark-srum", version = "0.1.0" }
 syslog = { package = "sootmark-syslog", version = "0.1.2" }
 usn = { package = "sootmark-usn", version = "0.1.0" }
 utmp = { package = "sootmark-utmp", version = "0.3.0" }
+wintimeline = { package = "sootmark-wintimeline", version = "0.1.0" }
 
 [dev-dependencies]
 conformance = { package = "sootmark-conformance", version = "0.2.0" }

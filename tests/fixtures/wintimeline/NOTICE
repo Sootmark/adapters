@@ -1,0 +1,12 @@
+This file is plaso's test data, under the Apache License 2.0 (LICENSE, in
+this directory). Copyright the plaso authors.
+
+Source: https://github.com/log2timeline/plaso, test_data/, at commit
+a70dde825618050f6ce6c646f12fed386a9b4d73.
+
+  windows/ActivitiesCache.db  ActivitiesCache.db.gz (gzip -9n)
+
+Stored gzip-compressed; otherwise unmodified. SHA-256 of the uncompressed
+file:
+
+  ActivitiesCache.db  95811eebd1ea3ec0244bda5c5200266861cfcf405eed687dce96af8589836888
