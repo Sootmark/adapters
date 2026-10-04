@@ -108,9 +108,9 @@ dependencies = [
 
 [[package]]
 name = "sootmark-macos"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "636dc58f50b91645ac5b6ef90938b9cdbc41467505cf21beef5592f61a2d7c83"
+checksum = "5d0e1c285831cdfd0b48a3d632548cee686513f90733f9b1766e0c19066e91d7"
 dependencies = [
  "sootmark-common",
  "sootmark-plist",

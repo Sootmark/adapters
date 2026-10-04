@@ -20,7 +20,7 @@ ese = { package = "sootmark-ese", version = "0.1.1" }
 evtx = { package = "sootmark-evtx", version = "0.2.0" }
 history = { package = "sootmark-history", version = "0.1.0" }
 journal = { package = "sootmark-journal", version = "0.1.0" }
-macos = { package = "sootmark-macos", version = "0.2.0" }
+macos = { package = "sootmark-macos", version = "0.3.0" }
 model = { package = "sootmark-model", version = "0.2.2" }
 packages = { package = "sootmark-packages", version = "0.2.0" }
 persistence = { package = "sootmark-persistence", version = "0.3.0" }
