@@ -17,8 +17,9 @@ use syslog::{Context, Entry, Format};
 /// Records of syslog files.
 pub const NAMESPACE: Namespace = Namespace::new("linux.syslog");
 
-/// Files syslog daemons write (rotated copies included: `auth.log.1`).
-const NAMES: [&str; 10] = [
+/// Files syslog daemons write (rotated copies included: `auth.log.1`),
+/// and the logs of `VMware` `ESXi`.
+const NAMES: [&str; 15] = [
     "syslog",
     "messages",
     "auth.log",
@@ -29,6 +30,11 @@ const NAMES: [&str; 10] = [
     "cron",
     "cron.log",
     "maillog",
+    "shell.log",
+    "hostd.log",
+    "vmkernel.log",
+    "vobd.log",
+    "syslog.log",
 ];
 const SUMMARY_MESSAGE: usize = 160;
 
@@ -183,6 +189,12 @@ pub(crate) fn event_summary(event: &Event) -> String {
         ),
         "group added" => format!("Group added: {}", event.group.as_deref().unwrap_or("?")),
         "password changed" => format!("Password changed for {target}"),
+        "esxi command" => format!(
+            "ESXi shell ({user}): {}",
+            event.command.as_deref().unwrap_or("")
+        ),
+        "vsphere login" => format!("vSphere login {user}{from}"),
+        "vsphere failed login" => format!("vSphere failed login {user}{from}"),
         action => action.to_owned(),
     }
 }

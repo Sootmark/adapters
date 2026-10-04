@@ -138,3 +138,32 @@ fn rfc5424_priority() {
     assert_eq!(debug.fields.get("MessageId"), Some(&Value::from("123")));
     assert_eq!(debug.summary, "log_tag: this is debug");
 }
+
+#[test]
+fn esxi_shell_commands_and_vsphere_logins() {
+    // Synthetic lines in the format ESXi documents.
+    let data = b"2023-04-10T08:15:02.123Z In(14) shell[2101]: [root]: vim-cmd vmsvc/power.off 12\n\
+2023-04-10T08:16:40.010Z In(166) Hostd[2099566]: [Originator@6876 sub=Vimsvc.ha-eventmgr] Event 112 : User root@198.51.100.7 logged in as VMware-client/6.5.0\n";
+    assert_eq!(
+        SyslogAdapter.probe("var/log/shell.log", data),
+        Confidence::Certain
+    );
+    let input = Input {
+        evidence: EvidenceId::of_content(data),
+        name: "var/log/shell.log",
+        data,
+        modified: None,
+    };
+    let mut sink = Collected::default();
+    SyslogAdapter.parse(&input, &mut sink).unwrap();
+    let records = sink.records;
+    assert_eq!(
+        records[0].summary,
+        "ESXi shell (root): vim-cmd vmsvc/power.off 12"
+    );
+    assert_eq!(
+        records[0].facets.process_command_line.as_deref(),
+        Some("vim-cmd vmsvc/power.off 12")
+    );
+    assert_eq!(records[1].summary, "vSphere login root from 198.51.100.7");
+}
