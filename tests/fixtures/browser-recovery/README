@@ -2,3 +2,6 @@ History: chromium.db from the sootmark-browser repository
 (tests/fixtures/recovery/, made by sootmark-sqlite's recovery generator with the
 sqlite3 shell): a Chromium-like history with a time range of visits cleared.
 MIT OR Apache-2.0, like this crate.
+wal/History and wal/History-wal: from the sootmark-browser repository
+(tests/fixtures/recovery/gen.sh): a Chromium history whose deleted visits
+survive only in its write-ahead log. MIT OR Apache-2.0.

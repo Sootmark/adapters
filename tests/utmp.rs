@@ -190,3 +190,27 @@ fn wtmpdb_and_lastlog2() {
     );
     assert_eq!(logins[1].facets.source_ip.as_deref(), Some("192.0.2.15"));
 }
+
+/// A wtmpdb database whose last session is only in its write-ahead log:
+/// read with the log, it's there.
+#[test]
+fn wtmpdb_with_its_log() {
+    let read_db = |name: &str| read(&format!("sqlite/wal/{name}"));
+    let (database, log) = (read_db("wtmp.db"), read_db("wtmp.db-wal"));
+    let input = Input {
+        evidence: EvidenceId::of_content(&database),
+        name: "var/lib/wtmpdb/wtmp.db",
+        data: &database,
+        modified: None,
+    };
+    let users = |log: &[u8]| {
+        let mut sink = Collected::default();
+        UtmpAdapter.parse_with_log(&input, log, &mut sink).unwrap();
+        sink.records
+            .iter()
+            .filter_map(|r| r.facets.user_name.clone())
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(users(&[]), ["alice", "root", "deploy"]);
+    assert_eq!(users(&log), ["alice", "root", "deploy", "mallory"]);
+}

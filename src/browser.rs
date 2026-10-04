@@ -41,7 +41,18 @@ impl Adapter for BrowserAdapter {
     }
 
     fn parse(&self, input: &Input<'_>, sink: &mut dyn Sink) -> Result<(), ParseError> {
-        let history = browser::read(input.data, &[]).map_err(|e| ParseError::at(0, e.0))?;
+        self.parse_with_log(input, &[], sink)
+    }
+
+    /// The database with its write-ahead log: the latest history, and the
+    /// log's older page versions, where deleted visits survive.
+    fn parse_with_log(
+        &self,
+        input: &Input<'_>,
+        log: &[u8],
+        sink: &mut dyn Sink,
+    ) -> Result<(), ParseError> {
+        let history = browser::read(input.data, log).map_err(|e| ParseError::at(0, e.0))?;
         for reason in &history.problems {
             sink.skipped(Skipped {
                 locator: Locator::ByteOffset(0),

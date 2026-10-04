@@ -189,3 +189,35 @@ fn deleted_visits_and_pages() {
         .iter()
         .any(|r| r.summary.starts_with("Visited ") && field(r, "Deleted").is_none()));
 }
+
+/// A Chromium history whose deleted visits survive only in its
+/// write-ahead log: read with the log, they come back.
+#[test]
+fn deleted_visits_from_the_log() {
+    let read_file = |name: &str| {
+        std::fs::read(format!(
+            "{}/tests/fixtures/browser-recovery/wal/{name}",
+            env!("CARGO_MANIFEST_DIR")
+        ))
+        .unwrap()
+    };
+    let (database, log) = (read_file("History"), read_file("History-wal"));
+    let input = Input {
+        evidence: EvidenceId::of_content(&database),
+        name: "home/alice/.config/chromium/Default/History",
+        data: &database,
+        modified: None,
+    };
+    let deleted = |log: &[u8]| {
+        let mut sink = Collected::default();
+        BrowserAdapter
+            .parse_with_log(&input, log, &mut sink)
+            .unwrap();
+        sink.records
+            .iter()
+            .filter(|r| field(r, "Deleted") == Some(&Value::Bool(true)))
+            .count()
+    };
+    assert_eq!(deleted(&[]), 0);
+    assert_eq!(deleted(&log), 8, "5 visits, 2 pages, 1 download");
+}

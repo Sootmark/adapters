@@ -2,10 +2,9 @@
 //! logins with where they came from, logouts, boots, run level and clock
 //! changes, and (from `btmp`) failed logins; `lastlog`, each account's
 //! last login; and the SQLite databases newer distributions keep instead,
-//! wtmpdb's `wtmp.db` (sessions) and `lastlog2.db`. An adapter sees one
-//! file: a caller holding the database's `-wal` file applies it first
-//! (`sootmark-sqlite`'s `Database::image`), or sessions only in it are
-//! missed.
+//! wtmpdb's `wtmp.db` (sessions) and `lastlog2.db`, read with their
+//! `-wal` file when the caller hands it over (`parse_with_log`): the
+//! latest sessions are often only there.
 
 use std::path::Path;
 
@@ -66,13 +65,25 @@ impl Adapter for UtmpAdapter {
     }
 
     fn parse(&self, input: &Input<'_>, sink: &mut dyn Sink) -> Result<(), ParseError> {
+        self.parse_with_log(input, &[], sink)
+    }
+
+    /// The wtmpdb and lastlog2 databases with their write-ahead log, where
+    /// the latest sessions often are; the log means nothing to the other
+    /// files.
+    fn parse_with_log(
+        &self,
+        input: &Input<'_>,
+        log: &[u8],
+        sink: &mut dyn Sink,
+    ) -> Result<(), ParseError> {
         match file_kind(input.name) {
             Some("lastlog") => {
                 self.parse_lastlog(input, sink);
                 return Ok(());
             }
-            Some("wtmpdb") => return self.parse_wtmpdb(input, sink),
-            Some("lastlog2") => return self.parse_lastlog2(input, sink),
+            Some("wtmpdb") => return self.parse_wtmpdb(input, log, sink),
+            Some("lastlog2") => return self.parse_lastlog2(input, log, sink),
             _ => {}
         }
         let records = utmp::parse(input.data).map_err(|e| ParseError::at(0, e.0))?;
@@ -102,8 +113,13 @@ impl UtmpAdapter {
 
     /// One record per session: a boot or a login, timed by its login and,
     /// once it ended, its logout.
-    fn parse_wtmpdb(self, input: &Input<'_>, sink: &mut dyn Sink) -> Result<(), ParseError> {
-        let parsed = utmp::parse_wtmpdb(input.data, &[]).map_err(|e| ParseError::at(0, e.0))?;
+    fn parse_wtmpdb(
+        self,
+        input: &Input<'_>,
+        log: &[u8],
+        sink: &mut dyn Sink,
+    ) -> Result<(), ParseError> {
+        let parsed = utmp::parse_wtmpdb(input.data, log).map_err(|e| ParseError::at(0, e.0))?;
         skipped(sink, parsed.problems);
         for session in &parsed.sessions {
             sink.record(self.session(input, session));
@@ -172,8 +188,13 @@ impl UtmpAdapter {
     }
 
     /// One record per account's last login.
-    fn parse_lastlog2(self, input: &Input<'_>, sink: &mut dyn Sink) -> Result<(), ParseError> {
-        let parsed = utmp::parse_lastlog2(input.data, &[]).map_err(|e| ParseError::at(0, e.0))?;
+    fn parse_lastlog2(
+        self,
+        input: &Input<'_>,
+        log: &[u8],
+        sink: &mut dyn Sink,
+    ) -> Result<(), ParseError> {
+        let parsed = utmp::parse_lastlog2(input.data, log).map_err(|e| ParseError::at(0, e.0))?;
         skipped(sink, parsed.problems);
         for (row, login) in (1..).zip(&parsed.logins) {
             let mut record = Record::new(
