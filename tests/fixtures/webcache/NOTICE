@@ -1,0 +1,8 @@
+WebCacheV01.dat.gz is plaso's test_data/WebCacheV01.dat, under the Apache
+License 2.0 (LICENSE, in this directory). Copyright the plaso authors.
+
+Source: https://github.com/log2timeline/plaso, test_data/, at commit
+a70dde825618050f6ce6c646f12fed386a9b4d73. Stored gzip-compressed (gzip -9n),
+otherwise unmodified. SHA-256 of the uncompressed file:
+
+  WebCacheV01.dat  2713e7ff413c69659442c5dcb0f23f41230fa76bf760b8aeac0ffd430d10c83e

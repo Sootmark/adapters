@@ -96,3 +96,51 @@ fn firefox_downloads() {
     );
     assert_eq!(field(download, "Browser"), Some(&Value::from("firefox")));
 }
+
+/// plaso's `WebCacheV01.dat` (Apache-2.0, `tests/fixtures/webcache/`,
+/// stored gzip-compressed): Internet Explorer visits with their account.
+#[test]
+fn webcache_visits() {
+    let compressed = std::fs::read(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/fixtures/webcache/WebCacheV01.dat.gz"
+    ))
+    .unwrap();
+    let mut data = Vec::new();
+    std::io::Read::read_to_end(
+        &mut common::gzip::Decoder::new(compressed.as_slice()),
+        &mut data,
+    )
+    .unwrap();
+    let path = "C/Users/test/AppData/Local/Microsoft/Windows/WebCache/WebCacheV01.dat";
+    assert_eq!(BrowserAdapter.probe(path, &data), Confidence::Certain);
+    assert_conforms(&BrowserAdapter, path, &data);
+    let input = Input {
+        evidence: EvidenceId::of_content(&data),
+        name: path,
+        data: &data,
+        modified: None,
+    };
+    let mut sink = Collected::default();
+    BrowserAdapter.parse(&input, &mut sink).unwrap();
+    assert_eq!(sink.records.len(), 113);
+    let overview = sink
+        .records
+        .iter()
+        .find(|r| {
+            field(r, "Url")
+                == Some(&Value::from(
+                    "http://code.google.com/p/libyal/wiki/Overview",
+                ))
+        })
+        .unwrap();
+    assert_eq!(
+        overview.summary,
+        "Visited http://code.google.com/p/libyal/wiki/Overview"
+    );
+    assert_eq!(overview.facets.user_name.as_deref(), Some("test"));
+    assert_eq!(
+        field(overview, "Browser"),
+        Some(&Value::from("internet explorer"))
+    );
+}

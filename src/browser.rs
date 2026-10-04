@@ -1,6 +1,7 @@
 //! Browser history, via the `browser` parser: Chromium-family `History`
-//! (Chrome, Edge, Brave, Opera, Vivaldi) and Firefox's `places.sqlite` and
-//! `downloads.sqlite`. One record per visit (the page, how it was reached)
+//! (Chrome, Edge, Brave, Opera, Vivaldi), Firefox's `places.sqlite` and
+//! `downloads.sqlite`, and Internet Explorer and legacy Edge's
+//! `WebCacheV01.dat`. One record per visit (the page, how it was reached)
 //! and one per download (from where, to where, how it ended), with the
 //! account whose profile it is from the path.
 
@@ -11,7 +12,6 @@ use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, 
 /// Records of browser history databases.
 pub const NAMESPACE: Namespace = Namespace::new("browser.history");
 
-const SQLITE_MAGIC: &[u8] = b"SQLite format 3\0";
 const SUMMARY_URL: usize = 200;
 
 /// One record per visit and per download.
@@ -30,9 +30,10 @@ impl Adapter for BrowserAdapter {
         &[NAMESPACE]
     }
 
-    /// An SQLite database with a browser's tables, or named as one.
+    /// An SQLite database with a browser's tables or named as one, or an
+    /// ESE database named as a WebCache.
     fn probe(&self, name: &str, head: &[u8]) -> Confidence {
-        if head.starts_with(SQLITE_MAGIC) && browser::detect(name, head).is_some() {
+        if browser::detect(name, head).is_some() {
             Confidence::Certain
         } else {
             Confidence::No
@@ -78,14 +79,15 @@ impl BrowserAdapter {
         visit: &Visit,
         user: Option<&str>,
     ) -> Record {
-        let mut record = self.record(input, visits_table(history.kind), visit.id);
+        let mut record = self.record(input, &visit.table, visit.id);
         if let Some(time) = visit.time {
             record
                 .times
                 .push(RecordTime::new(TimeKind::Logged, "visit_time", time));
         }
         record.facets = Facets {
-            user_name: user.map(str::to_owned),
+            // The account the browser recorded, else the profile's owner.
+            user_name: visit.user.as_deref().or(user).map(str::to_owned),
             ..Facets::default()
         };
         let mut fields = Fields::new();
@@ -109,11 +111,11 @@ impl BrowserAdapter {
         } else {
             format!(" ({})", visit.title)
         };
-        record.summary = format!(
-            "Visited {}{title} via {}",
-            shorten(&visit.url),
-            visit.transition
-        );
+        let via = match visit.transition.to_string() {
+            how if how.is_empty() => String::new(),
+            how => format!(" via {how}"),
+        };
+        record.summary = format!("Visited {}{title}{via}", shorten(&visit.url));
         record
     }
 
@@ -168,17 +170,11 @@ impl BrowserAdapter {
     }
 }
 
-fn visits_table(kind: Kind) -> &'static str {
-    match kind {
-        Kind::ChromiumHistory => "visits",
-        Kind::FirefoxPlaces | Kind::FirefoxDownloads => "moz_historyvisits",
-    }
-}
-
 fn browser_name(kind: Kind) -> &'static str {
     match kind {
         Kind::ChromiumHistory => "chromium",
         Kind::FirefoxPlaces | Kind::FirefoxDownloads => "firefox",
+        Kind::WebCache => "internet explorer",
     }
 }
 
