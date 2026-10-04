@@ -8,7 +8,7 @@
 //! value: all are read as such.
 
 use common::json::{self, Json};
-use common::time::{Precision, Ts};
+use common::time::Ts;
 use model::adapter::{Adapter, Confidence, Input, ParseError, Sink};
 use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Value};
 
@@ -203,7 +203,7 @@ fn session(item: &Json, record: &mut Record) {
 
 /// The item's `name` time, as when it was created or started.
 fn created(item: &Json, name: &str, record: &mut Record) {
-    if let Some(ts) = text(item, name).and_then(parse_utc) {
+    if let Some(ts) = text(item, name).and_then(Ts::parse_iso8601_utc) {
         record
             .times
             .push(RecordTime::new(TimeKind::Created, name, ts));
@@ -239,33 +239,4 @@ fn fields(table: &str, item: &Json) -> Fields {
         }
     }
     fields
-}
-
-/// `2026-10-04T02:50:15.7399480Z` (.NET's round-trip format, in UTC).
-fn parse_utc(text: &str) -> Option<Ts> {
-    let text = text.strip_suffix('Z')?;
-    let (date, time) = text.split_once('T')?;
-    let mut date = date.splitn(3, '-').map(str::parse::<i64>);
-    let (year, month, day) = (date.next()?.ok()?, date.next()?.ok()?, date.next()?.ok()?);
-    let (clock, fraction) = time.split_once('.').unwrap_or((time, "0"));
-    let mut clock = clock.splitn(3, ':').map(str::parse::<i64>);
-    let (hour, minute, second) = (
-        clock.next()?.ok()?,
-        clock.next()?.ok()?,
-        clock.next()?.ok()?,
-    );
-    let valid = (1..=12).contains(&month)
-        && (1..=31).contains(&day)
-        && hour < 24
-        && minute < 60
-        && second < 61;
-    if !valid || fraction.len() > 7 || !fraction.bytes().all(|b| b.is_ascii_digit()) {
-        return None;
-    }
-    let ticks: i64 = format!("{fraction:0<7}").parse().ok()?;
-    let days = common::time::days_from_civil(year, month as u32, day as u32);
-    Some(Ts::from_ticks(
-        (days * 86_400 + hour * 3600 + minute * 60 + second) * 10_000_000 + ticks,
-        Precision::Tick,
-    ))
 }
