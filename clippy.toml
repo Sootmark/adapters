@@ -1,2 +1,2 @@
 # Domain vocabulary that is prose, not code.
-doc-valid-idents = ["LECmd", "SBECmd", "RECmd", "ShellBags", "UsrClass", "ShimCache", "UserAssist", "RunOnce", "AppCompatCache", "BinXML", "PowerShell", ".."]
+doc-valid-idents = ["LECmd", "SBECmd", "RECmd", "ShellBags", "UsrClass", "ShimCache", "UserAssist", "RunOnce", "AppCompatCache", "BinXML", "PowerShell", "..", "SQLite"]

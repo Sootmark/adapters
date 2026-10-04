@@ -139,3 +139,54 @@ fn lastlog_logins() {
     );
     assert_eq!(sink.records[1].times[0].kind, TimeKind::Logged);
 }
+
+/// wtmpdb and lastlog2 databases (`tests/fixtures/utmp/sqlite/`, from the
+/// utmp crate): sessions with their login and logout, last logins.
+#[test]
+fn wtmpdb_and_lastlog2() {
+    let read_db = |name: &str| read(&format!("sqlite/{name}"));
+    let wtmp = read_db("wtmp.db");
+    assert_eq!(
+        UtmpAdapter.probe("var/lib/wtmpdb/wtmp.db", &wtmp),
+        Confidence::Certain
+    );
+    assert_eq!(
+        UtmpAdapter.probe("var/lib/wtmpdb/wtmp.db", b"junk"),
+        Confidence::No
+    );
+    assert_conforms(&UtmpAdapter, "wtmp.db", &wtmp);
+    let collect = |name: &str, data: &[u8]| {
+        let input = Input {
+            evidence: EvidenceId::of_content(data),
+            name,
+            data,
+            modified: None,
+        };
+        let mut sink = Collected::default();
+        UtmpAdapter.parse(&input, &mut sink).unwrap();
+        sink.records
+    };
+    let sessions = collect("var/lib/wtmpdb/wtmp.db", &wtmp);
+    let summaries: Vec<_> = sessions.iter().map(|r| r.summary.as_str()).collect();
+    assert_eq!(
+        summaries,
+        [
+            "Boot, kernel 6.12.48+deb13-amd64",
+            "Login alice from 192.0.2.15 on pts/0",
+            "Login root on tty1, not logged out",
+            "Login deploy from 2001:db8::7 on pts/1",
+        ]
+    );
+    assert_eq!(sessions[1].times.len(), 2);
+    assert_eq!(sessions[1].facets.user_name.as_deref(), Some("alice"));
+    assert_eq!(sessions[0].facets.user_name, None);
+
+    let lastlog2 = read_db("lastlog2.db");
+    assert_conforms(&UtmpAdapter, "lastlog2.db", &lastlog2);
+    let logins = collect("var/lib/lastlog/lastlog2.db", &lastlog2);
+    assert_eq!(
+        logins[1].summary,
+        "Last login of alice from 192.0.2.15 on pts/0"
+    );
+    assert_eq!(logins[1].facets.source_ip.as_deref(), Some("192.0.2.15"));
+}
