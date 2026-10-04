@@ -67,3 +67,35 @@ fn knowledgec_with_its_log() {
     assert!(with_log.iter().all(|r| r.namespace() == KNOWLEDGEC));
     assert_eq!(with_log.len(), alone.len() + 1, "one event only in the log");
 }
+
+#[test]
+fn launchd_jobs() {
+    use sootmark_adapters::macos::LAUNCHD;
+    let daemon = parse(
+        "launchd.plist",
+        "Library/LaunchDaemons/com.foobar.test.plist",
+        &[],
+    );
+    assert_eq!(daemon.len(), 1);
+    let job = &daemon[0];
+    assert_eq!(job.namespace(), LAUNCHD);
+    assert_eq!(job.facets.user_name.as_deref(), Some("nobody"));
+    assert_eq!(
+        job.facets.process_command_line.as_deref(),
+        Some("/Test --flag arg1")
+    );
+    assert!(job
+        .summary
+        .starts_with("launch daemon com.foobar.test: /Test --flag arg1"));
+
+    let agent = parse(
+        "com.example.updater.bplist",
+        "Users/alice/Library/LaunchAgents/com.example.updater.plist",
+        &[],
+    );
+    assert_eq!(agent[0].facets.user_name.as_deref(), Some("alice"));
+    assert_eq!(
+        agent[0].fields.get("Kind"),
+        Some(&Value::from("launch agent"))
+    );
+}

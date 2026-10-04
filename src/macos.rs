@@ -1,10 +1,11 @@
-//! macOS artifacts kept in SQLite, via the `macos` parser, each read with
-//! its write-ahead log when the caller hands it over: quarantine events
-//! (where each downloaded file came from), TCC (which apps were granted
-//! privacy permissions, and when) and KnowledgeC (app usage and device
-//! events over time).
+//! macOS artifacts, via the `macos` parser: launchd jobs (LaunchAgents and
+//! LaunchDaemons, macOS's main persistence, with their suspicious traits
+//! flagged), and those kept in SQLite, each read with its write-ahead log
+//! when the caller hands it over: quarantine events (where each downloaded
+//! file came from), TCC (which apps were granted privacy permissions, and
+//! when) and KnowledgeC (app usage and device events over time).
 
-use macos::{Artifact, KnowledgeEvent, QuarantineEvent, Scope, TccEntry};
+use macos::{Artifact, JobKind, KnowledgeEvent, LaunchJob, QuarantineEvent, Scope, TccEntry};
 use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
 use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Value};
 
@@ -16,6 +17,8 @@ pub const QUARANTINE: Namespace = Namespace::new("macos.quarantine");
 pub const TCC: Namespace = Namespace::new("macos.tcc");
 /// KnowledgeC events.
 pub const KNOWLEDGEC: Namespace = Namespace::new("macos.knowledgec");
+/// launchd jobs.
+pub const LAUNCHD: Namespace = Namespace::new("macos.launchd");
 
 /// One record per quarantine event, TCC entry or KnowledgeC event.
 #[derive(Debug, Default, Clone, Copy)]
@@ -30,12 +33,20 @@ impl Adapter for MacosAdapter {
     }
 
     fn namespaces(&self) -> &'static [Namespace] {
-        &[QUARANTINE, TCC, KNOWLEDGEC]
+        &[QUARANTINE, TCC, KNOWLEDGEC, LAUNCHD]
     }
 
-    /// By name, and the SQLite signature.
+    /// By name, and the SQLite signature (or a property list's, for
+    /// launchd jobs).
     fn probe(&self, name: &str, head: &[u8]) -> Confidence {
-        if macos::detect(name).is_some() && head.starts_with(b"SQLite format 3\0") {
+        let signed = match macos::detect(name) {
+            Some(Artifact::Launchd(_)) => {
+                head.starts_with(b"bplist") || head.trim_ascii_start().starts_with(b"<")
+            }
+            Some(_) => head.starts_with(b"SQLite format 3\0"),
+            None => false,
+        };
+        if signed {
             Confidence::Certain
         } else {
             Confidence::No
@@ -95,7 +106,12 @@ impl Adapter for MacosAdapter {
                     .collect();
                 emit(parsed.problems, records);
             }
-            None => return Err(ParseError::at(0, "not a macOS database this parser reads")),
+            Some(Artifact::Launchd(kind)) => {
+                let read = macos::read_launchd(input.data, input.name).map_err(failed)?;
+                let record = self.launchd(input, &read.job, kind, owner.as_deref());
+                emit(read.problems, vec![record]);
+            }
+            None => return Err(ParseError::at(0, "not a macOS file this parser reads")),
         }
         Ok(())
     }
@@ -236,6 +252,82 @@ impl MacosAdapter {
         record.summary = match event.app().or(event.value_string.as_deref()) {
             Some(what) => format!("{} {what}", event.stream),
             None => event.stream.clone(),
+        };
+        record
+    }
+}
+
+impl MacosAdapter {
+    fn launchd(
+        self,
+        input: &Input<'_>,
+        job: &LaunchJob,
+        kind: JobKind,
+        owner: Option<&str>,
+    ) -> Record {
+        let mut record = Record::new(
+            input.evidence,
+            LAUNCHD,
+            Locator::ByteOffset(0),
+            self.parser(),
+        );
+        if let Some(modified) = input.modified {
+            record.times.push(RecordTime::new(
+                TimeKind::Modified,
+                "file_modified",
+                modified,
+            ));
+        }
+        // An agent runs for the user whose home it's in, a daemon as its
+        // UserName, else root.
+        let runs_as = match kind {
+            JobKind::Agent => owner.map(str::to_owned),
+            JobKind::Daemon => Some(job.user_name.clone().unwrap_or_else(|| "root".to_owned())),
+        };
+        record.facets = Facets {
+            user_name: runs_as,
+            process_path: job.executable().map(str::to_owned),
+            process_command_line: job.command_line(),
+            file_path: Some(input.name.to_owned()),
+            ..Facets::default()
+        };
+        let flags: Vec<&str> = job.flags().iter().map(|f| f.label()).collect();
+        let kind_name = match kind {
+            JobKind::Agent => "launch agent",
+            JobKind::Daemon => "launch daemon",
+        };
+        let mut fields = Fields::new();
+        text(&mut fields, "Kind", Some(kind_name));
+        text(&mut fields, "Label", job.label.as_deref());
+        text(&mut fields, "Flags", Some(&flags.join("; ")));
+        text(
+            &mut fields,
+            "WatchPaths",
+            Some(&job.triggers.watch_paths.join(", ")),
+        );
+        for (name, set) in [
+            ("RunAtLoad", job.triggers.run_at_load),
+            ("KeepAlive", job.triggers.keep_alive),
+            ("Calendar", job.triggers.calendar),
+            ("Disabled", job.disabled),
+        ] {
+            if set {
+                fields.insert(name.into(), Value::Bool(true));
+            }
+        }
+        if let Some(seconds) = job.triggers.start_interval {
+            fields.insert("StartInterval".into(), Value::Int(seconds));
+        }
+        record.fields = fields;
+        let label = job.label.as_deref().unwrap_or("unlabelled");
+        let command = job.command_line().unwrap_or_else(|| "nothing".to_owned());
+        record.summary = if flags.is_empty() {
+            format!("{kind_name} {label}: {command}")
+        } else {
+            format!(
+                "{kind_name} {label}: {command} (flags: {})",
+                flags.join(", ")
+            )
         };
         record
     }
