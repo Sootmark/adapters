@@ -2,8 +2,10 @@
 //! logins with where they came from, logouts, boots, run level and clock
 //! changes, and (from `btmp`) failed logins; `lastlog`, each account's
 //! last login; and the SQLite databases newer distributions keep instead,
-//! wtmpdb's `wtmp.db` (sessions) and `lastlog2.db`. A database's `-wal`
-//! file isn't read here: sessions only in it are missed.
+//! wtmpdb's `wtmp.db` (sessions) and `lastlog2.db`. An adapter sees one
+//! file: a caller holding the database's `-wal` file applies it first
+//! (`sootmark-sqlite`'s `Database::image`), or sessions only in it are
+//! missed.
 
 use std::path::Path;
 

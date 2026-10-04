@@ -5,6 +5,7 @@
 //! keeping the promises of [`model::adapter`].
 
 pub mod audit;
+pub mod browser;
 mod csv;
 pub mod evtx;
 pub mod ez;

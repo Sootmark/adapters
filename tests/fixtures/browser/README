@@ -1,0 +1,3 @@
+Synthetic browser databases from the sootmark-browser repository
+(tests/fixtures/synthetic/gen.sh), made with the sqlite3 shell; documentation
+domains and addresses only. MIT OR Apache-2.0, like this crate.
