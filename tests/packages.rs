@@ -66,3 +66,40 @@ fn dpkg_and_dnf_changes_without_steps() {
         .iter()
         .all(|r| field(r, "Log") == Some(&Value::from("dnf"))));
 }
+
+#[test]
+fn dnf_history_transactions() {
+    let path = "rocky9/dnf/history.sqlite";
+    let data = std::fs::read(format!(
+        "{}/tests/fixtures/packages/{path}",
+        env!("CARGO_MANIFEST_DIR")
+    ))
+    .unwrap();
+    let name = "var/lib/dnf/history.sqlite";
+    assert_eq!(PackagesAdapter.probe(name, &data), Confidence::Certain);
+    assert_conforms(&PackagesAdapter, name, &data);
+    let input = Input {
+        evidence: EvidenceId::of_content(&data),
+        name,
+        data: &data,
+        modified: None,
+    };
+    let mut sink = Collected::default();
+    PackagesAdapter.parse(&input, &mut sink).unwrap();
+    let jq = sink
+        .records
+        .iter()
+        .find(|r| field(r, "Package") == Some(&Value::from("jq")))
+        .unwrap();
+    assert_eq!(field(jq, "Log"), Some(&Value::from("dnf history")));
+    assert_eq!(
+        jq.facets.process_command_line.as_deref(),
+        Some("dnf -y -q install jq")
+    );
+    let oniguruma = sink
+        .records
+        .iter()
+        .find(|r| field(r, "Package") == Some(&Value::from("oniguruma")))
+        .unwrap();
+    assert_eq!(field(oniguruma, "Automatic"), Some(&Value::Bool(true)));
+}

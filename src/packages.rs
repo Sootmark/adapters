@@ -1,7 +1,7 @@
 //! Linux package-manager logs, via the `packages` parser: `dpkg.log`, apt's
-//! `history.log`, `dnf.rpm.log` and `yum.log`. One record per package
-//! installed, upgraded, downgraded, reinstalled or removed; apt's carry the
-//! command line and who ran it. dpkg's configure and trigger steps, its
+//! `history.log`, `dnf.rpm.log`, `yum.log` and dnf's history database. One
+//! record per package installed, upgraded, downgraded, reinstalled or
+//! removed; apt's and dnf's history carry the command line and who ran it. dpkg's configure and trigger steps, its
 //! status lines and the logs' other messages are left out: the changes
 //! say what happened.
 
@@ -38,11 +38,23 @@ impl Adapter for PackagesAdapter {
     }
 
     fn parse(&self, input: &Input<'_>, sink: &mut dyn Sink) -> Result<(), ParseError> {
+        self.parse_with_log(input, &[], sink)
+    }
+
+    /// dnf's history database with its write-ahead log, where the latest
+    /// transactions often are; the text logs ignore it.
+    fn parse_with_log(
+        &self,
+        input: &Input<'_>,
+        log: &[u8],
+        sink: &mut dyn Sink,
+    ) -> Result<(), ParseError> {
         let kind = packages::detect(input.name)
             .ok_or_else(|| ParseError::at(0, "not a package-manager log"))?;
-        let parsed = packages::parse(
+        let parsed = packages::parse_with_log(
             kind,
             input.data,
+            log,
             Context {
                 modified: input.modified,
             },
@@ -64,8 +76,13 @@ impl Adapter for PackagesAdapter {
         }
         for transaction in &parsed.transactions {
             for (index, change) in transaction.changes.iter().enumerate() {
+                let table = match kind {
+                    // dnf's history numbers its transactions.
+                    Kind::DnfHistory => format!("dnf transaction {}", transaction.line),
+                    _ => format!("transaction at line {}", transaction.line),
+                };
                 let locator = Locator::TableRow {
-                    table: format!("transaction at line {}", transaction.line),
+                    table,
                     row: index as u64,
                 };
                 let mut record = self.record(input, locator);
@@ -110,10 +127,9 @@ fn fill(
             .push(RecordTime::new(TimeKind::Logged, "logged", time));
     }
     let command = transaction.and_then(|t| t.command.clone());
+    let user = transaction.and_then(|t| t.requested_by.as_ref());
     record.facets = Facets {
-        user_name: transaction
-            .and_then(|t| t.requested_by.as_ref())
-            .map(|user| user.name.clone()),
+        user_name: user.and_then(|user| user.name.clone()),
         process_command_line: command.clone(),
         ..Facets::default()
     };
@@ -134,6 +150,9 @@ fn fill(
     if change.automatic {
         fields.insert("Automatic".into(), Value::Bool(true));
     }
+    if let Some(uid) = user.and_then(|user| user.uid) {
+        fields.insert("Uid".into(), Value::UInt(u64::from(uid)));
+    }
     record.fields = fields;
     record.summary = match command {
         Some(command) => format!("{} (by {command})", change.summary()),
@@ -147,5 +166,6 @@ fn log_name(kind: Kind) -> &'static str {
         Kind::AptHistory => "apt",
         Kind::DnfRpm => "dnf",
         Kind::Yum => "yum",
+        Kind::DnfHistory => "dnf history",
     }
 }
