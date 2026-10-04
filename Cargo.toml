@@ -1,6 +1,6 @@
 [package]
 name = "sootmark-adapters"
-version = "0.2.25"
+version = "0.2.26"
 edition = "2021"
 rust-version = "1.80"
 description = "One adapter per parser dependency: the parser's native output mapped into the Sootmark model."
@@ -27,7 +27,7 @@ persistence = { package = "sootmark-persistence", version = "0.3.0" }
 prefetch = { package = "sootmark-prefetch", version = "0.1.0" }
 recyclebin = { package = "sootmark-recyclebin", version = "0.1.0" }
 registry = { package = "sootmark-registry", version = "0.7.0" }
-search = { package = "sootmark-search", version = "0.1.0" }
+search = { package = "sootmark-search", version = "0.2.0" }
 shell = { package = "sootmark-shell", version = "0.2.0" }
 srum = { package = "sootmark-srum", version = "0.1.0" }
 syslog = { package = "sootmark-syslog", version = "0.1.2" }

@@ -6,3 +6,17 @@ a70dde825618050f6ce6c646f12fed386a9b4d73. Stored gzip-compressed
 (gzip -9n), otherwise unmodified. SHA-256 of the uncompressed file:
 
   Windows.edb  e96837a0ad37be5a55222fa98991bec6b5c5ba956610f9d241aa8c65f2e0714c
+
+Windows.db is derived from SIDR's tests/testdata/Windows.db (a Windows 11
+search index), under the Apache License 2.0 (LICENSE, in this directory).
+Copyright 2025, LevelBlue.
+
+Source: https://github.com/strozfriedberg/sidr, at commit
+5bde8e87b2f07f72c031eb9bfd39c50739a13aec (SHA-256 of the original:
+e655a1af9eb3386ffdc7e19aa8dcda06dfa2c35a1c3b657ac4a9c1c13c83f020).
+Modified: only the two property tables kept
+(SystemIndex_1_PropertyStore_Metadata whole, and the properties of
+items 1, 2, 3, 29 and 176 of SystemIndex_1_PropertyStore), copied with
+sqlite3 into a new database. SHA-256 of the result:
+
+  Windows.db  01be4fed428b87cb39c8da1108ea2fc1105a93d4c7383067c0388b89c5ccee60
