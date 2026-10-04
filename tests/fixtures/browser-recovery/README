@@ -1,0 +1,4 @@
+History: chromium.db from the sootmark-browser repository
+(tests/fixtures/recovery/, made by sootmark-sqlite's recovery generator with the
+sqlite3 shell): a Chromium-like history with a time range of visits cleared.
+MIT OR Apache-2.0, like this crate.

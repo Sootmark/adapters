@@ -144,3 +144,48 @@ fn webcache_visits() {
         Some(&Value::from("internet explorer"))
     );
 }
+
+/// A Chromium-like history with a time range of visits cleared
+/// (`tests/fixtures/browser-recovery/`): the deleted visits and pages come
+/// back as records of their own, marked deleted, with where they were
+/// found.
+#[test]
+fn deleted_visits_and_pages() {
+    let data = std::fs::read(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/fixtures/browser-recovery/History"
+    ))
+    .unwrap();
+    let path = "home/alice/.config/chromium/Default/History";
+    assert_conforms(&BrowserAdapter, path, &data);
+    let input = Input {
+        evidence: EvidenceId::of_content(&data),
+        name: path,
+        data: &data,
+        modified: None,
+    };
+    let mut sink = Collected::default();
+    BrowserAdapter.parse(&input, &mut sink).unwrap();
+    let deleted: Vec<_> = sink
+        .records
+        .iter()
+        .filter(|r| field(r, "Deleted") == Some(&Value::Bool(true)))
+        .collect();
+    let visits = deleted
+        .iter()
+        .filter(|r| r.summary.starts_with("Deleted visit (recovered, "))
+        .count();
+    let pages = deleted
+        .iter()
+        .filter(|r| r.summary.starts_with("Deleted page (recovered, "))
+        .count();
+    assert_eq!((visits, pages), (61, 20));
+    assert!(deleted
+        .iter()
+        .all(|r| field(r, "RecoveredFrom").is_some() && field(r, "Confidence").is_some()));
+    // Live visits aren't marked.
+    assert!(sink
+        .records
+        .iter()
+        .any(|r| r.summary.starts_with("Visited ") && field(r, "Deleted").is_none()));
+}

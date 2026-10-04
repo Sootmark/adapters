@@ -5,7 +5,7 @@
 //! and one per download (from where, to where, how it ended), with the
 //! account whose profile it is from the path.
 
-use browser::{Download, History, Kind, Visit};
+use browser::{Download, History, Kind, PageState, Provenance, RecoveredPage, Visit};
 use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
 use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Value};
 
@@ -55,21 +55,88 @@ impl Adapter for BrowserAdapter {
         for download in &history.downloads {
             sink.record(self.download(input, &history, download, user.as_deref()));
         }
+        for deleted in &history.deleted_visits {
+            let mut record = self.visit(input, &history, &deleted.visit, user.as_deref());
+            self.mark_deleted(&mut record, input, &deleted.provenance, "visit");
+            sink.record(record);
+        }
+        for deleted in &history.deleted_pages {
+            sink.record(self.deleted_page(input, &history, deleted, user.as_deref()));
+        }
+        for deleted in &history.deleted_downloads {
+            let mut record = self.download(input, &history, &deleted.download, user.as_deref());
+            self.mark_deleted(&mut record, input, &deleted.provenance, "download");
+            sink.record(record);
+        }
         Ok(())
     }
 }
 
 impl BrowserAdapter {
     fn record(self, input: &Input<'_>, table: &str, row: i64) -> Record {
-        Record::new(
-            input.evidence,
-            NAMESPACE,
+        self.record_at(
+            input,
             Locator::TableRow {
                 table: table.to_owned(),
                 row: u64::try_from(row).unwrap_or_default(),
             },
-            self.parser(),
         )
+    }
+
+    fn record_at(self, input: &Input<'_>, locator: Locator) -> Record {
+        Record::new(input.evidence, NAMESPACE, locator, self.parser())
+    }
+
+    /// Turn a live-looking record into a recovered one: its own location
+    /// (page and offset, and the log frame for an older version), the
+    /// provenance as fields, and a summary that says it was deleted.
+    fn mark_deleted(self, record: &mut Record, input: &Input<'_>, from: &Provenance, what: &str) {
+        let mut marked = self.record_at(input, recovered_locator(from));
+        marked.times = std::mem::take(&mut record.times);
+        marked.facets = std::mem::take(&mut record.facets);
+        marked.fields = std::mem::take(&mut record.fields);
+        provenance_fields(&mut marked.fields, from);
+        marked.summary = format!(
+            "Deleted {what} (recovered, {} confidence): {}",
+            confidence_name(from),
+            record.summary
+        );
+        *record = marked;
+    }
+
+    fn deleted_page(
+        self,
+        input: &Input<'_>,
+        history: &History,
+        deleted: &RecoveredPage,
+        user: Option<&str>,
+    ) -> Record {
+        let page = &deleted.page;
+        let mut record = self.record_at(input, recovered_locator(&deleted.provenance));
+        if let Some(time) = page.last_visit {
+            record
+                .times
+                .push(RecordTime::new(TimeKind::Logged, "last_visit_time", time));
+        }
+        record.facets = Facets {
+            user_name: user.map(str::to_owned),
+            ..Facets::default()
+        };
+        let mut fields = Fields::new();
+        text(&mut fields, "Browser", Some(browser_name(history.kind)));
+        text(&mut fields, "Url", Some(&page.url));
+        text(&mut fields, "Domain", domain(&page.url));
+        text(&mut fields, "Title", Some(&page.title));
+        number(&mut fields, "VisitCount", page.visit_count);
+        number(&mut fields, "TypedCount", page.typed_count);
+        provenance_fields(&mut fields, &deleted.provenance);
+        record.fields = fields;
+        record.summary = format!(
+            "Deleted page (recovered, {} confidence): {}, last visited",
+            confidence_name(&deleted.provenance),
+            shorten(&page.url)
+        );
+        record
     }
 
     fn visit(
@@ -171,6 +238,45 @@ impl BrowserAdapter {
             download.target_path
         );
         record
+    }
+}
+
+/// Where a recovered record was: `deleted visits` (or `… wal frame 7`),
+/// row = page and offset.
+fn recovered_locator(from: &Provenance) -> Locator {
+    let version = match from.page_state {
+        PageState::Superseded { frame }
+        | PageState::Uncommitted { frame }
+        | PageState::Invalid { frame } => format!(" wal frame {frame}"),
+        PageState::ReplacedInFile => " under the wal".to_owned(),
+        _ => String::new(),
+    };
+    Locator::TableRow {
+        table: format!("deleted {}{version}", from.table),
+        row: u64::from(from.page) << 32 | from.offset as u64,
+    }
+}
+
+fn provenance_fields(fields: &mut Fields, from: &Provenance) {
+    fields.insert("Deleted".into(), Value::Bool(true));
+    let place = format!(
+        "{:?} of page {} at offset {} ({:?})",
+        from.area, from.page, from.offset, from.page_state
+    );
+    text(fields, "RecoveredFrom", Some(&place));
+    text(fields, "Confidence", Some(confidence_name(from)));
+    text(fields, "Evidence", Some(&format!("{:?}", from.evidence)));
+    text(fields, "LostValues", Some(&from.lost.join(", ")));
+    if from.truncated {
+        fields.insert("Truncated".into(), Value::Bool(true));
+    }
+}
+
+fn confidence_name(from: &Provenance) -> &'static str {
+    match from.confidence {
+        browser::Confidence::High => "high",
+        browser::Confidence::Medium => "medium",
+        browser::Confidence::Low => "low",
     }
 }
 
