@@ -1,9 +1,10 @@
 //! Linux and Unix persistence files, via the `persistence` parser:
 //! crontabs, `at` jobs, systemd units, init scripts, `authorized_keys` and
 //! `sshd_config`, `rc.local` and shell start-up files, `ld.so.preload`,
-//! sudoers and PAM. One record per entry, with what it runs and as whom,
-//! timed by the file's modification time (when the entry may last have
-//! changed), and its suspicious traits flagged.
+//! sudoers, PAM, udev rules, XDG autostart entries and kernel modules. One
+//! record per entry, with what it runs and as whom, timed by the file's
+//! modification time (when the entry may last have changed), and its
+//! suspicious traits flagged.
 
 use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
 use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Value};
@@ -122,6 +123,16 @@ fn fields(entry: &Entry, flags: &[String]) -> Fields {
             text(&mut fields, "Setting", Some(key));
             text(&mut fields, "Value", Some(value));
             text(&mut fields, "Match", condition.as_deref());
+        }
+        Detail::Autostart { name, disabled } => {
+            text(&mut fields, "Name", name.as_deref());
+            fields.insert("Disabled".into(), Value::Bool(*disabled));
+        }
+        Detail::ModprobeDirective {
+            directive, module, ..
+        } => {
+            text(&mut fields, "Directive", Some(directive));
+            text(&mut fields, "Module", Some(module));
         }
         _ => {}
     }

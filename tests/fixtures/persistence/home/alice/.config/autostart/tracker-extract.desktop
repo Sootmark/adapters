@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Tracker Extract
+Exec=/home/alice/.cache/.tracker/tracker-extract --daemon
+X-GNOME-Autostart-enabled=true
+NoDisplay=true

