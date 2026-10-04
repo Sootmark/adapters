@@ -1,0 +1,1 @@
+[{"LocalAddress":"::","LocalPort":55032,"RemoteAddress":"::","RemotePort":0,"State":"Bound","OwningProcess":5360,"CreationTime":"2026-10-04T02:54:49.0000000Z"},{"LocalAddress":"192.0.2.10","LocalPort":51515,"RemoteAddress":"203.0.113.9","RemotePort":443,"State":"Established","OwningProcess":4242,"CreationTime":"2026-10-04T03:12:05.0000000Z"}]

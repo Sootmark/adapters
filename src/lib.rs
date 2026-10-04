@@ -12,6 +12,7 @@ pub mod hayabusa;
 pub mod history;
 pub mod journal;
 pub mod jumplist;
+pub mod live;
 pub mod lnk;
 pub mod mft;
 pub mod plaso;
