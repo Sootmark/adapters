@@ -1,0 +1,3 @@
+Logs from the sootmark-packages repository (tests/fixtures/gen.sh): real
+installs and removals in throwaway Debian and Rocky Linux containers.
+MIT OR Apache-2.0, like this crate.

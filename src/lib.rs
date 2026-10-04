@@ -16,6 +16,7 @@ pub mod jumplist;
 pub mod live;
 pub mod lnk;
 pub mod mft;
+pub mod packages;
 pub mod persistence;
 pub mod plaso;
 pub mod prefetch;
