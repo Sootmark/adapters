@@ -1,0 +1,8 @@
+SRUDB.dat.gz is plaso's test_data/SRUDB.dat, under the Apache License 2.0
+(LICENSE, in this directory). Copyright the plaso authors.
+
+Source: https://github.com/log2timeline/plaso, test_data/, at commit
+a70dde825618050f6ce6c646f12fed386a9b4d73. Stored gzip-compressed
+(gzip -9n), otherwise unmodified. SHA-256 of the uncompressed file:
+
+  SRUDB.dat  6536ae6bb5b91f6f8f37a4af26f6cfaecc8a1f745370bfba83af7ebae6694e3e
