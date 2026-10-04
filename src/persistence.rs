@@ -1,8 +1,9 @@
 //! Linux and Unix persistence files, via the `persistence` parser:
-//! crontabs, systemd units, `authorized_keys`, `rc.local` and shell
-//! start-up files, `ld.so.preload` and sudoers. One record per entry, with
-//! what it runs and as whom, timed by the file's modification time (when
-//! the entry may last have changed), and its suspicious traits flagged.
+//! crontabs, `at` jobs, systemd units, init scripts, `authorized_keys` and
+//! `sshd_config`, `rc.local` and shell start-up files, `ld.so.preload`,
+//! sudoers and PAM. One record per entry, with what it runs and as whom,
+//! timed by the file's modification time (when the entry may last have
+//! changed), and its suspicious traits flagged.
 
 use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
 use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Value};
@@ -91,19 +92,51 @@ impl PersistenceAdapter {
 
 fn fields(entry: &Entry, flags: &[String]) -> Fields {
     let mut fields = Fields::new();
-    let mut text = |name: &str, value: Option<&str>| {
-        if let Some(value) = value.filter(|v| !v.is_empty()) {
-            fields.insert(name.into(), Value::from(value));
+    text(&mut fields, "Kind", Some(entry.kind.name()));
+    text(&mut fields, "Schedule", entry.schedule.as_deref());
+    text(&mut fields, "Flags", Some(&flags.join("; ")));
+    match &entry.detail {
+        Detail::AuthorizedKey(key) => {
+            text(&mut fields, "KeyType", Some(&key.key_type));
+            text(&mut fields, "Fingerprint", key.fingerprint.as_deref());
+            text(&mut fields, "Comment", key.comment.as_deref());
         }
-    };
-    text("Kind", Some(entry.kind.name()));
-    text("Schedule", entry.schedule.as_deref());
-    text("Flags", Some(&flags.join("; ")));
-    if let Detail::AuthorizedKey(key) = &entry.detail {
-        text("KeyType", Some(&key.key_type));
-        text("Fingerprint", key.fingerprint.as_deref());
-        text("Comment", key.comment.as_deref());
+        Detail::AtJob { queue, job, uid } => {
+            text(&mut fields, "Queue", queue.map(String::from).as_deref());
+            number(&mut fields, "Job", *job);
+            number(&mut fields, "Uid", *uid);
+        }
+        Detail::PamRule(rule) => {
+            text(&mut fields, "Service", Some(&rule.service));
+            text(&mut fields, "PamType", Some(&rule.rule_type));
+            text(&mut fields, "Control", Some(&rule.control));
+            text(&mut fields, "Module", Some(&rule.module));
+            text(&mut fields, "Arguments", Some(&rule.arguments.join(" ")));
+        }
+        Detail::PamInclude(file) => text(&mut fields, "Include", Some(file)),
+        Detail::SshdSetting {
+            key,
+            value,
+            condition,
+        } => {
+            text(&mut fields, "Setting", Some(key));
+            text(&mut fields, "Value", Some(value));
+            text(&mut fields, "Match", condition.as_deref());
+        }
+        _ => {}
     }
     fields.insert("Line".into(), Value::UInt(entry.line as u64));
     fields
+}
+
+fn text(fields: &mut Fields, name: &str, value: Option<&str>) {
+    if let Some(value) = value.filter(|v| !v.is_empty()) {
+        fields.insert(name.into(), Value::from(value));
+    }
+}
+
+fn number(fields: &mut Fields, name: &str, value: Option<u32>) {
+    if let Some(value) = value {
+        fields.insert(name.into(), Value::UInt(u64::from(value)));
+    }
 }

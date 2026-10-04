@@ -97,3 +97,45 @@ fn damage_is_reported() {
         .iter()
         .all(|r| r.namespace() == Namespace::new("linux.utmp")));
 }
+
+/// A `lastlog` with root's login at UID 0 and alice's at 1000, built as
+/// x86-64 glibc writes it: 292-byte records, zeros between.
+#[test]
+fn lastlog_logins() {
+    let mut data = vec![0u8; 292 * 1001];
+    for (uid, seconds, line, host) in [
+        (0, 1_790_000_000u32, "tty1", ""),
+        (1000, 1_790_003_600, "pts/0", "198.51.100.7"),
+    ] {
+        let at = uid * 292;
+        data[at..at + 4].copy_from_slice(&seconds.to_le_bytes());
+        data[at + 4..at + 4 + line.len()].copy_from_slice(line.as_bytes());
+        data[at + 36..at + 36 + host.len()].copy_from_slice(host.as_bytes());
+    }
+    assert_eq!(
+        UtmpAdapter.probe("var/log/lastlog", &data),
+        Confidence::Certain
+    );
+    assert_conforms(&UtmpAdapter, "lastlog", &data);
+    let input = Input {
+        evidence: EvidenceId::of_content(&data),
+        name: "var/log/lastlog",
+        data: &data,
+        modified: None,
+    };
+    let mut sink = Collected::default();
+    UtmpAdapter.parse(&input, &mut sink).unwrap();
+    let summaries: Vec<_> = sink.records.iter().map(|r| r.summary.as_str()).collect();
+    assert_eq!(
+        summaries,
+        [
+            "Last login of uid 0 on tty1",
+            "Last login of uid 1000 from 198.51.100.7 on pts/0"
+        ]
+    );
+    assert_eq!(
+        sink.records[1].facets.source_ip.as_deref(),
+        Some("198.51.100.7")
+    );
+    assert_eq!(sink.records[1].times[0].kind, TimeKind::Logged);
+}

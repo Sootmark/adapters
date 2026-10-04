@@ -1,6 +1,7 @@
 //! Linux login records (`utmp`, `wtmp`, `btmp`), via the `utmp` parser:
 //! logins with where they came from, logouts, boots, run level and clock
-//! changes, and (from `btmp`) failed logins.
+//! changes, and (from `btmp`) failed logins; and `lastlog`, each account's
+//! last login.
 
 use std::path::Path;
 
@@ -16,12 +17,12 @@ pub const NAMESPACE: Namespace = Namespace::new("linux.utmp");
 #[derive(Debug, Default, Clone, Copy)]
 pub struct UtmpAdapter;
 
-/// Which login record file: `wtmp`, `btmp` or `utmp`, from the name
-/// (rotated copies included: `wtmp.1`, `btmp-20260901`).
+/// Which login record file: `wtmp`, `btmp`, `utmp` or `lastlog`, from the
+/// name (rotated copies included: `wtmp.1`, `btmp-20260901`).
 fn file_kind(name: &str) -> Option<&'static str> {
     let base = Path::new(name).file_name()?.to_str()?.to_ascii_lowercase();
     let stem = base.split(['.', '-']).next()?;
-    ["wtmp", "btmp", "utmp"]
+    ["wtmp", "btmp", "utmp", "lastlog"]
         .into_iter()
         .find(|kind| *kind == stem)
 }
@@ -43,7 +44,7 @@ impl Adapter for UtmpAdapter {
         if name.to_ascii_lowercase().ends_with(".gz") || file_kind(name).is_none() {
             return Confidence::No;
         }
-        if utmp::parse(head).is_ok() {
+        if file_kind(name) == Some("lastlog") || utmp::parse(head).is_ok() {
             Confidence::Certain
         } else {
             Confidence::Maybe
@@ -51,6 +52,10 @@ impl Adapter for UtmpAdapter {
     }
 
     fn parse(&self, input: &Input<'_>, sink: &mut dyn Sink) -> Result<(), ParseError> {
+        if file_kind(input.name) == Some("lastlog") {
+            self.parse_lastlog(input, sink);
+            return Ok(());
+        }
         let records = utmp::parse(input.data).map_err(|e| ParseError::at(0, e.0))?;
         for problem in &records.problems {
             sink.skipped(Skipped {
@@ -67,6 +72,67 @@ impl Adapter for UtmpAdapter {
 }
 
 impl UtmpAdapter {
+    /// One record per account that has logged in.
+    fn parse_lastlog(self, input: &Input<'_>, sink: &mut dyn Sink) {
+        let lastlog = utmp::parse_lastlog(input.data);
+        for problem in lastlog.problems {
+            sink.skipped(Skipped {
+                locator: Locator::ByteOffset(0),
+                reason: problem,
+            });
+        }
+        // `struct lastlog`: a 32- or 64-bit time, then 32 + 256 bytes.
+        let size = match lastlog.layout {
+            utmp::Layout::Time32 | utmp::Layout::Time32BigEndian => 292,
+            utmp::Layout::Time64 | utmp::Layout::Time64BigEndian => 296,
+        };
+        for login in &lastlog.entries {
+            sink.record(self.last_login(input, login, u64::from(login.uid) * size));
+        }
+    }
+
+    fn last_login(self, input: &Input<'_>, login: &utmp::LastLogin, offset: u64) -> Record {
+        let mut record = Record::new(
+            input.evidence,
+            NAMESPACE,
+            Locator::ByteOffset(offset),
+            self.parser(),
+        );
+        record
+            .times
+            .push(RecordTime::new(TimeKind::Logged, "ll_time", login.time));
+        let source_ip = login
+            .host
+            .parse::<std::net::IpAddr>()
+            .ok()
+            .map(|a| a.to_string());
+        record.facets = Facets {
+            source_ip,
+            ..Facets::default()
+        };
+        let mut fields = Fields::new();
+        fields.insert("File".into(), Value::from("lastlog"));
+        fields.insert("Uid".into(), Value::UInt(u64::from(login.uid)));
+        for (name, value) in [("Line", &login.line), ("Host", &login.host)] {
+            if !value.is_empty() {
+                fields.insert(name.into(), Value::from(value.as_str()));
+            }
+        }
+        record.fields = fields;
+        let from = if login.host.is_empty() {
+            String::new()
+        } else {
+            format!(" from {}", login.host)
+        };
+        let on = if login.line.is_empty() {
+            String::new()
+        } else {
+            format!(" on {}", login.line)
+        };
+        record.summary = format!("Last login of uid {}{from}{on}", login.uid);
+        record
+    }
+
     fn to_record(self, input: &Input<'_>, entry: &utmp::Record, file: &str) -> Record {
         let mut record = Record::new(
             input.evidence,

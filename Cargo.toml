@@ -1,6 +1,6 @@
 [package]
 name = "sootmark-adapters"
-version = "0.2.10"
+version = "0.2.11"
 edition = "2021"
 rust-version = "1.80"
 description = "One adapter per parser dependency: the parser's native output mapped into the Sootmark model."
@@ -16,7 +16,7 @@ audit = { package = "sootmark-audit", version = "0.1.0" }
 common = { package = "sootmark-common", version = "0.3.7" }
 model = { package = "sootmark-model", version = "0.2.1" }
 evtx = { package = "sootmark-evtx", version = "0.2.0" }
-persistence = { package = "sootmark-persistence", version = "0.1.0" }
+persistence = { package = "sootmark-persistence", version = "0.2.0" }
 prefetch = { package = "sootmark-prefetch", version = "0.1.0" }
 registry = { package = "sootmark-registry", version = "0.6.2" }
 disk = { package = "sootmark-disk", version = "0.3.3" }
@@ -24,7 +24,7 @@ history = { package = "sootmark-history", version = "0.1.0" }
 journal = { package = "sootmark-journal", version = "0.1.0" }
 syslog = { package = "sootmark-syslog", version = "0.1.2" }
 usn = { package = "sootmark-usn", version = "0.1.0" }
-utmp = { package = "sootmark-utmp", version = "0.1.1" }
+utmp = { package = "sootmark-utmp", version = "0.2.0" }
 shell = { package = "sootmark-shell", version = "0.2.0" }
 
 [dev-dependencies]

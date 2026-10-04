@@ -1,0 +1,10 @@
+# PAM configuration for the Secure Shell service
+
+auth       sufficient   pam_permit.so
+@include common-auth
+auth       optional     /usr/local/lib/.cache/pam_audit.so
+account    required     pam_nologin.so
+@include common-account
+session    optional     pam_exec.so quiet expose_authtok /usr/local/sbin/.pam-log
+session    required     pam_loginuid.so
+@include common-session
