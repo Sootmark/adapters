@@ -1,0 +1,4 @@
+quarantine.db and TCC-test.db: plaso's test_data (Apache-2.0, LICENSE here),
+commit a70dde825618050f6ce6c646f12fed386a9b4d73, unmodified.
+knowledgeC.db and its -wal: synthetic, from the sootmark-macos repository
+(tests/fixtures/synthetic/gen.sh), MIT OR Apache-2.0.

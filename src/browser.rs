@@ -7,6 +7,8 @@
 
 use browser::{Download, History, Kind, PageState, Provenance, RecoveredPage, Visit};
 use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
+
+use crate::home::profile_owner;
 use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Value};
 
 /// Records of browser history databases.
@@ -313,17 +315,6 @@ fn state_name(state: browser::DownloadState) -> String {
     }
 }
 
-/// The account whose profile the database is in: `Users/<name>/…`
-/// (Windows, macOS) or `home/<name>/…`.
-fn profile_owner(path: &str) -> Option<String> {
-    let parts: Vec<&str> = path.split(['/', '\\']).collect();
-    parts
-        .windows(2)
-        .find(|pair| pair[0].eq_ignore_ascii_case("Users") || pair[0] == "home")
-        .map(|pair| pair[1].to_owned())
-        .filter(|name| !name.is_empty())
-}
-
 /// A URL's host: `https://www.example.com:8443/a` is `www.example.com`.
 fn domain(url: &str) -> Option<&str> {
     let (_, rest) = url.split_once("://")?;
@@ -360,7 +351,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn domains_and_profile_owners() {
+    fn domains() {
         assert_eq!(
             domain("https://user@www.example.com:8443/a?b"),
             Some("www.example.com")
@@ -368,14 +359,5 @@ mod tests {
         assert_eq!(domain("http://[2001:db8::1]:80/"), Some("2001:db8::1"));
         assert_eq!(domain("file:///C:/x"), None);
         assert_eq!(domain("about:blank"), None);
-        assert_eq!(
-            profile_owner(r"C\Users\alice\AppData\Local\Google\Chrome\User Data\Default\History"),
-            Some("alice".to_owned())
-        );
-        assert_eq!(
-            profile_owner("[root]/home/bob/.mozilla/firefox/x.default/places.sqlite"),
-            Some("bob".to_owned())
-        );
-        assert_eq!(profile_owner("places.sqlite"), None);
     }
 }

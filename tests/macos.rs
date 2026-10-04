@@ -1,0 +1,69 @@
+//! The macOS adapter on plaso's quarantine and TCC databases (Apache-2.0)
+//! and a synthetic KnowledgeC database with its write-ahead log
+//! (`tests/fixtures/macos/`): the contract, recognition, records.
+
+use conformance::assert_conforms;
+use model::adapter::{Adapter, Collected, Confidence, Input};
+use model::{EvidenceId, Record, Value};
+use sootmark_adapters::macos::{MacosAdapter, KNOWLEDGEC, QUARANTINE, TCC};
+
+fn read(name: &str) -> Vec<u8> {
+    std::fs::read(format!(
+        "{}/tests/fixtures/macos/{name}",
+        env!("CARGO_MANIFEST_DIR")
+    ))
+    .unwrap()
+}
+
+fn parse(fixture: &str, path: &str, log: &[u8]) -> Vec<Record> {
+    let data = read(fixture);
+    assert_eq!(MacosAdapter.probe(path, &data), Confidence::Certain);
+    assert_conforms(&MacosAdapter, path, &data);
+    let input = Input {
+        evidence: EvidenceId::of_content(&data),
+        name: path,
+        data: &data,
+        modified: None,
+    };
+    let mut sink = Collected::default();
+    MacosAdapter.parse_with_log(&input, log, &mut sink).unwrap();
+    sink.records
+}
+
+#[test]
+fn quarantine_events() {
+    let path = "Users/alice/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV2";
+    let records = parse("quarantine.db", path, &[]);
+    assert_eq!(records.len(), 14);
+    assert!(records.iter().all(|r| r.namespace() == QUARANTINE));
+    assert!(records
+        .iter()
+        .all(|r| r.facets.user_name.as_deref() == Some("alice")));
+    assert!(records[0].summary.starts_with("Downloaded by "));
+}
+
+#[test]
+fn tcc_permissions() {
+    let path = "Library/Application Support/com.apple.TCC/TCC.db";
+    let records = parse("TCC-test.db", path, &[]);
+    assert_eq!(records.len(), 21);
+    let weather = &records[0];
+    assert_eq!(weather.namespace(), TCC);
+    assert_eq!(
+        weather.fields.get("Client"),
+        Some(&Value::from("com.apple.weather"))
+    );
+    assert_eq!(weather.fields.get("Scope"), Some(&Value::from("system")));
+    assert_eq!(weather.summary, "com.apple.weather allowed for Ubiquity");
+    // A system database belongs to no one account.
+    assert_eq!(weather.facets.user_name, None);
+}
+
+#[test]
+fn knowledgec_with_its_log() {
+    let path = "Users/alice/Library/Application Support/Knowledge/knowledgeC.db";
+    let alone = parse("knowledgeC.db", path, &[]);
+    let with_log = parse("knowledgeC.db", path, &read("knowledgeC.db-wal"));
+    assert!(with_log.iter().all(|r| r.namespace() == KNOWLEDGEC));
+    assert_eq!(with_log.len(), alone.len() + 1, "one event only in the log");
+}

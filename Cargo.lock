@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "sootmark-adapters"
-version = "0.2.22"
+version = "0.2.23"
 dependencies = [
  "sootmark-audit",
  "sootmark-browser",
@@ -15,6 +15,7 @@ dependencies = [
  "sootmark-evtx",
  "sootmark-history",
  "sootmark-journal",
+ "sootmark-macos",
  "sootmark-model",
  "sootmark-packages",
  "sootmark-persistence",
@@ -102,6 +103,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "63fdcc87fe543caccd99921f9ec635a6907f9d4f7d7b4f84e9c9c6493709d7ed"
 dependencies = [
  "sootmark-common",
+]
+
+[[package]]
+name = "sootmark-macos"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "78a95a6136cc7b822796eb82f905339a086a98e306a2e719995e64d700186695"
+dependencies = [
+ "sootmark-common",
+ "sootmark-sqlite 0.2.0",
 ]
 
 [[package]]
