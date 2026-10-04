@@ -4,21 +4,40 @@
 //! UsrClass.dat and NTUSER.DAT: ShellBags. Amcache.hve: every entry (files
 //! with their SHA-1, programs, shortcuts, drivers, devices). SYSTEM, every
 //! control set: BAM and DAM (per user, programs and their last run).
+//!
+//! The incident-response artifacts, each in its own namespace (submodules
+//! below): SYSTEM, the current control set: USB devices and
+//! `MountedDevices`. NTUSER.DAT: outbound Remote Desktop history and the
+//! `RecentDocs`, `RunMRU`, `TypedPaths` and `WordWheelQuery` lists.
+//! SOFTWARE: network profiles and scheduled tasks. SOFTWARE and NTUSER.DAT:
+//! persistence keys (each flagged when it departs from Windows' default)
+//! and installed programs. SYSTEM and SOFTWARE: what the machine is (name,
+//! time zone, last shutdown, Windows version) and its user profiles.
 //! Any other hive is read and yields nothing.
+//!
+//! Damage the parser met is reported as skipped, located by key and value.
 //!
 //! A dirty hive (an interrupted write, its latest changes still in
 //! `.LOG1`/`.LOG2`) is read as it is and reported as skipped, so the gap is
 //! never silent.
 
+mod activity;
+mod devices;
+mod identity;
+mod network;
+mod persistence;
+mod programs;
+mod tasks;
+
 use std::path::Path;
 
-use common::time::Ts;
+use common::time::{Precision, Ts};
 use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
 use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Value};
 use std::collections::HashMap;
 
 use registry::amcache::{self, Class};
-use registry::{bam, shellbags, shimcache, userassist, Data, Hive, Key};
+use registry::{bam, shellbags, shimcache, userassist, Data, Hive, Key, Problem, SystemTime};
 
 /// ShimCache entries.
 pub const SHIMCACHE: Namespace = Namespace::new("windows.registry.shimcache");
@@ -49,6 +68,33 @@ pub const AMCACHE_DEVICE_PNP: Namespace = Namespace::new("windows.registry.amcac
 /// Amcache device containers.
 pub const AMCACHE_DEVICE_CONTAINER: Namespace =
     Namespace::new("windows.registry.amcache.device_container");
+
+/// USB devices (USBSTOR and USB instances).
+pub const USB: Namespace = Namespace::new("windows.registry.usb");
+/// `MountedDevices`: drive letters and volumes, and what they're bound to.
+pub const MOUNTED_DEVICES: Namespace = Namespace::new("windows.registry.mounted_devices");
+/// Outbound Remote Desktop connections.
+pub const RDP: Namespace = Namespace::new("windows.registry.rdp");
+/// `RecentDocs`: files and folders opened from Explorer.
+pub const RECENT_DOCS: Namespace = Namespace::new("windows.registry.recentdocs");
+/// `RunMRU`: Run dialog commands.
+pub const RUN_MRU: Namespace = Namespace::new("windows.registry.runmru");
+/// `TypedPaths`: paths typed in Explorer.
+pub const TYPED_PATHS: Namespace = Namespace::new("windows.registry.typedpaths");
+/// `WordWheelQuery`: Explorer searches.
+pub const WORD_WHEEL_QUERY: Namespace = Namespace::new("windows.registry.wordwheelquery");
+/// Network profiles.
+pub const NETWORKS: Namespace = Namespace::new("windows.registry.networks");
+/// Scheduled tasks from the Task Scheduler's cache.
+pub const TASKS: Namespace = Namespace::new("windows.registry.tasks");
+/// Persistence keys beyond Run and RunOnce.
+pub const PERSISTENCE: Namespace = Namespace::new("windows.registry.persistence");
+/// Installed programs (`Uninstall` keys).
+pub const PROGRAMS: Namespace = Namespace::new("windows.registry.programs");
+/// What the machine is: name, time zone, last shutdown, Windows version.
+pub const SYSTEM: Namespace = Namespace::new("windows.registry.system");
+/// User profiles (`ProfileList`).
+pub const PROFILES: Namespace = Namespace::new("windows.registry.profiles");
 
 fn amcache_namespace(class: Class) -> Namespace {
     match class {
@@ -100,6 +146,19 @@ impl Adapter for RegistryAdapter {
             AMCACHE_DRIVER_PACKAGE,
             AMCACHE_DEVICE_PNP,
             AMCACHE_DEVICE_CONTAINER,
+            USB,
+            MOUNTED_DEVICES,
+            RDP,
+            RECENT_DOCS,
+            RUN_MRU,
+            TYPED_PATHS,
+            WORD_WHEEL_QUERY,
+            NETWORKS,
+            TASKS,
+            PERSISTENCE,
+            PROGRAMS,
+            SYSTEM,
+            PROFILES,
         ]
     }
 
@@ -148,6 +207,14 @@ impl Adapter for RegistryAdapter {
         out.shellbags(&hive);
         out.amcache(&hive);
         out.bam(&hive);
+        out.devices(&hive);
+        out.remote_desktop(&hive);
+        out.recently_used(&hive);
+        out.networks(&hive);
+        out.tasks(&hive);
+        out.persistence(&hive);
+        out.programs(&hive);
+        out.identity(&hive);
         Ok(())
     }
 }
@@ -180,6 +247,21 @@ fn start_type(start: u32) -> &'static str {
         3 => "manual",
         4 => "disabled",
         _ => "unknown",
+    }
+}
+
+/// A wall-clock time (local, zone unknown) as a timestamp of `precision`.
+fn local(time: SystemTime, precision: Precision) -> Option<Ts> {
+    let ticks = Ts::from_filetime(time.wall_clock_filetime()?).ticks()?;
+    Some(Ts::from_local_ticks(ticks, precision))
+}
+
+/// Text fields, those present.
+fn insert_texts(fields: &mut Fields, texts: &[(&str, Option<&String>)]) {
+    for (name, value) in texts {
+        if let Some(value) = value {
+            fields.insert((*name).to_owned(), Value::from(value.as_str()));
+        }
     }
 }
 
@@ -242,6 +324,24 @@ impl Out<'_, '_> {
         )
     }
 
+    /// A record located at `key` (and `value`), with its key's last write.
+    fn keyed(&self, namespace: Namespace, key: &str, value: Option<&str>, written: u64) -> Record {
+        let mut record = self.record(namespace, key, value.map(str::to_owned));
+        record.times.push(RecordTime::new(
+            TimeKind::Modified,
+            "KeyLastWritten",
+            Ts::from_filetime(written),
+        ));
+        record
+    }
+
+    /// The parser's problems, as skipped.
+    fn problems(&mut self, problems: Vec<Problem>) {
+        for problem in problems {
+            self.skip(&problem.key, problem.value.as_deref(), problem.reason);
+        }
+    }
+
     fn skip(&mut self, key: &str, value: Option<&str>, reason: String) {
         self.sink.skipped(Skipped {
             locator: Locator::Registry {
@@ -254,13 +354,9 @@ impl Out<'_, '_> {
 
     /// SYSTEM: the current control set's ShimCache and services.
     fn system(&mut self, hive: &Hive<'_>) {
-        let Ok(Some(select)) = hive.open("Select") else {
+        let Ok(Some(set)) = hive.current_control_set() else {
             return;
         };
-        let Some(current) = dword(&select, "Current") else {
-            return;
-        };
-        let set = format!("ControlSet{current:03}");
         let cache_key = format!(r"{set}\Control\Session Manager\AppCompatCache");
         if let Ok(Some(key)) = hive.open(&cache_key) {
             match key.value("AppCompatCache") {

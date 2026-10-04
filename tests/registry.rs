@@ -1,19 +1,27 @@
 //! The registry adapter on Eric Zimmerman's test SYSTEM and NTUSER.DAT
 //! (MIT; `tests/fetch-hives.sh`), against RECmd's output for the same
 //! hives (`tests/fixtures/ez/RECmd_registry_artifacts.csv`): every
-//! ShimCache entry, service, UserAssist entry and Run value. Skipped when
-//! the hives aren't fetched.
+//! ShimCache entry, service, UserAssist entry and Run value. The
+//! incident-response artifacts (USB devices, Remote Desktop, MRU lists,
+//! networks, tasks, persistence keys, programs, system identity) are checked
+//! against RECmd and plaso on every entry in `sootmark-registry`; here, on
+//! the same hives and Andrew Rathbun's Windows 10 VM, that each becomes a
+//! record with its namespace, times, facets and summary. Skipped when the
+//! hives aren't fetched.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::path::Path;
 
+use common::time::Semantic;
 use conformance::assert_conforms;
 use model::adapter::{Adapter, Collected, Input};
 use model::TimeKind;
 use model::{EvidenceId, Record, Value};
 use sootmark_adapters::registry::{
-    RegistryAdapter, AMCACHE_FILE, BAM, RUN, SERVICES, SHELLBAGS, SHIMCACHE, USERASSIST,
+    RegistryAdapter, AMCACHE_FILE, BAM, MOUNTED_DEVICES, NETWORKS, PERSISTENCE, PROFILES, PROGRAMS,
+    RDP, RECENT_DOCS, RUN, RUN_MRU, SERVICES, SHELLBAGS, SHIMCACHE, SYSTEM, TASKS, TYPED_PATHS,
+    USB, USERASSIST, WORD_WHEEL_QUERY,
 };
 
 fn hive(name: &str) -> Option<Vec<u8>> {
@@ -336,4 +344,205 @@ fn bam_entries_from_every_control_set() {
         .unwrap();
     assert_eq!(run.ts.to_string(), "2022-02-05T19:31:33.5164430Z");
     assert_eq!(text(explorer, "ControlSet"), "ControlSet001");
+}
+
+fn of(output: &Collected, namespace: model::Namespace) -> Vec<&Record> {
+    output
+        .records
+        .iter()
+        .filter(|r| r.namespace() == namespace)
+        .collect()
+}
+
+/// Nothing skipped but, where the hive is dirty, the notice saying so.
+fn assert_only_dirty(output: &Collected) {
+    assert!(
+        output
+            .skipped
+            .iter()
+            .all(|s| s.reason.starts_with("dirty hive")),
+        "{:?}",
+        output.skipped
+    );
+}
+
+fn time_of<'r>(record: &'r Record, field: &str) -> &'r model::RecordTime {
+    record
+        .times
+        .iter()
+        .find(|t| t.field == field)
+        .unwrap_or_else(|| panic!("{}: no {field}", record.summary))
+}
+
+/// SYSTEM: USB devices (with the letters `MountedDevices` binds them to),
+/// mounts, computer name, time zone, last shutdown.
+#[test]
+fn system_incident_response_artifacts() {
+    let Some(bytes) = hive("SYSTEM") else { return };
+    let output = parse("SYSTEM", &bytes);
+    assert_eq!(output.skipped.len(), 1);
+    assert_only_dirty(&output);
+    let usb = of(&output, USB);
+    assert_eq!(usb.len(), 35);
+    let adata = usb
+        .iter()
+        .find(|r| text(r, "Serial") == "2361808400440061&0")
+        .unwrap();
+    assert_eq!(
+        adata.summary,
+        "USBSTOR device ADATA USB Flash Drive USB Device (serial 2361808400440061&0) · J:"
+    );
+    assert_eq!(text(adata, "Vendor"), "ADATA");
+    assert_eq!(text(adata, "LastArrivalSource"), "property 0066");
+    assert_eq!(
+        time_of(adata, "LastArrival").ts.to_string(),
+        "2015-02-24T03:23:35.6628693Z"
+    );
+    assert_eq!(time_of(adata, "FirstInstalled").kind, TimeKind::FirstSeen);
+    assert_eq!(adata.facets.service_name.as_deref(), Some("disk"));
+    assert_eq!(of(&output, MOUNTED_DEVICES).len(), 65);
+    let j = of(&output, MOUNTED_DEVICES)
+        .into_iter()
+        .find(|r| text(r, "DriveLetter") == "J:")
+        .unwrap();
+    assert_eq!(text(j, "Serial"), "2361808400440061&0");
+    let system = of(&output, SYSTEM);
+    assert_eq!(system.len(), 3, "name, time zone, shutdown");
+    let name = system
+        .iter()
+        .find(|r| r.facets.host_name.is_some())
+        .unwrap();
+    assert_eq!(name.facets.host_name.as_deref(), Some("HAXOR4"));
+    let shutdown = system
+        .iter()
+        .find(|r| r.summary.starts_with("Last clean"))
+        .unwrap();
+    assert_eq!(
+        time_of(shutdown, "ShutdownTime").ts.to_string(),
+        "2015-02-24T03:22:21.7296539Z"
+    );
+}
+
+/// NTUSER.DAT: Remote Desktop hosts, the MRU lists, Startup Approved and
+/// the user's programs.
+#[test]
+fn ntuser_incident_response_artifacts() {
+    let Some(bytes) = hive("NTUSER.DAT") else {
+        return;
+    };
+    let output = parse("NTUSER.DAT", &bytes);
+    assert_only_dirty(&output);
+    let rdp = of(&output, RDP);
+    assert_eq!(rdp.len(), 6);
+    let latest = rdp.iter().find(|r| text(r, "Host") == "SU-SVR02").unwrap();
+    assert_eq!(
+        latest.summary,
+        r"RDP connection to SU-SVR02 as SU\administrator"
+    );
+    assert_eq!(latest.fields.get("MRUPosition"), Some(&Value::UInt(0)));
+    assert_eq!(
+        time_of(latest, "MostRecentConnection").ts.to_string(),
+        "2014-11-29T18:06:33.2835701Z"
+    );
+    assert_eq!(latest.facets.destination_ip, None, "a name, not an address");
+    assert_eq!(of(&output, RECENT_DOCS).len(), 510);
+    let typed = of(&output, TYPED_PATHS);
+    assert_eq!(typed.len(), 15);
+    let first = typed.iter().find(|r| text(r, "Path") == r"D:\").unwrap();
+    assert_eq!(first.times.last().unwrap().field, "Typed");
+    assert_eq!(of(&output, WORD_WHEEL_QUERY).len(), 7);
+    assert_eq!(of(&output, RUN_MRU).len(), 0);
+    let startup = of(&output, PERSISTENCE);
+    assert_eq!(startup.len(), 15);
+    assert!(startup
+        .iter()
+        .all(|r| r.fields.get("Enabled") == Some(&Value::Bool(true))));
+    assert_eq!(of(&output, PROGRAMS).len(), 11);
+}
+
+/// SOFTWARE: networks (local times, kept as such), tasks, persistence keys
+/// at Windows' defaults, programs, version, profiles.
+#[test]
+fn software_incident_response_artifacts() {
+    let Some(bytes) = hive("SOFTWARE") else {
+        return;
+    };
+    assert_conforms(&RegistryAdapter, "SOFTWARE", &bytes);
+    let output = parse("SOFTWARE", &bytes);
+    assert_only_dirty(&output);
+    let networks = of(&output, NETWORKS);
+    assert_eq!(networks.len(), 1);
+    assert_eq!(
+        networks[0].summary,
+        "Network Network (wired, gateway 00-50-56-F6-99-6B)"
+    );
+    let created = time_of(networks[0], "DateCreated");
+    assert_eq!(created.ts.semantic(), Semantic::LocalUnknownZone);
+    assert!(
+        created
+            .ts
+            .to_string()
+            .starts_with("2013-10-09T20:32:23.241"),
+        "{}",
+        created.ts
+    );
+    assert_eq!(of(&output, TASKS).len(), 85);
+    let persistence = of(&output, PERSISTENCE);
+    assert_eq!(persistence.len(), 19);
+    assert!(persistence
+        .iter()
+        .all(|r| r.fields.get("DeviatesFromDefault") == Some(&Value::Bool(false))));
+    assert_eq!(of(&output, PROGRAMS).len(), 31);
+    let version = of(&output, SYSTEM);
+    assert_eq!(version.len(), 1);
+    assert_eq!(version[0].summary, "Windows 7 Professional (build 7601)");
+    let profiles = of(&output, PROFILES);
+    assert_eq!(profiles.len(), 4);
+    assert!(profiles
+        .iter()
+        .any(|r| r.facets.user_sid.as_deref()
+            == Some("S-1-5-21-1246908546-1649523366-531194530-1000")));
+}
+
+/// Windows 10's task actions: the program a task runs is its process
+/// facets; the task's path is its task name.
+#[test]
+fn windows_10_tasks_and_networks() {
+    let Some(bytes) = hive("rathbun-win10-SOFTWARE") else {
+        return;
+    };
+    assert_conforms(&RegistryAdapter, "SOFTWARE", &bytes);
+    let output = parse("SOFTWARE", &bytes);
+    assert_only_dirty(&output);
+    let tasks = of(&output, TASKS);
+    assert_eq!(tasks.len(), 224, "197 tasks, 27 Tree entries without one");
+    let scan = tasks
+        .iter()
+        .find(|r| {
+            r.facets.task_name.as_deref()
+                == Some(r"\Microsoft\Windows\UpdateOrchestrator\Schedule Scan Static Task")
+        })
+        .unwrap();
+    assert_eq!(
+        scan.facets.process_path.as_deref(),
+        Some(r"%systemroot%\system32\usoclient.exe")
+    );
+    assert_eq!(
+        scan.facets.process_command_line.as_deref(),
+        Some(r"%systemroot%\system32\usoclient.exe StartScan")
+    );
+    assert_eq!(
+        time_of(scan, "LastStart").ts.to_string(),
+        "2022-02-08T20:44:02.0808351Z"
+    );
+    assert_eq!(time_of(scan, "LastStart").kind, TimeKind::Executed);
+    let networks = of(&output, NETWORKS);
+    assert_eq!(networks.len(), 1);
+    let last = time_of(networks[0], "DateLastConnected");
+    assert_eq!(last.ts.semantic(), Semantic::LocalUnknownZone);
+    assert!(
+        last.ts.to_string().starts_with("2022-02-08T15:56:42.234"),
+        "{}",
+        last.ts
+    );
 }
