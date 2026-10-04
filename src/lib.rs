@@ -23,6 +23,7 @@ pub mod persistence;
 pub mod plaso;
 pub mod prefetch;
 pub mod registry;
+pub mod search;
 pub mod srum;
 pub mod syslog;
 mod timestamp;

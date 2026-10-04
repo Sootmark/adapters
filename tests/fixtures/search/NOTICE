@@ -1,0 +1,8 @@
+Windows.edb.gz is plaso's test_data/Windows.edb, under the Apache License 2.0
+(LICENSE, in this directory). Copyright the plaso authors.
+
+Source: https://github.com/log2timeline/plaso, test_data/, at commit
+a70dde825618050f6ce6c646f12fed386a9b4d73. Stored gzip-compressed
+(gzip -9n), otherwise unmodified. SHA-256 of the uncompressed file:
+
+  Windows.edb  e96837a0ad37be5a55222fa98991bec6b5c5ba956610f9d241aa8c65f2e0714c
