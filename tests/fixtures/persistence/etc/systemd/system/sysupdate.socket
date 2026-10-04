@@ -1,0 +1,9 @@
+[Unit]
+Description=sysupdate listener
+
+[Socket]
+ListenStream=127.0.0.1:31337
+Accept=yes
+
+[Install]
+WantedBy=sockets.target

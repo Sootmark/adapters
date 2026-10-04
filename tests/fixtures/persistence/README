@@ -1,0 +1,5 @@
+Files written for these tests, as an attacker might leave them. Addresses
+are from the documentation ranges (RFC 5737) and domains are example.*;
+the SSH keys were made for these tests and their private halves deleted.
+systemd 257 (`systemd-analyze verify`), visudo and Debian's cron
+(`crontab -n`) accept them.

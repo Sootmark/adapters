@@ -1,0 +1,6 @@
+[Unit]
+Description=sysupdate per-connection handler
+
+[Service]
+ExecStart=-/bin/cat
+StandardInput=socket

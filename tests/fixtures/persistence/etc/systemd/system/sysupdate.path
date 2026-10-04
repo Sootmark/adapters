@@ -1,0 +1,9 @@
+[Unit]
+Description=Re-run sysupdate when its marker appears
+
+[Path]
+PathExists=/var/tmp/.update
+Unit=sysupdate.service
+
+[Install]
+WantedBy=multi-user.target

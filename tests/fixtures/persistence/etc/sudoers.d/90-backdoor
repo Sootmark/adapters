@@ -1,0 +1,9 @@
+# Added by an attacker (synthetic).
+User_Alias	OPERATORS = alice, %ops
+Cmnd_Alias	SHELLS = /bin/sh, /bin/bash, \
+			/usr/bin/zsh
+Defaults:OPERATORS	!authenticate
+OPERATORS	ALL=(ALL) SHELLS
+svc-backup	ALL=(ALL:ALL) NOPASSWD: ALL
+bob	web1, web2 = (root) NOPASSWD: /usr/bin/systemctl restart nginx, /usr/bin/journalctl
+#includedir /etc/sudoers.local.d

