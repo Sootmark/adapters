@@ -156,3 +156,35 @@ fn udev_autostart_and_modprobe() {
         Some(&Value::from("modprobe runs a command"))
     );
 }
+
+#[test]
+fn accounts_and_password_changes() {
+    let passwd = parse("etc/passwd");
+    let toor = &passwd[4];
+    assert_eq!(toor.facets.user_name.as_deref(), Some("toor"));
+    assert_eq!(toor.fields.get("Uid"), Some(&Value::UInt(0)));
+    assert_eq!(
+        toor.fields.get("Flags"),
+        Some(&Value::from("id 0 besides root"))
+    );
+
+    let shadow = parse("etc/shadow");
+    let backup = &shadow[5];
+    assert_eq!(backup.fields.get("Password"), Some(&Value::from("empty")));
+    let changed = backup
+        .times
+        .iter()
+        .find(|t| t.field == "password_changed")
+        .unwrap();
+    assert_eq!(changed.kind, TimeKind::Modified);
+    assert_eq!(
+        changed.ts.to_iso8601().as_deref(),
+        Some("2026-10-04T00:00:00.0000000Z")
+    );
+
+    let group = parse("etc/group");
+    assert_eq!(
+        group[0].fields.get("Members"),
+        Some(&Value::from("alice, svc-backup"))
+    );
+}

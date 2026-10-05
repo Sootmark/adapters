@@ -6,6 +6,7 @@
 //! modification time (when the entry may last have changed), and its
 //! suspicious traits flagged.
 
+use common::time::{days_from_civil, Precision, Ts};
 use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
 use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Value};
 use persistence::{Detail, Entry};
@@ -71,6 +72,15 @@ impl PersistenceAdapter {
                 modified,
             ));
         }
+        if let Detail::Password(password) = &entry.detail {
+            if let Some(changed) = password.last_change.as_deref().and_then(day) {
+                record.times.push(RecordTime::new(
+                    TimeKind::Modified,
+                    "password_changed",
+                    changed,
+                ));
+            }
+        }
         record.facets = Facets {
             user_name: entry.user.clone(),
             process_command_line: entry.command.clone(),
@@ -134,11 +144,45 @@ fn fields(entry: &Entry, flags: &[String]) -> Fields {
             text(&mut fields, "Directive", Some(directive));
             text(&mut fields, "Module", Some(module));
         }
+        Detail::Account(account) => {
+            number(&mut fields, "Uid", account.uid);
+            number(&mut fields, "Gid", account.gid);
+            text(&mut fields, "Comment", Some(&account.gecos));
+            text(&mut fields, "Home", Some(&account.home));
+            text(&mut fields, "Shell", Some(&account.shell));
+        }
+        Detail::Password(password) => {
+            text(&mut fields, "Password", Some(password.state.label()));
+            text(
+                &mut fields,
+                "PasswordChanged",
+                password.last_change.as_deref(),
+            );
+            text(&mut fields, "Expires", password.expires.as_deref());
+        }
+        Detail::Group { name, gid, members } => {
+            text(&mut fields, "Group", Some(name));
+            number(&mut fields, "Gid", *gid);
+            text(&mut fields, "Members", Some(&members.join(", ")));
+        }
         _ => {}
     }
     fields.insert("Line".into(), Value::UInt(entry.line as u64));
     fields
 }
+
+/// A `2026-10-04` day as a time, to the day.
+fn day(text: &str) -> Option<Ts> {
+    let mut parts = text.splitn(3, '-');
+    let year = parts.next()?.parse().ok()?;
+    let month = parts.next()?.parse().ok()?;
+    let day = parts.next()?.parse().ok()?;
+    let days = days_from_civil(year, month, day);
+    Some(Ts::from_ticks(days * TICKS_PER_DAY, Precision::Day))
+}
+
+/// 100 ns ticks in a day.
+const TICKS_PER_DAY: i64 = 864_000_000_000;
 
 fn text(fields: &mut Fields, name: &str, value: Option<&str>) {
     if let Some(value) = value.filter(|v| !v.is_empty()) {

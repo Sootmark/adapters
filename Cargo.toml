@@ -23,7 +23,7 @@ journal = { package = "sootmark-journal", version = "0.1.0" }
 macos = { package = "sootmark-macos", version = "0.3.0" }
 model = { package = "sootmark-model", version = "0.2.2" }
 packages = { package = "sootmark-packages", version = "0.2.0" }
-persistence = { package = "sootmark-persistence", version = "0.3.0" }
+persistence = { package = "sootmark-persistence", version = "0.4.1" }
 prefetch = { package = "sootmark-prefetch", version = "0.1.0" }
 recyclebin = { package = "sootmark-recyclebin", version = "0.1.0" }
 registry = { package = "sootmark-registry", version = "0.7.0" }
