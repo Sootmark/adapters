@@ -113,11 +113,15 @@ impl WmiAdapter {
             },
             self.parser(),
         );
-        for (time, name) in times.iter().zip(["Timestamp1", "Timestamp2"]) {
+        // The second time is never after the first, and is the build time
+        // on objects shipped with Windows: the creation, then the last
+        // write (sootmark-wmi's `Instance::times`).
+        for (time, kind, name) in [
+            (times[0], TimeKind::Modified, "Timestamp1"),
+            (times[1], TimeKind::Created, "Timestamp2"),
+        ] {
             if let Some(time) = time {
-                record
-                    .times
-                    .push(RecordTime::new(TimeKind::Other, name, *time));
+                record.times.push(RecordTime::new(kind, name, time));
             }
         }
         record
