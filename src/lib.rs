@@ -32,3 +32,4 @@ pub mod usn;
 pub mod utmp;
 pub mod velociraptor;
 pub mod wintimeline;
+pub mod wmi;

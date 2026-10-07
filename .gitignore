@@ -8,3 +8,7 @@
 /tests/fixtures/velociraptor-real/
 /tests/fixtures/prefetch-real/
 /tests/fixtures/hives/
+# Downloaded by tests/fetch-wmi.sh, never committed.
+/tests/fixtures/wmi/*.DATA
+/tests/fixtures/wmi/*.BTR
+/tests/fixtures/wmi/*.MAP

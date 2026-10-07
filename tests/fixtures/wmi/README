@@ -1,0 +1,3 @@
+flare-wmi (https://github.com/mandiant/flare-wmi), Apache-2.0, Copyright
+Mandiant (FLARE): tests/fetch-wmi.sh downloads python-cim's wmikatz test
+repository here at a pinned commit; it is not committed.
