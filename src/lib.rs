@@ -34,6 +34,7 @@ pub mod ual;
 pub mod usn;
 pub mod utmp;
 pub mod velociraptor;
+pub mod weblogs;
 pub mod winlogs;
 pub mod wintimeline;
 pub mod wmi;
