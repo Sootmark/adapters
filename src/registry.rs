@@ -29,6 +29,7 @@ mod network;
 mod persistence;
 mod programs;
 mod tasks;
+mod user;
 
 use std::path::Path;
 
@@ -84,6 +85,18 @@ pub const RUN_MRU: Namespace = Namespace::new("windows.registry.runmru");
 pub const TYPED_PATHS: Namespace = Namespace::new("windows.registry.typedpaths");
 /// `WordWheelQuery`: Explorer searches.
 pub const WORD_WHEEL_QUERY: Namespace = Namespace::new("windows.registry.wordwheelquery");
+/// `TypedURLs`: addresses typed in Internet Explorer.
+pub const TYPED_URLS: Namespace = Namespace::new("windows.registry.typedurls");
+/// WinRAR's archive and extraction folder history.
+pub const WINRAR: Namespace = Namespace::new("windows.registry.winrar");
+/// `MountPoints2`: drives, volumes and shares a user's Explorer saw.
+pub const MOUNT_POINTS: Namespace = Namespace::new("windows.registry.mountpoints2");
+/// Network drives mapped to a letter.
+pub const NETWORK_DRIVES: Namespace = Namespace::new("windows.registry.network_drives");
+/// Office's recently opened documents and folders.
+pub const OFFICE_MRU: Namespace = Namespace::new("windows.registry.office_mru");
+/// Office trust records: documents trusted, macros enabled.
+pub const TRUST_RECORDS: Namespace = Namespace::new("windows.registry.trust_records");
 /// Network profiles.
 pub const NETWORKS: Namespace = Namespace::new("windows.registry.networks");
 /// Scheduled tasks from the Task Scheduler's cache.
@@ -158,6 +171,12 @@ impl Adapter for RegistryAdapter {
             RUN_MRU,
             TYPED_PATHS,
             WORD_WHEEL_QUERY,
+            TYPED_URLS,
+            WINRAR,
+            MOUNT_POINTS,
+            NETWORK_DRIVES,
+            OFFICE_MRU,
+            TRUST_RECORDS,
             NETWORKS,
             TASKS,
             PERSISTENCE,
@@ -217,6 +236,8 @@ impl Adapter for RegistryAdapter {
         out.devices(&hive);
         out.remote_desktop(&hive);
         out.recently_used(&hive);
+        out.drives(&hive);
+        out.office(&hive);
         out.networks(&hive);
         out.tasks(&hive);
         out.persistence(&hive);

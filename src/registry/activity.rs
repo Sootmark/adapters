@@ -1,5 +1,6 @@
 //! NTUSER.DAT: outbound Remote Desktop history and the most-recently-used
-//! lists (`RecentDocs`, `RunMRU`, `TypedPaths`, `WordWheelQuery`).
+//! lists (`RecentDocs`, `RunMRU`, `TypedPaths`, `WordWheelQuery`,
+//! `TypedURLs`, WinRAR's).
 
 use std::net::IpAddr;
 
@@ -9,7 +10,9 @@ use registry::mru::{self, List};
 use registry::rdp::{self, Connection};
 use registry::Hive;
 
-use super::{insert_texts, Out, RDP, RECENT_DOCS, RUN_MRU, TYPED_PATHS, WORD_WHEEL_QUERY};
+use super::{
+    insert_texts, Out, RDP, RECENT_DOCS, RUN_MRU, TYPED_PATHS, TYPED_URLS, WINRAR, WORD_WHEEL_QUERY,
+};
 
 fn mru_namespace(list: List) -> Namespace {
     match list {
@@ -17,6 +20,8 @@ fn mru_namespace(list: List) -> Namespace {
         List::RunMru => RUN_MRU,
         List::TypedPaths => TYPED_PATHS,
         List::WordWheelQuery => WORD_WHEEL_QUERY,
+        List::TypedUrls => TYPED_URLS,
+        List::WinRarArchives | List::WinRarArchiveNames | List::WinRarExtractPaths => WINRAR,
     }
 }
 
@@ -66,8 +71,9 @@ impl Out<'_, '_> {
         self.sink.record(record);
     }
 
-    /// The four most-recently-used lists: each entry a record, the most
-    /// recent of each list dated by its key's last write.
+    /// The most-recently-used lists: each entry a record, the most recent
+    /// of each list dated by its key's last write (and each typed address
+    /// by `TypedURLsTime`, where Windows keeps it).
     pub(super) fn recently_used(&mut self, hive: &Hive<'_>) {
         let found = mru::entries(hive);
         self.problems(found.problems);
@@ -83,11 +89,19 @@ impl Out<'_, '_> {
             Some(entry.value.clone()),
         );
         let (kind, field) = match entry.list {
-            List::RecentDocs => (TimeKind::Accessed, "Opened"),
+            List::RecentDocs | List::WinRarArchives => (TimeKind::Accessed, "Opened"),
             List::RunMru => (TimeKind::Executed, "Run"),
-            List::TypedPaths | List::WordWheelQuery => (TimeKind::Other, "Typed"),
+            List::TypedPaths
+            | List::WordWheelQuery
+            | List::TypedUrls
+            | List::WinRarArchiveNames
+            | List::WinRarExtractPaths => (TimeKind::Other, "Typed"),
         };
-        if entry.position == Some(0) {
+        if let Some(time) = entry.time {
+            record
+                .times
+                .push(RecordTime::new(kind, field, Ts::from_filetime(time)));
+        } else if entry.position == Some(0) {
             record.times.push(RecordTime::new(
                 kind,
                 field,
@@ -95,7 +109,11 @@ impl Out<'_, '_> {
             ));
         }
         record.facets = match entry.list {
-            List::RecentDocs | List::TypedPaths => Facets {
+            List::RecentDocs
+            | List::TypedPaths
+            | List::WinRarArchives
+            | List::WinRarArchiveNames
+            | List::WinRarExtractPaths => Facets {
                 file_path: Some(entry.text.clone()),
                 ..Facets::default()
             },
@@ -103,7 +121,7 @@ impl Out<'_, '_> {
                 process_command_line: Some(entry.text.clone()),
                 ..Facets::default()
             },
-            List::WordWheelQuery => Facets::default(),
+            List::WordWheelQuery | List::TypedUrls => Facets::default(),
         };
         let mut fields = Fields::new();
         fields.insert("List".into(), Value::from(entry.list.name()));
@@ -113,6 +131,10 @@ impl Out<'_, '_> {
             List::RunMru => "Command",
             List::TypedPaths => "Path",
             List::WordWheelQuery => "SearchTerm",
+            List::TypedUrls => "Url",
+            List::WinRarArchives => "Archive",
+            List::WinRarArchiveNames => "ArchiveName",
+            List::WinRarExtractPaths => "Folder",
         };
         fields.insert(text_field.into(), Value::from(entry.text.as_str()));
         insert_texts(
@@ -134,6 +156,10 @@ impl Out<'_, '_> {
             List::RunMru => format!("Run dialog: {} ({position})", entry.text),
             List::TypedPaths => format!("Typed path {} ({position})", entry.text),
             List::WordWheelQuery => format!("Explorer search \"{}\" ({position})", entry.text),
+            List::TypedUrls => format!("Typed address {} ({position})", entry.text),
+            List::WinRarArchives => format!("WinRAR opened {} ({position})", entry.text),
+            List::WinRarArchiveNames => format!("WinRAR archive name {} ({position})", entry.text),
+            List::WinRarExtractPaths => format!("WinRAR extracted to {} ({position})", entry.text),
         };
         self.sink.record(record);
     }

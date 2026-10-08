@@ -3,7 +3,7 @@
 # commits into tests/fixtures/hives/, checking each SHA-256: Eric
 # Zimmerman's Registry test set (MIT), and the SYSTEM, SOFTWARE and
 # NTUSER.DAT hives of Andrew Rathbun's Windows 10 VM (MIT, DFIR Artifact
-# Museum; extracted with 7z).
+# Museum; extracted with 7z), and plaso's NTUSER-WIN7.DAT (Apache-2.0).
 set -eu
 cd "$(dirname "$0")/fixtures"
 mkdir -p hives
@@ -39,3 +39,9 @@ done <<END
 cd25478f854dbacd4c044c001e36746fb3e1ea702426aa0e5fa2e8f396615d15 SOFTWARE
 523716419e2a661e2a719b63a24c031567bfcf22113b7e86bb35d3604ff942d3 NTUSER.DAT
 END
+
+name=plaso-NTUSER-WIN7.DAT
+if [ ! -f "hives/$name" ]; then
+    curl -sfL -o "hives/$name" https://raw.githubusercontent.com/log2timeline/plaso/ac6da7129f6cf3f43a352b6c4906374cf071533e/test_data/NTUSER-WIN7.DAT
+fi
+echo "672abb15ae62fa8c002c5ee0a730cf83cd5f40706d5ffdec8f1179cf47a0bd03  hives/$name" | shasum -a 256 -c --quiet -

@@ -19,9 +19,10 @@ use model::adapter::{Adapter, Collected, Input};
 use model::TimeKind;
 use model::{EvidenceId, Record, Value};
 use sootmark_adapters::registry::{
-    RegistryAdapter, AMCACHE_FILE, BAM, MOUNTED_DEVICES, NETWORKS, PERSISTENCE, PROFILES, PROGRAMS,
-    RDP, RECENT_DOCS, RUN, RUN_MRU, SERVICES, SHELLBAGS, SHIMCACHE, SYSTEM, TASKS, TYPED_PATHS,
-    USB, USERASSIST, WORD_WHEEL_QUERY,
+    RegistryAdapter, AMCACHE_FILE, BAM, MOUNTED_DEVICES, MOUNT_POINTS, NETWORKS, NETWORK_DRIVES,
+    OFFICE_MRU, PERSISTENCE, PROFILES, PROGRAMS, RDP, RECENT_DOCS, RUN, RUN_MRU, SERVICES,
+    SHELLBAGS, SHIMCACHE, SYSTEM, TASKS, TYPED_PATHS, TYPED_URLS, USB, USERASSIST,
+    WORD_WHEEL_QUERY,
 };
 
 fn hive(name: &str) -> Option<Vec<u8>> {
@@ -545,4 +546,43 @@ fn windows_10_tasks_and_networks() {
         "{}",
         last.ts
     );
+}
+
+/// plaso's NTUSER-WIN7.DAT: mount points, a mapped drive, Office's lists
+/// and typed addresses as records (their values are checked against plaso
+/// in `sootmark-registry`).
+#[test]
+fn drives_office_and_typed_addresses() {
+    let Some(bytes) = hive("plaso-NTUSER-WIN7.DAT") else {
+        return;
+    };
+    let output = parse("NTUSER.DAT", &bytes);
+    let of = |namespace| {
+        output
+            .records
+            .iter()
+            .filter(|r| r.namespace() == namespace)
+            .collect::<Vec<&Record>>()
+    };
+    assert_eq!(of(MOUNT_POINTS).len(), 5);
+    let share = of(MOUNT_POINTS)
+        .into_iter()
+        .find(|r| r.fields.get("Name") == Some(&Value::from("##controller#public")))
+        .unwrap();
+    assert_eq!(
+        share.summary,
+        r"Share \\controller\public seen by Explorer (Public)"
+    );
+    let drives = of(NETWORK_DRIVES);
+    assert_eq!(drives.len(), 1);
+    assert_eq!(
+        drives[0].summary,
+        r"Network drive p: mapped to \\controller\public"
+    );
+    let office = of(OFFICE_MRU);
+    assert_eq!(office.len(), 7);
+    assert!(office
+        .iter()
+        .all(|r| r.times.iter().any(|t| t.kind == TimeKind::Accessed)));
+    assert_eq!(of(TYPED_URLS).len(), 13);
 }
