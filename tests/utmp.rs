@@ -214,3 +214,15 @@ fn wtmpdb_with_its_log() {
     assert_eq!(users(&[]), ["alice", "root", "deploy"]);
     assert_eq!(users(&log), ["alice", "root", "deploy", "mallory"]);
 }
+
+/// plaso's macOS `utmpx` (Apache-2.0): its records, the signature and
+/// the one empty slot left out.
+#[test]
+fn macos_utmpx() {
+    let sink = parse("utmpx");
+    assert_eq!(sink.records.len(), 5);
+    assert!(sink
+        .records
+        .iter()
+        .any(|r| r.facets.user_name.as_deref() == Some("moxilo")));
+}

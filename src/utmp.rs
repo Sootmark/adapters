@@ -31,7 +31,7 @@ fn file_kind(name: &str) -> Option<&'static str> {
         _ => {}
     }
     let stem = base.split(['.', '-']).next()?;
-    ["wtmp", "btmp", "utmp", "lastlog"]
+    ["wtmp", "btmp", "utmp", "utmpx", "lastlog"]
         .into_iter()
         .find(|kind| *kind == stem)
 }
@@ -89,7 +89,11 @@ impl Adapter for UtmpAdapter {
         let records = utmp::parse(input.data).map_err(|e| ParseError::at(0, e.0))?;
         skipped(sink, records.problems.iter().cloned());
         let file = file_kind(input.name).unwrap_or("utmp");
-        for entry in records.records.iter().filter(|r| r.kind != Kind::Empty) {
+        for entry in records
+            .records
+            .iter()
+            .filter(|r| !matches!(r.kind, Kind::Empty | Kind::Signature))
+        {
             sink.record(self.to_record(input, entry, file));
         }
         Ok(())
@@ -103,7 +107,7 @@ impl UtmpAdapter {
         skipped(sink, lastlog.problems);
         // `struct lastlog`: a 32- or 64-bit time, then 32 + 256 bytes.
         let size = match lastlog.layout {
-            utmp::Layout::Time32 | utmp::Layout::Time32BigEndian => 292,
+            utmp::Layout::Time32 | utmp::Layout::Time32BigEndian | utmp::Layout::MacUtmpx => 292,
             utmp::Layout::Time64 | utmp::Layout::Time64BigEndian => 296,
         };
         for login in &lastlog.entries {

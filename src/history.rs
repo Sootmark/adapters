@@ -1,6 +1,6 @@
-//! Unix shell history files, via the `history` parser: one record per
-//! command, with its time when the shell wrote one, and the account whose
-//! home the file is in.
+//! Unix shell history files and Vim's `.viminfo`, via the `history`
+//! parser: one record per command (or Vim entry), with its time when the
+//! file wrote one, and the account whose home the file is in.
 //!
 //! bash writes times only with `HISTTIMEFORMAT` set: commands without one
 //! are untimed, never dated by the file.
@@ -15,14 +15,18 @@ use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, 
 pub const NAMESPACE: Namespace = Namespace::new("unix.shell_history");
 /// Records of PowerShell's PSReadLine history.
 pub const POWERSHELL: Namespace = Namespace::new("windows.powershell_history");
+/// Records of Vim's `.viminfo`: commands, searches, registers, marks.
+pub const VIMINFO: Namespace = Namespace::new("unix.viminfo");
 
 /// Names shells write their history under.
-const NAMES: [&str; 5] = [
+const NAMES: [&str; 7] = [
     ".bash_history",
     ".zsh_history",
     ".histfile",
     "fish_history",
     ".sh_history",
+    ".viminfo",
+    "_viminfo",
 ];
 const SUMMARY_COMMAND: usize = 160;
 
@@ -39,7 +43,7 @@ impl Adapter for HistoryAdapter {
     }
 
     fn namespaces(&self) -> &'static [Namespace] {
-        &[NAMESPACE, POWERSHELL]
+        &[NAMESPACE, POWERSHELL, VIMINFO]
     }
 
     /// By name only: any text reads as a bash history. PSReadLine names
@@ -82,6 +86,7 @@ impl HistoryAdapter {
     ) -> Record {
         let namespace = match format {
             Format::PowerShell => POWERSHELL,
+            Format::Viminfo => VIMINFO,
             Format::Bash | Format::Zsh | Format::Fish => NAMESPACE,
         };
         let mut record = Record::new(
@@ -95,9 +100,17 @@ impl HistoryAdapter {
                 .times
                 .push(RecordTime::new(TimeKind::Executed, "time", time));
         }
+        let vim_command = command.section == Some("Command Line History");
         record.facets = Facets {
             user_name: user.map(str::to_owned),
-            process_command_line: Some(command.command.clone()),
+            process_command_line: (format != Format::Viminfo || vim_command)
+                .then(|| command.command.clone())
+                .filter(|c| !c.is_empty()),
+            file_path: command
+                .paths
+                .first()
+                .cloned()
+                .filter(|_| format == Format::Viminfo),
             ..Facets::default()
         };
         record.fields = fields(format, command);
@@ -109,6 +122,14 @@ impl HistoryAdapter {
             .chars()
             .take(SUMMARY_COMMAND)
             .collect();
+        if format == Format::Viminfo {
+            let what = command
+                .paths
+                .first()
+                .map_or(first_line.as_str(), String::as_str);
+            record.summary = format!("vim {}: {what}", command.section.unwrap_or("entry"));
+            return record;
+        }
         // `alice$ ls`, `alice PS> Get-Process`.
         let (gap, prompt) = if format == Format::PowerShell {
             (" ", "PS>")
@@ -148,10 +169,14 @@ fn fields(format: Format, command: &Command) -> Fields {
         Format::Zsh => "zsh",
         Format::Fish => "fish",
         Format::PowerShell => "powershell",
+        Format::Viminfo => "vim",
     };
     fields.insert("Shell".into(), Value::from(shell));
     fields.insert("Command".into(), Value::from(command.command.as_str()));
     fields.insert("Line".into(), Value::UInt(command.line as u64));
+    if let Some(section) = command.section {
+        fields.insert("Section".into(), Value::from(section));
+    }
     if let Some(duration) = command.duration_seconds {
         fields.insert("DurationSeconds".into(), Value::UInt(duration));
     }

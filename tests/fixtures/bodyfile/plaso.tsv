@@ -1,0 +1,67 @@
+/$OrphanFiles/OrphanFile-13 (deleted)		atime	1337961576000000
+/$OrphanFiles/OrphanFile-13 (deleted)		ctime	1337961653000000
+/$OrphanFiles/OrphanFile-13 (deleted)		mtime	1337961574000000
+/a_directory		atime	1337961564000000
+/a_directory		ctime	1337961563000000
+/a_directory		mtime	1337961563000000
+/a_directory/a_file		atime	1337961554000000
+/a_directory/a_file		ctime	1337961554000000
+/a_directory/a_file		mtime	1337961554000000
+/a_directory/another_file		atime	1337961583000000
+/a_directory/another_file		ctime	1337961585000000
+/a_directory/another_file		mtime	1337961584000000
+/file\with\backslashes		atime	1596093118000000
+/file\with\backslashes		crtime	1596093118000000
+/file\with\backslashes		ctime	1596093118000000
+/file\with\backslashes		mtime	1596093118000000
+/file\with\backslashes ($FILE_NAME)		atime	1596093118000000
+/file\with\backslashes ($FILE_NAME)		crtime	1596093118000000
+/file\with\backslashes ($FILE_NAME)		ctime	1596093118000000
+/file\with\backslashes ($FILE_NAME)		mtime	1596093118000000
+/file_symboliclink1	/mnt/ext/testdir1/testfile1	atime	1597862881000000
+/file_symboliclink1	/mnt/ext/testdir1/testfile1	ctime	1597862881000000
+/file_symboliclink1	/mnt/ext/testdir1/testfile1	mtime	1597862881000000
+/file|with|pipes		atime	1596091265352146
+/file|with|pipes		crtime	1596091265352071
+/file|with|pipes		ctime	1596091265354067
+/file|with|pipes		mtime	1596091265352146
+/file|with|pipes ($FILE_NAME)		atime	1596091265352146
+/file|with|pipes ($FILE_NAME)		crtime	1596091265352071
+/file|with|pipes ($FILE_NAME)		ctime	1596091265352146
+/file|with|pipes ($FILE_NAME)		mtime	1596091265352146
+/leyndardómarnir/ekki skoða/þínar skrár		atime	1337961603000000
+/leyndardómarnir/ekki skoða/þínar skrár		ctime	1337963913000000
+/leyndardómarnir/ekki skoða/þínar skrár		mtime	1337061653000000
+/lost+found		atime	1337961350000000
+/lost+found		ctime	1337961350000000
+/lost+found		mtime	1337961350000000
+/passwords.txt		atime	1337961653000000
+/passwords.txt		ctime	1337961663000000
+/passwords.txt		mtime	1337961653000000
+/passwordz.txt		atime	1337962653000000
+/passwordz.txt		ctime	1337962663000000
+/passwordz.txt		mtime	1337962653000000
+0		atime	1337920553000000
+0		ctime	1337951660000000
+0		mtime	1337931613000000
+1235		atime	1337961653000000
+1235		ctime	1337961663000000
+1235		mtime	1337961653000000
+1235.134		atime	1337920553000000
+1235.134		ctime	1337951660000000
+1235.134		mtime	1337931613000000
+D:/$AttrDef		atime	1376484808000000
+D:/$AttrDef		crtime	1376484808000000
+D:/$AttrDef		ctime	1376484808000000
+D:/$AttrDef		mtime	1376484808000000
+D:/$Extend/$RmMetadata/$Txf		atime	1376484810000000
+D:/$Extend/$RmMetadata/$Txf		crtime	1376484810000000
+D:/$Extend/$RmMetadata/$Txf		ctime	1376484810000000
+D:/$Extend/$RmMetadata/$Txf		mtime	1376484810000000
+False		atime	1337920553000000
+False		ctime	1337951660000000
+False		mtime	1337931613000000
+\testdir2		atime	1573896478189698
+\testdir2		crtime	1573896476845900
+\testdir2		ctime	1573896478189698
+\testdir2		mtime	1573896478189698

@@ -113,3 +113,29 @@ fn powershell_history() {
         .as_deref()
         .is_some_and(|c| c.contains("-Uri http://192.0.2.4/a.ps1")));
 }
+
+/// plaso's `.viminfo` (Apache-2.0): Vim's commands, searches, registers
+/// and marks as records.
+#[test]
+fn vim_entries() {
+    let sink = parse("viminfo", "home/bob/.viminfo");
+    assert_eq!(sink.records.len(), 10);
+    assert!(sink
+        .records
+        .iter()
+        .all(|r| r.namespace() == sootmark_adapters::history::VIMINFO));
+    let command = &sink.records[0];
+    assert_eq!(command.summary, "vim Command Line History: e TEST");
+    assert_eq!(
+        command.facets.process_command_line.as_deref(),
+        Some("e TEST")
+    );
+    assert_eq!(command.facets.user_name.as_deref(), Some("bob"));
+    let mark = sink
+        .records
+        .iter()
+        .find(|r| r.summary.starts_with("vim File mark"))
+        .unwrap();
+    assert_eq!(mark.facets.file_path.as_deref(), Some(r"~\_vimrc"));
+    assert_eq!(mark.facets.process_command_line, None);
+}
