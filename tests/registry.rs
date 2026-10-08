@@ -20,9 +20,9 @@ use model::TimeKind;
 use model::{EvidenceId, Record, Value};
 use sootmark_adapters::registry::{
     RegistryAdapter, AMCACHE_FILE, BAM, MOUNTED_DEVICES, MOUNT_POINTS, NETWORKS, NETWORK_DRIVES,
-    OFFICE_MRU, PERSISTENCE, PROFILES, PROGRAMS, RDP, RECENT_DOCS, RUN, RUN_MRU, SERVICES,
-    SHELLBAGS, SHIMCACHE, SYSTEM, TASKS, TYPED_PATHS, TYPED_URLS, USB, USERASSIST,
-    WORD_WHEEL_QUERY,
+    OFFICE_MRU, OUTLOOK_SEARCH, PERSISTENCE, PROFILES, PROGRAMS, PROGRAMS_CACHE, RDP, RECENT_DOCS,
+    RUN, RUN_MRU, SERVICES, SHELLBAGS, SHIMCACHE, SYSTEM, TASKS, TYPED_PATHS, TYPED_URLS, USB,
+    USERASSIST, WORD_WHEEL_QUERY, ZONES,
 };
 
 fn hive(name: &str) -> Option<Vec<u8>> {
@@ -347,6 +347,41 @@ fn bam_entries_from_every_control_set() {
     assert_eq!(text(explorer, "ControlSet"), "ControlSet001");
 }
 
+/// plaso's `NTUSER-WIN7.DAT` (Apache-2.0): zones, the Start menu caches and
+/// Outlook's search; Andrew Rathbun's Windows 10 SYSTEM (MIT): the
+/// hardware and `BootExecute`.
+#[test]
+fn zones_caches_outlook_hardware_and_boot() {
+    let Some(user) = hive("plaso-NTUSER-WIN7.DAT") else {
+        return;
+    };
+    let output = parse("NTUSER.DAT", &user);
+    assert_conforms(&RegistryAdapter, "NTUSER.DAT", &user);
+    assert_eq!(of(&output, ZONES).len(), 10);
+    let caches = of(&output, PROGRAMS_CACHE);
+    assert_eq!(caches.len(), 3);
+    assert!(caches
+        .iter()
+        .any(|r| text(r, "Shortcuts").contains("Google Chrome.lnk")));
+    let outlook = of(&output, OUTLOOK_SEARCH);
+    assert_eq!(outlook.len(), 1);
+    assert!(text(outlook[0], "Stores")
+        .to_ascii_lowercase()
+        .contains(".pst"));
+
+    let Some(system) = hive("rathbun-win10-SYSTEM") else {
+        return;
+    };
+    let output = parse("SYSTEM", &system);
+    assert!(of(&output, SYSTEM)
+        .iter()
+        .any(|r| r.summary.starts_with("Hardware: VMware, Inc. VMware7,1")));
+    assert!(of(&output, PERSISTENCE)
+        .iter()
+        .any(|r| text(r, "Mechanism") == "boot_execute"
+            && r.fields.get("DeviatesFromDefault") == Some(&Value::Bool(false))));
+}
+
 fn of(output: &Collected, namespace: model::Namespace) -> Vec<&Record> {
     output
         .records
@@ -408,7 +443,7 @@ fn system_incident_response_artifacts() {
         .unwrap();
     assert_eq!(text(j, "Serial"), "2361808400440061&0");
     let system = of(&output, SYSTEM);
-    assert_eq!(system.len(), 3, "name, time zone, shutdown");
+    assert_eq!(system.len(), 4, "name, time zone, shutdown, hardware");
     let name = system
         .iter()
         .find(|r| r.facets.host_name.is_some())

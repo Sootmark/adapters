@@ -1,9 +1,10 @@
 //! SYSTEM and SOFTWARE: what the machine is, one record each for its name,
-//! time zone, last shutdown and Windows version, and one per user profile.
+//! time zone, last shutdown, hardware and Windows version, and one per user
+//! profile.
 
 use common::time::Ts;
 use model::{Facets, Fields, RecordTime, TimeKind, Value};
-use registry::system::{self, Profile, TimeZone, Version};
+use registry::system::{self, Hardware, Profile, TimeZone, Version};
 use registry::Hive;
 
 use super::{insert_texts, Out, PROFILES, SYSTEM};
@@ -54,9 +55,35 @@ impl Out<'_, '_> {
         if let Some(version) = &identity.version {
             self.version(version);
         }
+        if let Some(hardware) = &identity.hardware {
+            self.hardware(hardware);
+        }
         for profile in &identity.profiles {
             self.profile(profile);
         }
+    }
+
+    fn hardware(&mut self, hardware: &Hardware) {
+        let mut record = self.keyed(SYSTEM, &hardware.key, None, hardware.key_last_written);
+        let mut fields = Fields::new();
+        insert_texts(
+            &mut fields,
+            &[
+                ("SystemManufacturer", hardware.manufacturer.as_ref()),
+                ("SystemProductName", hardware.model.as_ref()),
+                ("BIOSVersion", hardware.bios_version.as_ref()),
+                ("BIOSReleaseDate", hardware.bios_release_date.as_ref()),
+            ],
+        );
+        record.fields = fields;
+        record.summary = format!(
+            "Hardware: {} {}, BIOS {} ({})",
+            hardware.manufacturer.as_deref().unwrap_or("?"),
+            hardware.model.as_deref().unwrap_or("?"),
+            hardware.bios_version.as_deref().unwrap_or("?"),
+            hardware.bios_release_date.as_deref().unwrap_or("?")
+        );
+        self.sink.record(record);
     }
 
     fn time_zone(&mut self, zone: &TimeZone) {

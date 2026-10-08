@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "sootmark-adapters"
-version = "0.2.46"
+version = "0.2.47"
 dependencies = [
  "sootmark-audit",
  "sootmark-avlogs",
@@ -270,9 +270,9 @@ dependencies = [
 
 [[package]]
 name = "sootmark-registry"
-version = "0.8.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ef4f2eeda7ed1b538e08dbac0f34a8ab41ef78c49dd2e799ca3ea634035cfb6"
+checksum = "43709c71f1cab2e16ab068aa8c415603a9356a89945199f4b65fd6b9d9bf6821"
 dependencies = [
  "sootmark-common",
  "sootmark-shell",

@@ -1,4 +1,4 @@
-//! SOFTWARE and NTUSER.DAT: persistence keys beyond Run and RunOnce, each
+//! SOFTWARE, NTUSER.DAT and SYSTEM: persistence keys beyond Run and RunOnce, each
 //! flagged (`DeviatesFromDefault`) when its data departs from Windows'
 //! default.
 
@@ -18,7 +18,9 @@ fn facets(entry: &Entry) -> Facets {
         | Mechanism::WinlogonTaskman
         | Mechanism::IfeoDebugger
         | Mechanism::SilentProcessExit
-        | Mechanism::ActiveSetup => Facets {
+        | Mechanism::ActiveSetup
+        | Mechanism::BootExecute
+        | Mechanism::BootVerification => Facets {
             process_command_line: data,
             ..Facets::default()
         },

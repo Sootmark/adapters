@@ -23,6 +23,7 @@
 
 mod accounts;
 mod activity;
+mod apps;
 mod devices;
 mod identity;
 mod network;
@@ -113,6 +114,17 @@ pub const PROFILES: Namespace = Namespace::new("windows.registry.profiles");
 pub const SAM_USERS: Namespace = Namespace::new("windows.registry.sam_users");
 /// SAM: local groups' members.
 pub const SAM_GROUPS: Namespace = Namespace::new("windows.registry.sam_groups");
+/// Security zone settings (NTUSER.DAT, SOFTWARE).
+pub const ZONES: Namespace = Namespace::new("windows.registry.zones");
+/// Explorer's Start menu and taskbar caches (NTUSER.DAT).
+pub const PROGRAMS_CACHE: Namespace = Namespace::new("windows.registry.programscache");
+/// Outlook's search stores (NTUSER.DAT).
+pub const OUTLOOK_SEARCH: Namespace = Namespace::new("windows.registry.outlook_search");
+/// CCleaner's settings (NTUSER.DAT).
+pub const CCLEANER: Namespace = Namespace::new("windows.registry.ccleaner");
+/// Applications Windows' memory leak diagnosis watched (SOFTWARE).
+pub const DIAGNOSED_APPLICATIONS: Namespace =
+    Namespace::new("windows.registry.diagnosed_applications");
 
 fn amcache_namespace(class: Class) -> Namespace {
     match class {
@@ -185,6 +197,11 @@ impl Adapter for RegistryAdapter {
             PROFILES,
             SAM_USERS,
             SAM_GROUPS,
+            ZONES,
+            PROGRAMS_CACHE,
+            OUTLOOK_SEARCH,
+            CCLEANER,
+            DIAGNOSED_APPLICATIONS,
         ]
     }
 
@@ -244,6 +261,7 @@ impl Adapter for RegistryAdapter {
         out.programs(&hive);
         out.identity(&hive);
         out.accounts(&hive);
+        out.apps(&hive);
         Ok(())
     }
 }
