@@ -3,7 +3,11 @@
 //! `downloads.sqlite`, and Internet Explorer and legacy Edge's
 //! `WebCacheV01.dat`. One record per visit (the page, how it was reached)
 //! and one per download (from where, to where, how it ended), with the
-//! account whose profile it is from the path.
+//! account whose profile it is from the path. Safari's history too; and
+//! cookies, form history, installed extensions with their activity, and
+//! the sites given permissions, each in its own namespace.
+
+mod extras;
 
 use browser::{Download, History, Kind, PageState, Provenance, RecoveredPage, Visit};
 use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
@@ -13,6 +17,16 @@ use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, 
 
 /// Records of browser history databases.
 pub const NAMESPACE: Namespace = Namespace::new("browser.history");
+/// Cookies (Chromium, Firefox).
+pub const COOKIES: Namespace = Namespace::new("browser.cookies");
+/// Values typed in form fields (Chromium).
+pub const AUTOFILL: Namespace = Namespace::new("browser.autofill");
+/// Extensions installed (Chromium's `Preferences`).
+pub const EXTENSIONS: Namespace = Namespace::new("browser.extensions");
+/// What extensions did (Chromium's `Extension Activity`).
+pub const EXTENSION_ACTIVITY: Namespace = Namespace::new("browser.extension_activity");
+/// Sites given (or refused) permissions (Chromium's `Preferences`).
+pub const SITE_PERMISSIONS: Namespace = Namespace::new("browser.site_permissions");
 
 const SUMMARY_URL: usize = 200;
 
@@ -29,7 +43,14 @@ impl Adapter for BrowserAdapter {
     }
 
     fn namespaces(&self) -> &'static [Namespace] {
-        &[NAMESPACE]
+        &[
+            NAMESPACE,
+            COOKIES,
+            AUTOFILL,
+            EXTENSIONS,
+            EXTENSION_ACTIVITY,
+            SITE_PERMISSIONS,
+        ]
     }
 
     /// An SQLite database with a browser's tables or named as one, or an
@@ -54,14 +75,34 @@ impl Adapter for BrowserAdapter {
         log: &[u8],
         sink: &mut dyn Sink,
     ) -> Result<(), ParseError> {
-        let history = browser::read(input.data, log).map_err(|e| ParseError::at(0, e.0))?;
+        let failed = |e: browser::Error| ParseError::at(0, e.0);
+        let user = profile_owner(input.name);
+        match browser::detect(input.name, input.data) {
+            Some(Kind::Cookies) => {
+                let rows = browser::read_cookies(input.data, log).map_err(failed)?;
+                self.cookies(input, &rows, user.as_deref(), sink);
+                return Ok(());
+            }
+            Some(Kind::Autofill) => {
+                let rows = browser::read_autofill(input.data, log).map_err(failed)?;
+                self.autofill(input, &rows, user.as_deref(), sink);
+                return Ok(());
+            }
+            Some(Kind::ExtensionActivity) => {
+                let rows = browser::read_extension_activity(input.data, log).map_err(failed)?;
+                self.extension_activity(input, &rows, user.as_deref(), sink);
+                return Ok(());
+            }
+            Some(Kind::Preferences) => return self.preferences(input, user.as_deref(), sink),
+            _ => {}
+        }
+        let history = browser::read(input.data, log).map_err(failed)?;
         for reason in &history.problems {
             sink.skipped(Skipped {
                 locator: Locator::ByteOffset(0),
                 reason: reason.clone(),
             });
         }
-        let user = profile_owner(input.name);
         for visit in &history.visits {
             sink.record(self.visit(input, &history, visit, user.as_deref()));
         }
@@ -295,9 +336,14 @@ fn confidence_name(from: &Provenance) -> &'static str {
 
 fn browser_name(kind: Kind) -> &'static str {
     match kind {
-        Kind::ChromiumHistory => "chromium",
+        Kind::ChromiumHistory
+        | Kind::Cookies
+        | Kind::Autofill
+        | Kind::ExtensionActivity
+        | Kind::Preferences => "chromium",
         Kind::FirefoxPlaces | Kind::FirefoxDownloads => "firefox",
         Kind::WebCache => "internet explorer",
+        Kind::SafariHistory | Kind::SafariHistoryPlist => "safari",
     }
 }
 
