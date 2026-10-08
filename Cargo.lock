@@ -134,7 +134,7 @@ dependencies = [
 
 [[package]]
 name = "sootmark-adapters"
-version = "0.2.49"
+version = "0.2.48"
 dependencies = [
  "sootmark-applogs",
  "sootmark-audit",
@@ -315,6 +315,8 @@ dependencies = [
 [[package]]
 name = "sootmark-disk"
 version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e94e84958ed3e0eb8866a2f82dcb5f62706a65d162fd40101e7ecbedd46807d8"
 dependencies = [
  "sootmark-common",
 ]
