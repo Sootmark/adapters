@@ -1,6 +1,6 @@
 //! The macOS adapter on plaso's quarantine and TCC databases, FSEvents log,
-//! background items, Spotlight preferences, Messages database and keychain
-//! (Apache-2.0)
+//! background items, Spotlight preferences, Messages database, keychain,
+//! Wi-Fi and launchd logs (Apache-2.0)
 //! and a synthetic KnowledgeC database with its write-ahead log
 //! (`tests/fixtures/macos/`): the contract, recognition, records.
 
@@ -8,11 +8,12 @@ use conformance::assert_conforms;
 use model::adapter::{Adapter, Collected, Confidence, Input};
 use std::io::Read;
 
+use common::time::Ts;
 use model::{EvidenceId, Record, TimeKind, Value};
 use sootmark_adapters::macos::{
-    MacosAdapter, APP_USAGE, ASL, DOCUMENT_VERSIONS, FSEVENTS, KEYCHAIN, KNOWLEDGEC, LOGIN_ITEMS,
-    MESSAGES, NOTES, NOTIFICATIONS, QUARANTINE, SPOTLIGHT_SEARCHES, SPOTLIGHT_VOLUME, TCC, USERS,
-    WIFI,
+    MacosAdapter, APP_USAGE, ASL, DOCUMENT_VERSIONS, FSEVENTS, KEYCHAIN, KNOWLEDGEC, LAUNCHD_LOG,
+    LOGIN_ITEMS, MESSAGES, NOTES, NOTIFICATIONS, QUARANTINE, SPOTLIGHT_SEARCHES, SPOTLIGHT_VOLUME,
+    TCC, USERS, WIFI, WIFI_LOG,
 };
 
 fn read(name: &str) -> Vec<u8> {
@@ -35,6 +36,11 @@ fn read(name: &str) -> Vec<u8> {
 }
 
 fn parse(fixture: &str, path: &str, log: &[u8]) -> Vec<Record> {
+    parse_modified(fixture, path, log, None)
+}
+
+/// As [`parse`], the file last modified at `modified`.
+fn parse_modified(fixture: &str, path: &str, log: &[u8], modified: Option<Ts>) -> Vec<Record> {
     let data = read(fixture);
     assert_eq!(MacosAdapter.probe(path, &data), Confidence::Certain);
     assert_conforms(&MacosAdapter, path, &data);
@@ -42,7 +48,7 @@ fn parse(fixture: &str, path: &str, log: &[u8]) -> Vec<Record> {
         evidence: EvidenceId::of_content(&data),
         name: path,
         data: &data,
-        modified: None,
+        modified,
     };
     let mut sink = Collected::default();
     MacosAdapter.parse_with_log(&input, log, &mut sink).unwrap();
@@ -334,4 +340,141 @@ fn keychain_items_without_secrets() {
         .iter()
         .filter(|r| r.fields.get("Kind") == Some(&Value::from("symmetric key")))
         .all(|r| !r.fields.contains_key("Name")));
+}
+
+fn iso(record: &Record) -> Option<String> {
+    record.times.first().and_then(|t| t.ts.to_iso8601())
+}
+
+#[test]
+fn wifi_log_lines_dated_by_the_file() {
+    // 2015-01-02T12:00:00Z: the last line is in 2015, and the first,
+    // before the turn of the year, in 2014 (as plaso dates them given a
+    // file last changed in 2015).
+    let modified = Ts::from_unix_seconds(1_420_200_000);
+    let path = "private/var/log/wifi.log";
+    let records = parse_modified("wifi.log", path, &[], Some(modified));
+    assert_eq!(records.len(), 10);
+    assert!(records.iter().all(|r| r.namespace() == WIFI_LOG));
+    assert_eq!(
+        iso(&records[0]).as_deref(),
+        Some("2014-11-14T20:14:37.1230000")
+    );
+    assert_eq!(
+        iso(&records[9]).as_deref(),
+        Some("2015-01-01T01:12:17.3110000")
+    );
+    assert!(records
+        .iter()
+        .all(|r| r.fields.get("YearInferred") == Some(&Value::Bool(true))));
+    assert_eq!(
+        records[0].fields.get("TimeText"),
+        Some(&Value::from("Thu Nov 14 20:14:37.123"))
+    );
+    let interface = &records[1];
+    assert_eq!(
+        interface.fields.get("Process"),
+        Some(&Value::from("airportd"))
+    );
+    assert_eq!(interface.fields.get("Pid"), Some(&Value::UInt(88)));
+    assert_eq!(interface.facets.process_id, Some(88));
+    assert_eq!(
+        interface.fields.get("Function"),
+        Some(&Value::from("airportdProcessDLILEvent"))
+    );
+    assert_eq!(interface.fields.get("Interface"), Some(&Value::from("en0")));
+    assert_eq!(
+        interface.fields.get("InterfaceEvent"),
+        Some(&Value::from("attached (up)"))
+    );
+    assert_eq!(
+        records[2].fields.get("Ssid"),
+        Some(&Value::from("CampusNet"))
+    );
+    let joined = &records[6];
+    for (name, value) in [
+        ("Ssid", "AndroidAP"),
+        ("Bssid", "88:30:8a:7a:61:88"),
+        ("Security", "WPA2 Personal"),
+    ] {
+        assert_eq!(joined.fields.get(name), Some(&Value::from(value)), "{name}");
+    }
+    assert_eq!(joined.fields.get("Rssi"), Some(&Value::Int(-21)));
+    assert!(joined
+        .summary
+        .starts_with("Wi-Fi airportd _processSystemPSKAssoc: No password for network"));
+}
+
+#[test]
+fn wifi_log_lines_without_the_file_time() {
+    let records = parse("wifi.log", "wifi.log", &[]);
+    assert_eq!(records.len(), 10);
+    assert!(records.iter().all(|r| r.times.is_empty()));
+    assert!(records
+        .iter()
+        .all(|r| r.fields.get("YearInferred") == Some(&Value::Bool(false))));
+    assert_eq!(
+        records[9].fields.get("TimeText"),
+        Some(&Value::from("Wed Jan  1 01:12:17.311"))
+    );
+    let rotated = parse_modified(
+        "wifi_turned_over.log",
+        "private/var/log/wifi.log.1",
+        &[],
+        Some(Ts::from_unix_seconds(1_420_200_000)),
+    );
+    assert_eq!(rotated.len(), 6);
+    assert_eq!(
+        rotated[0].facets.host_name.as_deref(),
+        Some("test-macbookpro")
+    );
+    assert_eq!(rotated[0].facets.process_id, Some(50_498));
+    assert_eq!(
+        iso(&rotated[0]).as_deref(),
+        Some("2015-01-02T00:10:15.0000000")
+    );
+    // Another log by the same name is not Wi-Fi's.
+    assert_eq!(
+        MacosAdapter.probe("wifi.log", b"2023-06-08 14:51:38.987368 <Notice>: x\n"),
+        Confidence::No
+    );
+}
+
+#[test]
+fn launchd_log_lines() {
+    let path = "private/var/log/com.apple.xpc.launchd/launchd.log.1";
+    let records = parse("macos_launchd.log.gz", path, &[]);
+    assert_eq!(records.len(), 36_609);
+    assert!(records.iter().all(|r| r.namespace() == LAUNCHD_LOG));
+    assert!(records.iter().all(|r| r.times.len() == 1));
+    let spawned = &records[861];
+    assert_eq!(
+        spawned.fields.get("Process"),
+        Some(&Value::from("system/com.apple.locationd [117]"))
+    );
+    assert_eq!(
+        spawned.fields.get("Label"),
+        Some(&Value::from("com.apple.locationd"))
+    );
+    assert_eq!(spawned.fields.get("Pid"), Some(&Value::UInt(117)));
+    assert_eq!(spawned.fields.get("Level"), Some(&Value::from("Notice")));
+    assert_eq!(
+        spawned.summary,
+        "launchd (system/com.apple.locationd [117]) <Notice>: xpcproxy spawned with pid 117"
+    );
+    assert_eq!(iso(spawned).as_deref(), Some("2023-06-08T10:51:39.7296030"));
+    let audio = &records[2203];
+    assert_eq!(audio.facets.process_id, Some(241));
+    assert_eq!(audio.fields.get("Label"), None);
+    assert_eq!(
+        records
+            .iter()
+            .filter(|r| r.fields.get("Level") == Some(&Value::from("Error")))
+            .count(),
+        1093
+    );
+    assert_eq!(
+        MacosAdapter.probe(path, b"Thu Nov 14 20:14:37.123 ***Starting Up***\n"),
+        Confidence::No
+    );
 }

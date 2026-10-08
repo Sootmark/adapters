@@ -13,3 +13,15 @@ same licence, stored the same way. SHA-256 of each file as published:
 
 2e7a9f24a66e5f9dcb6d13da722115134c10738efd31f7889c38b4c26d6ebad2  test_data/aws_elb_access.log
 927398287ae0dab20c1f204fbd0fb1b6a9ce2fcacc55f65253098d8804ea0f77  test_data/azure_application_gateway_access.json
+
+atlassian-bitbucket-audit.log.gz, atlassian-bitbucket.log.gz,
+atlassian-confluence.log.gz and atlassian-jira.log.gz are plaso's
+test_data files of the same names (Bitbucket's audit log, and Jira's,
+Confluence's and Bitbucket's application logs), from the same commit and
+under the same licence, stored the same way. SHA-256 of each file as
+published:
+
+5ad2db74d092ff139e422d19aefe8248f2e77b869a807146161997c6a1973272  test_data/atlassian-bitbucket-audit.log
+4fe84b9849b01ab6a627d646a4f44d48fd0e46cef368c5a4ce46ef53bf4a5444  test_data/atlassian-bitbucket.log
+940f926471b9465c1841f45c596672faf1267ab41feb856f73866389d454d777  test_data/atlassian-confluence.log
+6107234cff069e31330c2a26b314d517c1c3eac1d2a8f7336eaaeea33455e47d  test_data/atlassian-jira.log

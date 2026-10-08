@@ -32,3 +32,13 @@ uncompressed files):
   VolumeConfiguration.plist  480874ef63bd92dd07b4b4b8c96ad929a060fe13cd1de8c5c9d75297024aaa9d
   imessage_chat.db  2931db3b556e33728867726f5bfd56464c4c2955cbe2e795660bda2ad631127d
   login.keychain  c18c01687fcbc4cc9a4bf0e4c5bffa0f55ba80dc3746a9caf34e01d2f6bdb690
+
+Also plaso's test_data/wifi.log, test_data/wifi_turned_over.log and
+test_data/macos_launchd.log at commit
+91b6849503b125267d00ea134248e4fe59e5479c (same licence);
+macos_launchd.log is stored gzip-compressed (gzip -9n), the others are
+unmodified (SHA-256 of the uncompressed files):
+
+  wifi.log              846f1657369d52ce385206ebcf6009be7c81a54d9b04d240bf2dfb0de72055c6
+  wifi_turned_over.log  117d15daf69ef2d3c68a5ed3a8fd80add71a405b419c016ead4b89b62a523f87
+  macos_launchd.log     bd55bf8db183d1f7381337f0524edd0af367d84de39ecb97d25d9816a7678533

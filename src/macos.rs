@@ -5,8 +5,10 @@
 //! file came from), TCC (which apps were granted privacy permissions, and
 //! when), KnowledgeC (app usage and device events over time), crankd's
 //! application usage, document versions, Notes, Notification Center and
-//! Messages; and keychains' items (names, accounts, servers, times; never
-//! a secret), Spotlight's searched terms and indexed volumes.
+//! Messages; keychains' items (names, accounts, servers, times; never
+//! a secret), Spotlight's searched terms and indexed volumes; and the text
+//! logs of Wi-Fi (`wifi.log`, its years inferred) and launchd
+//! (`launchd.log`).
 
 use macos::{
     Artifact, AslRecord, BackgroundItem, FsEvent, JobKind, KnowledgeEvent, LaunchJob, PrefEntry,
@@ -17,6 +19,7 @@ use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, 
 
 use crate::home::profile_owner;
 
+mod logs;
 mod personal;
 mod usage;
 
@@ -68,6 +71,10 @@ pub const SPOTLIGHT_VOLUME: Namespace = Namespace::new("macos.spotlight_volume")
 pub const MESSAGES: Namespace = Namespace::new("macos.messages");
 /// Keychain items, without their secrets.
 pub const KEYCHAIN: Namespace = Namespace::new("macos.keychain");
+/// Lines of Wi-Fi's log (`wifi.log`).
+pub const WIFI_LOG: Namespace = Namespace::new("macos.wifi_log");
+/// Lines of launchd's log (`launchd.log`).
+pub const LAUNCHD_LOG: Namespace = Namespace::new("macos.launchd_log");
 
 fn pref_namespace(kind: PrefKind) -> Namespace {
     match kind {
@@ -124,12 +131,14 @@ impl Adapter for MacosAdapter {
             SPOTLIGHT_VOLUME,
             MESSAGES,
             KEYCHAIN,
+            WIFI_LOG,
+            LAUNCHD_LOG,
         ]
     }
 
     /// By name, and the SQLite signature (a property list's for launchd
     /// jobs and login items, gzip's or a page's for FSEvents, `kych` for
-    /// keychains).
+    /// keychains; for text logs, a first line that reads as one of theirs).
     fn probe(&self, name: &str, head: &[u8]) -> Confidence {
         let signed = match macos::detect(name) {
             Some(Artifact::Launchd(_) | Artifact::Prefs(_)) => {
@@ -138,6 +147,9 @@ impl Adapter for MacosAdapter {
             Some(Artifact::BackgroundItems) => head.starts_with(b"bplist"),
             Some(Artifact::Asl) => macos::is_asl(head),
             Some(Artifact::Keychain) => head.starts_with(b"kych"),
+            Some(artifact @ (Artifact::WifiLog | Artifact::LaunchdLog)) => {
+                logs::starts_like(artifact, head)
+            }
             Some(Artifact::FsEvents) => {
                 head.starts_with(&[0x1f, 0x8b]) || head.get(1..4) == Some(b"SLD")
             }
@@ -233,15 +245,6 @@ impl Adapter for MacosAdapter {
                     .collect();
                 emit(parsed.problems, records);
             }
-            Some(Artifact::Asl) => {
-                let parsed = macos::read_asl(input.data);
-                let records = parsed
-                    .records
-                    .iter()
-                    .map(|message| self.asl(input, message))
-                    .collect();
-                emit(parsed.problems, records);
-            }
             Some(
                 artifact @ (Artifact::AppUsage
                 | Artifact::DocumentVersions
@@ -255,6 +258,10 @@ impl Adapter for MacosAdapter {
                 let (problems, records) = self
                     .personal(artifact, input, log, owner.as_deref())
                     .map_err(failed)?;
+                emit(problems, records);
+            }
+            Some(artifact @ (Artifact::Asl | Artifact::WifiLog | Artifact::LaunchdLog)) => {
+                let (problems, records) = self.logs(artifact, input);
                 emit(problems, records);
             }
             None => return Err(ParseError::at(0, "not a macOS file this parser reads")),
