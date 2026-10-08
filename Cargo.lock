@@ -225,7 +225,7 @@ dependencies = [
  "sootmark-common",
  "sootmark-ese",
  "sootmark-plist",
- "sootmark-sqlite 0.2.0",
+ "sootmark-sqlite",
 ]
 
 [[package]]
@@ -253,7 +253,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3b3ae15b2c4b46163c1e13bd1b151421ec3243ea7cd31ff19f98132171f457d2"
 dependencies = [
  "sootmark-common",
- "sootmark-sqlite 0.2.0",
+ "sootmark-sqlite",
 ]
 
 [[package]]
@@ -329,7 +329,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39b8223c670b29d40db34de56f677cd659d8ab3df8215322a1fac23ff491a70c"
 dependencies = [
  "sootmark-common",
- "sootmark-sqlite 0.2.0",
+ "sootmark-sqlite",
 ]
 
 [[package]]
@@ -404,7 +404,7 @@ checksum = "722fc84b4751242abbd438826c12bed1ebfde7401375dd527fe1a233e2f26870"
 dependencies = [
  "sootmark-common",
  "sootmark-plist",
- "sootmark-sqlite 0.2.0",
+ "sootmark-sqlite",
 ]
 
 [[package]]
@@ -414,7 +414,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c49aea60d5c0a67e76b4bdf762eff6b4b466fc3f4c0d08aa78be4b7aeb5d7f5"
 dependencies = [
  "sootmark-common",
- "sootmark-sqlite 0.2.0",
+ "sootmark-sqlite",
 ]
 
 [[package]]
@@ -451,7 +451,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "264b7af2a118fe35516269b3711c36c54e03403f8a68769df2d1a6bcf6ae396d"
 dependencies = [
  "sootmark-common",
- "sootmark-sqlite 0.2.0",
+ "sootmark-sqlite",
 ]
 
 [[package]]
@@ -490,7 +490,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "982c9ac15b2f9bf372e04658f55cc00afaed79bbb9134ec843a067ea0263829b"
 dependencies = [
  "sootmark-common",
- "sootmark-sqlite 0.2.0",
+ "sootmark-sqlite",
 ]
 
 [[package]]
@@ -553,7 +553,7 @@ checksum = "2db9814b99131bc2f7e27a86fa19eaa4166dfe5d6c761418344e5e6577ae1c97"
 dependencies = [
  "sootmark-common",
  "sootmark-ese",
- "sootmark-sqlite 0.2.0",
+ "sootmark-sqlite",
 ]
 
 [[package]]
@@ -573,12 +573,6 @@ checksum = "c70f7776fd3f0c8508ffbe3225657454637835f4ff9eb4e98660541ef2e42a3e"
 dependencies = [
  "sootmark-common",
 ]
-
-[[package]]
-name = "sootmark-sqlite"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f8f021ec02a07a6011618d5e3ff02b19b947b8e0d57fac5f7d6f4637822f5208"
 
 [[package]]
 name = "sootmark-sqlite"
@@ -635,12 +629,12 @@ dependencies = [
 
 [[package]]
 name = "sootmark-utmp"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "55075560ec590729b6422867a34a8f053ff19c3b164bc9b29e787e007082c50e"
+checksum = "f926c44cf83e669130674c846119b559cfc0848526d9cb028af80d50aae702f3"
 dependencies = [
  "sootmark-common",
- "sootmark-sqlite 0.1.1",
+ "sootmark-sqlite",
 ]
 
 [[package]]
@@ -668,7 +662,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd2786f4a0f2c974e0fb70126189c0395a42a427be803e5d770c1bd0952ae384"
 dependencies = [
  "sootmark-common",
- "sootmark-sqlite 0.2.0",
+ "sootmark-sqlite",
 ]
 
 [[package]]
