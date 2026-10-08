@@ -1,0 +1,7 @@
+mac_cups_ipp is plaso's test data, under the Apache License 2.0 (LICENSE, in
+this directory). Copyright the plaso authors.
+
+Source: https://github.com/log2timeline/plaso, test_data/mac_cups_ipp, at
+commit 91b6849503b125267d00ea134248e4fe59e5479c. Unmodified (SHA-256):
+
+  mac_cups_ipp  63c5d7ca4a84cb0134559f8266cc1db5423841f487c410707cddf97e10de03fb

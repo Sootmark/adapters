@@ -1,0 +1,7 @@
+mlocate.db is plaso's test data, under the Apache License 2.0 (LICENSE, in
+this directory). Copyright the plaso authors.
+
+Source: https://github.com/log2timeline/plaso, test_data/mlocate.db, at commit
+91b6849503b125267d00ea134248e4fe59e5479c. Unmodified (SHA-256):
+
+  mlocate.db  153486e8a64196a238fbcdd48cbcccdf83ac2a080e31b78949c775e91f89a3bf

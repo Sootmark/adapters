@@ -14,6 +14,7 @@ dependencies = [
  "sootmark-common",
  "sootmark-conformance",
  "sootmark-containers",
+ "sootmark-cups",
  "sootmark-defender",
  "sootmark-disk",
  "sootmark-ese",
@@ -24,6 +25,7 @@ dependencies = [
  "sootmark-history",
  "sootmark-journal",
  "sootmark-macos",
+ "sootmark-mlocate",
  "sootmark-model",
  "sootmark-ntfslog",
  "sootmark-packages",
@@ -118,6 +120,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "sootmark-cups"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8ee312ac25dfa3d2822ef359b81351ced1be8b33a1ef1805e9129f93d561ed92"
+dependencies = [
+ "sootmark-common",
+]
+
+[[package]]
 name = "sootmark-defender"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -205,6 +216,15 @@ dependencies = [
  "sootmark-common",
  "sootmark-plist",
  "sootmark-sqlite 0.2.0",
+]
+
+[[package]]
+name = "sootmark-mlocate"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "61e0bcee53328acbc8af92ba91d6d87dc6efd36cb30faf06b06da45edaa8d935"
+dependencies = [
+ "sootmark-common",
 ]
 
 [[package]]
