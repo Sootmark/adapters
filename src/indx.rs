@@ -8,6 +8,8 @@ use indx::Entry;
 use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
 use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Value};
 
+use crate::paths;
+
 /// Records of directory index entries.
 pub const NAMESPACE: Namespace = Namespace::new("windows.i30");
 
@@ -50,7 +52,7 @@ impl Adapter for I30Adapter {
                 reason: problem.clone(),
             });
         }
-        let folder = folder(input.name);
+        let folder = paths::folder_of_stream(input.name);
         for entry in index.entries() {
             sink.record(self.record(input, folder, entry, false));
         }
@@ -92,7 +94,7 @@ impl I30Adapter {
         fields.insert("NameSpace".into(), Value::UInt(u64::from(entry.namespace)));
         times(&mut record, &mut fields, entry);
         record.fields = fields;
-        let path = join(folder, &entry.name);
+        let path = paths::join(folder, &entry.name);
         record.summary = if in_slack {
             format!("$I30 slack: {path} (removed from the folder's index)")
         } else {
@@ -125,22 +127,6 @@ fn times(record: &mut Record, fields: &mut Fields, entry: &Entry) {
     }
 }
 
-/// The folder the index belongs to: the input's path without `$I30…`.
-fn folder(name: &str) -> &str {
-    name.rfind(['/', '\\']).map_or("", |at| &name[..at])
-}
-
-/// The folder and name joined with the folder's own separator, or the name
-/// alone at the top.
-fn join(folder: &str, name: &str) -> String {
-    let separator = if folder.contains('\\') { '\\' } else { '/' };
-    if folder.is_empty() {
-        name.to_owned()
-    } else {
-        format!("{folder}{separator}{name}")
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -158,13 +144,5 @@ mod tests {
         );
         assert_eq!(adapter.probe("C/Users/$I30", b"RSTR"), Confidence::No);
         assert_eq!(adapter.probe("C/Users/notes.txt", b"INDX"), Confidence::No);
-    }
-
-    #[test]
-    fn paths_join_the_folder() {
-        assert_eq!(folder("C/Users/$I30"), "C/Users");
-        assert_eq!(join(folder("$I30"), "a.txt"), "a.txt");
-        assert_eq!(join("C/Users", "a.txt"), "C/Users/a.txt");
-        assert_eq!(join("C:\\Users", "a.txt"), "C:\\Users\\a.txt");
     }
 }

@@ -1,0 +1,12 @@
+Directory streams of a 64 MiB disk written for these tests on Linux
+(mkfs.fat, mkfs.exfat, then mounted, `tz=UTC` for FAT): the same small tree
+on a FAT32, a FAT16 and an exFAT partition, files given known modification
+and access times with touch, a file deleted. Each file is one directory's
+entries as sootmark-intake lists them from the image:
+
+  fat32-root.bin      vol0/$FAT_DIRECTORY
+  fat32-folder-a.bin  vol0/Folder A/$FAT_DIRECTORY
+  exfat-root.bin      vol2/$EXFAT_DIRECTORY
+
+The Sleuth Kit 4.12.1 (`fls -r -m / -z UTC`) lists the same entries with
+the same sizes and times, to the second. Under this crate's licences.

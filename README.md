@@ -12,6 +12,7 @@ Parsers are independent libraries that know nothing about Sootmark. Each module 
 Native parsers:
 
 - `mft` (`windows.mft`): loose NTFS `$MFT` files, as triage collections copy them: one record per named file, deleted and orphaned ones included, with the drive when the collection's path names it, `$STANDARD_INFORMATION` times and `$FILE_NAME` creation, size, alternate data streams and `Zone.Identifier` content; possible timestomping flagged (`$STANDARD_INFORMATION` creation before `$FILE_NAME` creation, whole-second creation times). Checked on the `disk` crate's synthetic volumes.
+- `fat` (`filesystem.fat`): FAT12, FAT16, FAT32 and exFAT directories, as `sootmark-intake` lists them from disk images (`<folder>/$FAT_DIRECTORY`, `<folder>/$EXFAT_DIRECTORY`): one record per file or folder a directory lists, with its size, attributes and the times its entry keeps (FAT's wall-clock times, zone unknown, never passed off as UTC; exFAT's UTC when the entry records its offset). What plaso's `filestat` gives for a volume without an `$MFT`. Checked against The Sleuth Kit's `fls -m` on a FAT32, a FAT16 and an exFAT volume written for the purpose.
 - `prefetch` (`windows.prefetch`): Prefetch files, compressed or not: what ran, how often, when (up to eight run times), from where. Checked against PECmd.
 - `usn` (`windows.usn`): the NTFS USN change journal (`$UsnJrnl:$J`): one record per change with its reasons, the file's name and the MFT references of the file and its folder. Read as a stream, so a journal of many gigabytes is never held in memory. Checked on plaso's `UsnJrnl.raw`.
 - `utmp` (`linux.utmp`): Linux login records (`wtmp`, `btmp`, `utmp`, rotated copies included): logins with the account, terminal and source address, failed logins (from `btmp`), logouts, boots, run level and clock changes; `lastlog`, each account's last login (by UID, with terminal and address); and the SQLite databases newer distributions keep instead, wtmpdb's `wtmp.db` (sessions with login and logout) and `lastlog2.db` (read with their `-wal` file when the caller hands it over, `parse_with_log`). Checked on plaso's test files and databases made with wtmpdb's and util-linux's tables. macOS's `utmpx` too.
@@ -66,6 +67,7 @@ Adapters pass the `conformance` suite. Every fixture is open data or our own syn
 - Shell history: plaso's bash, zsh and fish test files (Apache-2.0, `tests/fixtures/history/`).
 - Linux audit: plaso's `audit.log` (Apache-2.0) and a lab log recorded for the `audit` crate (`tests/fixtures/audit/`).
 - `$MFT`: loose MFTs from the `disk` crate's synthetic volumes (`tests/fixtures/mft/`).
+- FAT directories: directory streams of FAT32 and exFAT volumes written for these tests on Linux (`tests/fixtures/fat/`).
 - Persistence: the `persistence` crate's synthetic attack files (`tests/fixtures/persistence/`).
 - Live state: synthetic outputs shaped as the collector's (`tests/fixtures/live/`).
 - USN journal: plaso's `UsnJrnl.raw` (Apache-2.0, `tests/fixtures/usn/`).
