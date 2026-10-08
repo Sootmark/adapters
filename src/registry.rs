@@ -21,6 +21,7 @@
 //! `.LOG1`/`.LOG2`) is read as it is and reported as skipped, so the gap is
 //! never silent.
 
+mod accounts;
 mod activity;
 mod devices;
 mod identity;
@@ -95,6 +96,10 @@ pub const PROGRAMS: Namespace = Namespace::new("windows.registry.programs");
 pub const SYSTEM: Namespace = Namespace::new("windows.registry.system");
 /// User profiles (`ProfileList`).
 pub const PROFILES: Namespace = Namespace::new("windows.registry.profiles");
+/// SAM: local accounts.
+pub const SAM_USERS: Namespace = Namespace::new("windows.registry.sam_users");
+/// SAM: local groups' members.
+pub const SAM_GROUPS: Namespace = Namespace::new("windows.registry.sam_groups");
 
 fn amcache_namespace(class: Class) -> Namespace {
     match class {
@@ -159,6 +164,8 @@ impl Adapter for RegistryAdapter {
             PROGRAMS,
             SYSTEM,
             PROFILES,
+            SAM_USERS,
+            SAM_GROUPS,
         ]
     }
 
@@ -215,6 +222,7 @@ impl Adapter for RegistryAdapter {
         out.persistence(&hive);
         out.programs(&hive);
         out.identity(&hive);
+        out.accounts(&hive);
         Ok(())
     }
 }

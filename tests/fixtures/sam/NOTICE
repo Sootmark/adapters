@@ -1,0 +1,7 @@
+plaso-SAM.gz is plaso's test_data/regf/SAM (a Windows SAM hive), under the
+Apache License 2.0 (LICENSE-plaso, in this directory). Copyright the plaso
+authors.
+
+Source: https://github.com/log2timeline/plaso, test_data/regf/, at commit
+91b6849503b125267d00ea134248e4fe59e5479c. Stored gzip-compressed (gzip -9n),
+otherwise unmodified.
