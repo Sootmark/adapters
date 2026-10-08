@@ -13,3 +13,11 @@ plaso's test_data/plist/, commit 91b6849503b125267d00ea134248e4fe59e5479c,
 unmodified (same licence).
 applesystemlog.asl: plaso's test_data, commit 91b6849503b125267d00ea134248e4fe59e5479c,
 unmodified (same licence).
+
+Also from test_data/macos/ (the first three) and test_data/ (the last) at
+commit 91b6849503b125267d00ea134248e4fe59e5479c, unmodified (SHA-256):
+
+  application_usage.sqlite  3fae92c5b7851b0c14b55014f93702515ea9fb5e2f83e97e2ee2ba0c44a295ee
+  document_versions.sql  1160023277e56a2c33e8099c7e7167ada0bd965e5134b8ab2eb83da7df64524e
+  NotesV7.storedata  a383e583e81a9615b44397615dc78549939aedea5b9408057f4103741393cb4c
+  mac_notificationcenter.db  c32d7afb0d1f63d430a6fa5ecf2cff2cea6300ec61a9f3bb9aad561ae14b8ae9

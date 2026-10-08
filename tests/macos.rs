@@ -7,7 +7,8 @@ use conformance::assert_conforms;
 use model::adapter::{Adapter, Collected, Confidence, Input};
 use model::{EvidenceId, Record, Value};
 use sootmark_adapters::macos::{
-    MacosAdapter, ASL, FSEVENTS, KNOWLEDGEC, LOGIN_ITEMS, QUARANTINE, TCC, USERS, WIFI,
+    MacosAdapter, APP_USAGE, ASL, DOCUMENT_VERSIONS, FSEVENTS, KNOWLEDGEC, LOGIN_ITEMS, NOTES,
+    NOTIFICATIONS, QUARANTINE, TCC, USERS, WIFI,
 };
 
 fn read(name: &str) -> Vec<u8> {
@@ -185,4 +186,52 @@ fn apple_system_log() {
     assert_eq!(records.len(), 2);
     assert!(records.iter().all(|r| r.namespace() == ASL));
     assert!(records.iter().all(|r| !r.times.is_empty()));
+}
+
+#[test]
+fn usage_databases() {
+    let apps = parse(
+        "application_usage.sqlite",
+        "private/var/db/application_usage.sqlite",
+        &[],
+    );
+    assert_eq!(apps.len(), 5);
+    assert!(apps.iter().all(|r| r.namespace() == APP_USAGE));
+    assert_eq!(
+        apps[0].summary,
+        "App launch /Applications/Safari.app (1 times)"
+    );
+
+    let versions = parse(
+        "document_versions.sql",
+        ".DocumentRevisions-V100/db-V1/db.sqlite",
+        &[],
+    );
+    assert_eq!(versions.len(), 4);
+    assert!(versions.iter().all(|r| r.namespace() == DOCUMENT_VERSIONS));
+    assert_eq!(
+        versions[0].facets.file_path.as_deref(),
+        Some("/Users/moxilo/Documents/Spain is beautiful.rtf")
+    );
+    assert_eq!(versions[0].fields.get("Uid"), Some(&Value::UInt(501)));
+
+    let notes = parse(
+        "NotesV7.storedata",
+        "Users/a/Library/Containers/com.apple.Notes/Data/Library/Notes/NotesV7.storedata",
+        &[],
+    );
+    assert_eq!(notes.len(), 3);
+    assert!(notes.iter().all(|r| r.namespace() == NOTES));
+
+    let notifications = parse(
+        "mac_notificationcenter.db",
+        "private/var/folders/xy/abc/0/com.apple.notificationcenter/db2/db",
+        &[],
+    );
+    assert_eq!(notifications.len(), 6);
+    assert!(notifications.iter().all(|r| r.namespace() == NOTIFICATIONS));
+    assert_eq!(
+        notifications[0].summary,
+        "Notification from com.google.santagui: Santa - KeePassXC can now be run"
+    );
 }

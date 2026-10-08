@@ -3,7 +3,8 @@
 //! flagged), and those kept in SQLite, each read with its write-ahead log
 //! when the caller hands it over: quarantine events (where each downloaded
 //! file came from), TCC (which apps were granted privacy permissions, and
-//! when) and KnowledgeC (app usage and device events over time).
+//! when), KnowledgeC (app usage and device events over time), crankd's
+//! application usage, document versions, Notes and Notification Center.
 
 use macos::{
     Artifact, AslRecord, BackgroundItem, FsEvent, JobKind, KnowledgeEvent, LaunchJob, PrefEntry,
@@ -13,6 +14,8 @@ use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
 use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Value};
 
 use crate::home::profile_owner;
+
+mod usage;
 
 /// Quarantine events.
 pub const QUARANTINE: Namespace = Namespace::new("macos.quarantine");
@@ -46,6 +49,14 @@ pub const STARTUP_ITEMS: Namespace = Namespace::new("macos.startup_item");
 pub const TIME_MACHINE: Namespace = Namespace::new("macos.time_machine");
 /// Apple System Log messages.
 pub const ASL: Namespace = Namespace::new("macos.asl");
+/// App launches and quits (crankd's application usage).
+pub const APP_USAGE: Namespace = Namespace::new("macos.app_usage");
+/// Saved document versions.
+pub const DOCUMENT_VERSIONS: Namespace = Namespace::new("macos.document_versions");
+/// Notes.
+pub const NOTES: Namespace = Namespace::new("macos.notes");
+/// Notification Center notifications.
+pub const NOTIFICATIONS: Namespace = Namespace::new("macos.notifications");
 
 fn pref_namespace(kind: PrefKind) -> Namespace {
     match kind {
@@ -92,6 +103,10 @@ impl Adapter for MacosAdapter {
             STARTUP_ITEMS,
             TIME_MACHINE,
             ASL,
+            APP_USAGE,
+            DOCUMENT_VERSIONS,
+            NOTES,
+            NOTIFICATIONS,
         ]
     }
 
@@ -205,6 +220,38 @@ impl Adapter for MacosAdapter {
                     .records
                     .iter()
                     .map(|message| self.asl(input, message))
+                    .collect();
+                emit(parsed.problems, records);
+            }
+            Some(Artifact::AppUsage) => {
+                let parsed = macos::read_app_usage(input.data, log).map_err(failed)?;
+                let records = (0i64..)
+                    .zip(&parsed.uses)
+                    .map(|(index, used)| self.app_use(input, index, used))
+                    .collect();
+                emit(parsed.problems, records);
+            }
+            Some(Artifact::DocumentVersions) => {
+                let parsed = macos::read_document_versions(input.data, log).map_err(failed)?;
+                let records = (0i64..)
+                    .zip(&parsed.versions)
+                    .map(|(index, version)| self.document_version(input, index, version))
+                    .collect();
+                emit(parsed.problems, records);
+            }
+            Some(Artifact::Notes) => {
+                let parsed = macos::read_notes(input.data, log).map_err(failed)?;
+                let records = (0i64..)
+                    .zip(&parsed.notes)
+                    .map(|(index, note)| self.note(input, index, note))
+                    .collect();
+                emit(parsed.problems, records);
+            }
+            Some(Artifact::Notifications) => {
+                let parsed = macos::read_notifications(input.data, log).map_err(failed)?;
+                let records = (0i64..)
+                    .zip(&parsed.notifications)
+                    .map(|(index, notification)| self.notification(input, index, notification))
                     .collect();
                 emit(parsed.problems, records);
             }
