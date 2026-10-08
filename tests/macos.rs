@@ -167,6 +167,21 @@ fn login_items() {
 }
 
 #[test]
+fn background_items_of_macos_13() {
+    let records = parse(
+        "puffycid/BackgroundItems-v4-binary.btm",
+        "private/var/db/com.apple.backgroundtaskmanagement/BackgroundItems-v4.btm",
+        &[],
+    );
+    assert_eq!(records.len(), 6, "every item record, bookmark or not");
+    assert!(records.iter().all(|r| r.namespace() == LOGIN_ITEMS));
+    // Launch daemons have no bookmark: their program is the record's.
+    assert!(records
+        .iter()
+        .any(|r| r.summary.contains("amsdstat") && r.facets.process_path.is_some()));
+}
+
+#[test]
 fn property_lists() {
     let wifi = parse(
         "com.apple.airport.preferences.plist",

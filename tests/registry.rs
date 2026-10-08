@@ -263,7 +263,8 @@ fn usrclass_shellbags() {
 /// Amcache on plaso's Windows 10 test hive (Apache-2.0,
 /// `tests/fixtures/amcache/`; the parser is checked against `AmcacheParser`
 /// and plaso on every entry in `sootmark-registry`): every entry a record,
-/// files with their SHA-1, path and program as `AmcacheParser` reports them.
+/// files with their SHA-1, path and program as `AmcacheParser` reports them;
+/// and every key a record of its own.
 #[test]
 fn amcache_entries_as_amcacheparser_reads_them() {
     let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/amcache/Amcache.hve");
@@ -284,6 +285,7 @@ fn amcache_entries_as_amcacheparser_reads_them() {
             ("windows.registry.amcache.device_pnp".to_owned(), 53),
             ("windows.registry.amcache.file".to_owned(), 30),
             ("windows.registry.amcache.program".to_owned(), 75),
+            ("windows.registry.key".to_owned(), 207),
         ])
     );
     let file = output

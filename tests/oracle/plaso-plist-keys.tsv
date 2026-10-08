@@ -1,0 +1,66 @@
+Downloads.plist	/DownloadHistory	DownloadEntryDateAddedKey	1671043163076410
+Downloads.plist	/DownloadHistory	DownloadEntryDateAddedKey	1671043166112791
+Downloads.plist	/DownloadHistory	DownloadEntryDateAddedKey	1671044657310081
+Downloads.plist	/DownloadHistory	DownloadEntryDateAddedKey	1671044726862793
+Downloads.plist	/DownloadHistory	DownloadEntryDateFinishedKey	1671043163168881
+Downloads.plist	/DownloadHistory	DownloadEntryDateFinishedKey	1671043166194040
+Downloads.plist	/DownloadHistory	DownloadEntryDateFinishedKey	1671044659255635
+Downloads.plist	/DownloadHistory	DownloadEntryDateFinishedKey	1671044730620490
+InstallHistory.plist		date	1384225175000000
+InstallHistory.plist		date	1388205491000000
+InstallHistory.plist		date	1388232883000000
+InstallHistory.plist		date	1388232883000000
+InstallHistory.plist		date	1388232883000000
+InstallHistory.plist		date	1388232883000000
+InstallHistory.plist		date	1390941528000000
+VolumeConfiguration.plist		ConfigurationCreationDate	1369657430000000
+VolumeConfiguration.plist		ConfigurationModificationDate	1372139683000000
+VolumeConfiguration.plist	/Stores/4D4BFEB5-7FE6-4033-AAAA-AAAABBBBCCCCDDDD	CreationDate	1372139683000000
+VolumeConfiguration.plist	/Stores/4D4BFEB5-7FE6-4033-AAAA-AAAABBBBCCCCDDDD	PolicyDate	1372139683000000
+VolumeConfiguration.plist	/Stores/AA82EDD7-613C-45E6-82EF-AAAABBBBCCCCDDDD	CreationDate	1369657656000000
+VolumeConfiguration.plist	/Stores/AA82EDD7-613C-45E6-82EF-AAAABBBBCCCCDDDD	PolicyDate	1369657657000000
+com.apple.SoftwareUpdate.plist		LastBackgroundCCDSuccessfulDate	1389030241000000
+com.apple.SoftwareUpdate.plist		LastBackgroundSuccessfulDate	1389030241000000
+com.apple.SoftwareUpdate.plist		LastFullSuccessfulDate	1389030228000000
+com.apple.SoftwareUpdate.plist		LastSuccessfulDate	1389030228000000
+com.apple.TimeMachine.plist	/Destinations	DateOfLatestWarning	1388778981161858
+com.apple.airport.preferences.plist	/RememberedNetworks	LastConnected	1375144166000000
+com.apple.airport.preferences.plist	/RememberedNetworks	LastConnected	1386874984000000
+com.apple.airport.preferences.plist	/RememberedNetworks	LastConnected	1386949546000000
+com.apple.airport.preferences.plist	/RememberedNetworks	LastConnected	1386950747000000
+com.apple.bluetooth.plist	/DeviceCache/00-0d-fd-00-00-00	LastInquiryUpdate	1351827808261762
+com.apple.bluetooth.plist	/DeviceCache/00-0d-fd-00-00-00	LastNameUpdate	1345251268370453
+com.apple.bluetooth.plist	/DeviceCache/00-0d-fd-00-00-00	LastServicesUpdate	1345251192528750
+com.apple.bluetooth.plist	/DeviceCache/44-00-00-00-00-00	LastInquiryUpdate	1341957896010535
+com.apple.bluetooth.plist	/DeviceCache/44-00-00-00-00-01	LastInquiryUpdate	1350666385239662
+com.apple.bluetooth.plist	/DeviceCache/44-00-00-00-00-01	LastNameUpdate	1350666391557044
+com.apple.bluetooth.plist	/DeviceCache/44-00-00-00-00-02	LastInquiryUpdate	1341957900020117
+com.apple.bluetooth.plist	/DeviceCache/44-00-00-00-00-02	LastNameUpdate	1302199013524275
+com.apple.bluetooth.plist	/DeviceCache/44-00-00-00-00-03	LastInquiryUpdate	1301012201414766
+com.apple.bluetooth.plist	/DeviceCache/44-00-00-00-00-04	LastInquiryUpdate	1351818797324095
+com.apple.bluetooth.plist	/DeviceCache/44-00-00-00-00-04	LastNameUpdate	1351819298997673
+com.apple.bluetooth.plist	/DeviceCache/44-00-00-00-00-04	LastServicesUpdate	1351818803000000
+com.apple.coreservices.appleidauthenticationinfo.ABC0ABC1-ABC0-ABC0-ABC0-ABC0ABC1ABC2.plist		CreationDate	1372106802557488
+com.apple.coreservices.appleidauthenticationinfo.ABC0ABC1-ABC0-ABC0-ABC0-ABC0ABC1ABC2.plist	/Accounts/email@domain.com	CreationDate	1372106802000000
+com.apple.coreservices.appleidauthenticationinfo.ABC0ABC1-ABC0-ABC0-ABC0-ABC0ABC1ABC2.plist	/Accounts/email@domain.com	LastSuccessfulConnect	1387980032000000
+com.apple.coreservices.appleidauthenticationinfo.ABC0ABC1-ABC0-ABC0-ABC0-ABC0ABC1ABC2.plist	/Accounts/email@domain.com	ModificationDate	1387980032490012
+com.apple.coreservices.appleidauthenticationinfo.ABC0ABC1-ABC0-ABC0-ABC0-ABC0ABC1ABC2.plist	/Accounts/email@domain.com	ValidationDate	1387980032000000
+com.apple.coreservices.appleidauthenticationinfo.ABC0ABC1-ABC0-ABC0-ABC0-ABC0ABC1ABC2.plist	/MetaInfo	LastConnectAttempt	1387980032183618
+com.apple.coreservices.appleidauthenticationinfo.ABC0ABC1-ABC0-ABC0-ABC0-ABC0ABC1ABC2.plist	/MetaInfo	LastSuccessfulConnect	1387980032183618
+com.apple.iPod.plist	/Devices/00000000012E4737	Connected	1317629661000000
+com.apple.iPod.plist	/Devices/0000A11300000000	Connected	817064707000000
+com.apple.iPod.plist	/Devices/0DEADBEEF00F0A20	Connected	1398880222000000
+com.apple.iPod.plist	/Devices/4C6F6F6E65000000	Connected	1381346874000000
+com.apple.spotlight.plist	/UserShortcuts/fi	LAST_USED	1380942616952360
+com.apple.spotlight.plist	/UserShortcuts/gr	LAST_USED	1387822901900938
+com.apple.spotlight.plist	/UserShortcuts/itu	LAST_USED	1386111811136094
+com.apple.spotlight.plist	/UserShortcuts/libre	LAST_USED	1386951868185478
+com.apple.spotlight.plist	/UserShortcuts/m	LAST_USED	1376696381196456
+com.apple.spotlight.plist	/UserShortcuts/map	LAST_USED	1379937262090907
+com.apple.spotlight.plist	/UserShortcuts/ter	LAST_USED	1389056477460443
+com.apple.spotlight.plist	/UserShortcuts/text	LAST_USED	1375236414408299
+com.apple.spotlight.plist	/UserShortcuts/wifi	LAST_USED	1388331212005130
+leading_whitespace.plist	/RememberedNetworks	LastConnected	1375144166000000
+leading_whitespace.plist	/RememberedNetworks	LastConnected	1386874984000000
+leading_whitespace.plist	/RememberedNetworks	LastConnected	1386949546000000
+leading_whitespace.plist	/RememberedNetworks	LastConnected	1386950747000000

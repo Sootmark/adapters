@@ -13,7 +13,11 @@
 //! persistence keys (each flagged when it departs from Windows' default)
 //! and installed programs. SYSTEM and SOFTWARE: what the machine is (name,
 //! time zone, last shutdown, Windows version) and its user profiles.
-//! Any other hive is read and yields nothing.
+//!
+//! And every key of every hive, the named artifacts' keys included, in its
+//! own namespace: its path under the root Windows mounts the hive at, its
+//! last write and its values, as plaso's `winreg_default` plugin writes
+//! them (`registry/keys.rs`).
 //!
 //! Damage the parser met is reported as skipped, located by key and value.
 //!
@@ -26,6 +30,7 @@ mod activity;
 mod apps;
 mod devices;
 mod identity;
+mod keys;
 mod network;
 mod persistence;
 mod programs;
@@ -125,6 +130,9 @@ pub const CCLEANER: Namespace = Namespace::new("windows.registry.ccleaner");
 /// Applications Windows' memory leak diagnosis watched (SOFTWARE).
 pub const DIAGNOSED_APPLICATIONS: Namespace =
     Namespace::new("windows.registry.diagnosed_applications");
+/// Every key of any hive, with its values, as plaso's `winreg_default`
+/// reads it.
+pub const KEYS: Namespace = Namespace::new("windows.registry.key");
 
 fn amcache_namespace(class: Class) -> Namespace {
     match class {
@@ -202,6 +210,7 @@ impl Adapter for RegistryAdapter {
             OUTLOOK_SEARCH,
             CCLEANER,
             DIAGNOSED_APPLICATIONS,
+            KEYS,
         ]
     }
 
@@ -262,6 +271,7 @@ impl Adapter for RegistryAdapter {
         out.identity(&hive);
         out.accounts(&hive);
         out.apps(&hive);
+        out.keys(&hive);
         Ok(())
     }
 }

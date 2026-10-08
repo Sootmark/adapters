@@ -1,0 +1,34 @@
+These files are plaso's test data, under the Apache License 2.0 (LICENSE,
+in this directory). Copyright the plaso authors.
+
+Source: https://github.com/log2timeline/plaso, test_data/plist/ (every
+file), at commit 91b6849503b125267d00ea134248e4fe59e5479c. Unmodified.
+SHA-256:
+
+  38f46a836f9c07e8d368c51c63b0f909105729f3ee4c0c7da5cb50d498c7a509  Downloads.plist
+  f0b7da783abf82182fca8603ef269ce8c934a4fe291595fb87cf325bda6265a4  History.plist
+  234bd265af67660520d6083768a3ae3c92dd102a0c7214a628c8b25518b49317  InstallHistory.plist
+  ea172a17301d2eaa7284ca17715044da9723d930f43adc78d8531cd851e1a781  NSKeyedArchiver.plist
+  8c33b460bd847c73312281a79dacf7f1e2f8f9c23dac821ac5f20d6c81c8d94e  StartupParameters.plist
+  480874ef63bd92dd07b4b4b8c96ad929a060fe13cd1de8c5c9d75297024aaa9d  VolumeConfiguration.plist
+  62b17e32120d090531bc9a8d9355a18c3bc24ed0986b158a2c97a02e8135edc0  com.apple.HIToolbox.plist
+  892a4dfb22241395e76443fa833bf076acb1edd69110e37f558592ac7181c64c  com.apple.SoftwareUpdate.plist
+  0c8dad3aabfc867907b9afebb2683b4862dfb03d3ecd3d94481a09f5bfcf8d58  com.apple.TimeMachine.plist
+  1ebebba60d78b89032ec28f63a83cea4f0c2b2b4e1aa9dee15a7bab297fb7fc7  com.apple.airport.preferences.plist
+  21cdf076cf0cf777c92ef024c1f99fa6c265460d8e309ac319d00dd4eb649fff  com.apple.bluetooth.plist
+  a5179e60561651a414433cfe322a55ee16251a3df2647ace5e20f516c32fbb87  com.apple.coreservices.appleidauthenticationinfo.ABC0ABC1-ABC0-ABC0-ABC0-ABC0ABC1ABC2.plist
+  bb117d6b9ca4a6ead1c6053be0c33c82dd0a99eb831c4a8b81b110808e15cca2  com.apple.iPod.plist
+  c35e31a8a25c61ff0fc3ebac44e949229b4185057f0c11bcc8d3c0db3ff37d22  com.apple.loginitems.plist
+  9261ecceda608ef174256e5fdc774c1e6e3dcf533409c1bc393d490d01c713f1  com.apple.networkextension.uuidcache.plist
+  66b463526c7fdb37bb70ca12e03355796a1d03b56c709c863cb7785174034044  com.apple.security.KCN.plist
+  10ee78c07176052492476b2ef262d384f0bff0bb54e25aad3cd37f276a646031  com.apple.spotlight.plist
+  113524b0b2a9da369313fbd67c35081d2211338132f952d8c1c143a858f8a43e  empty.plist
+  fcb0f0140c4351463c5c0826154c9140bd10e8ed21d5f8039f49969851a617f3  launchd.minimal.plist
+  64e541b40c5fba51440e7387dcbc55a4a255166147b8311735e188232fd619f2  launchd.noprogram.plist
+  6a5529a6e349c4734059a3769e4fb13ca0902cec20bb3a2585543ce4ecebfa72  launchd.plist
+  3ded97225ce5c5402cce74a2611cd802af3588483d761f81af1967f864a008a1  leading_whitespace.plist
+  27ab0a420b39f1b9a27504f705ad7392f3c3f6ae60361f0fcc8a9fe9c6e82446  loginwindow.plist
+  df7dfd94e127f67b57d742d8ffb944a6c89eda5226e3efa587b538cd0718b6ec  nobody.plist
+  67c13d6e65584e1b3e5e79c5636b394ce4d9bdac68468f9b824317cc4431a10b  org.cups.printers.plist
+  9646969651b013880d2b148bb0634df20543209b68cd0589a304943780f80276  truncated.plist
+  8cd9a6cade5bd3d6b75110a43095aa40506205bec3e21a20f37642dca8dae322  user.plist

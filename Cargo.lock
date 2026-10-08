@@ -173,6 +173,7 @@ dependencies = [
  "sootmark-packages",
  "sootmark-pe",
  "sootmark-persistence",
+ "sootmark-plist",
  "sootmark-prefetch",
  "sootmark-recyclebin",
  "sootmark-registry",
@@ -420,9 +421,9 @@ dependencies = [
 
 [[package]]
 name = "sootmark-macos"
-version = "0.9.0"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36b8ec038a807a7290ed325de2a99f1b9faaa481ad7ba023adc30d3869046dc2"
+checksum = "f6fe8fbaeb3db3fbc9b42555e2d05282d1dec43a3a39bb726aa6f47bd3ea1913"
 dependencies = [
  "sootmark-common",
  "sootmark-plist",
@@ -679,9 +680,9 @@ dependencies = [
 
 [[package]]
 name = "sootmark-winlogs"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "364f83afb28571b26c1961083e23be8a0a9d24e533e70cda9b7a4f81fb9ea269"
+checksum = "90468a667056e9ae70e0b0da8160688db8b64d31acd8423905b39addfe21a5bc"
 dependencies = [
  "sootmark-common",
  "sootmark-sqlite",

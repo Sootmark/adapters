@@ -21,10 +21,11 @@ evtx = { package = "sootmark-evtx", version = "0.2.0" }
 history = { package = "sootmark-history", version = "0.3.0" }
 imagecache = { package = "sootmark-imagecache", version = "0.1.0" }
 journal = { package = "sootmark-journal", version = "0.1.0" }
-macos = { package = "sootmark-macos", version = "0.9.0" }
+macos = { package = "sootmark-macos", version = "0.10.0" }
 model = { package = "sootmark-model", version = "0.2.4" }
 packages = { package = "sootmark-packages", version = "0.2.0" }
 persistence = { package = "sootmark-persistence", version = "0.4.1" }
+plist = { package = "sootmark-plist", version = "0.1.0" }
 prefetch = { package = "sootmark-prefetch", version = "0.1.0" }
 recyclebin = { package = "sootmark-recyclebin", version = "0.1.0" }
 registry = { package = "sootmark-registry", version = "0.10.0" }
@@ -90,4 +91,9 @@ opt-level = 3
 # The unified log tests read shared cache strings files of up to 160 MB: an
 # optimised reader keeps the run short.
 [profile.dev.package.sootmark-unifiedlog]
+opt-level = 3
+# Every key of the test hives is read, and read again for each damaged
+# variant the conformance checks try: an optimised hive reader keeps the
+# run short.
+[profile.dev.package.sootmark-registry]
 opt-level = 3

@@ -1,0 +1,11 @@
+NTUSER-edges.DAT.gz is derived from plaso's test data, under the Apache
+License 2.0 (LICENSE, in this directory). Copyright the plaso authors.
+
+Source: https://github.com/log2timeline/plaso, test_data/NTUSER-WIN7.DAT at
+commit ac6da7129f6cf3f43a352b6c4906374cf071533e (SHA-256
+672abb15ae62fa8c002c5ee0a730cf83cd5f40706d5ffdec8f1179cf47a0bd03), modified:
+patch.py, in this directory, changes eleven values (their sizes, types, a
+first character, a name's first byte; listed in its header), then the file
+is stored gzip-compressed (gzip -9n). SHA-256 of the modified hive:
+
+  ac76beabe0dc34aaa8c6786e4f83b7d0ed19e2c4c80e2ef03d6d1e38b06e52fc  NTUSER-edges.DAT

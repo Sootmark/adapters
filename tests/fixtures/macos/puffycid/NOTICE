@@ -1,0 +1,12 @@
+BackgroundItems-v4-binary.btm is test data of puffyCid's macos-loginitems,
+under the MIT License (LICENSE, in this directory). Copyright (c) 2022
+puffyCid.
+
+Source: https://github.com/puffyCid/macos-loginitems, tests/test_data/
+BackgroundItems-v4.btm, at commit 75658db42a9adab87e9be6ef7d0e30d91d35fa7d,
+converted to a binary property list, as macOS writes these files, with
+macOS's own `plutil -convert binary1` (as in sootmark-macos's tests).
+
+SHA-256:
+
+  BackgroundItems-v4-binary.btm   873aa8ba0aa732bfd739860875c1dba4980d55223b036526d733792ef5845a69

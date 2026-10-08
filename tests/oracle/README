@@ -1,0 +1,86 @@
+What plaso (the log2timeline/plaso:20260720 Docker image) reads with its
+default Windows Registry and property list plugins, the oracles of
+tests/registry_keys.rs (windows.registry.key) and tests/macos_plist.rs
+(macos.plist). Made on 2026-10-08 on a Debian host with Docker.
+
+plaso-registry-keys.tsv.gz: every key of the hives tests/fetch-hives.sh
+fetches into tests/fixtures/hives/ (Eric Zimmerman's SYSTEM, SOFTWARE,
+NTUSER.DAT and ERZ_Win81_UsrClass.dat, MIT; Andrew Rathbun's Windows 10
+SYSTEM, SOFTWARE and NTUSER.DAT, MIT; plaso's NTUSER-WIN7.DAT, Apache-2.0)
+but Andrew Rathbun's SOFTWARE, whose 246,991 keys would double the file's
+size (5.8 MB more, gzipped): they matched too, every one, when this was
+made; add them back by leaving out the grep below. One line per key,
+sorted: the hive, the key path, its last write (FILETIME), and the values
+as plaso's formatter writes them (gen_registry_keys.py says how, and checks
+each line against plaso's own message).
+
+  mkdir hives && cp tests/fixtures/hives/* hives/
+  sudo docker run --rm -v "$PWD:/data" log2timeline/plaso:20260720 \
+    log2timeline --status_view none -q --parsers winreg/winreg_default \
+    --storage-file /data/winreg.plaso /data/hives
+  sudo docker run --rm -v "$PWD:/data" log2timeline/plaso:20260720 \
+    psort --status_view none -q -a -o json_line -w /data/winreg.jsonl /data/winreg.plaso
+  python3 -I gen_registry_keys.py winreg.jsonl \
+    | grep -v '^rathbun-win10-SOFTWARE' | gzip -9n > plaso-registry-keys.tsv.gz
+
+plaso-registry-edges.tsv: the keys of tests/fixtures/registry-edges/
+NTUSER-edges.DAT (plaso's NTUSER-WIN7.DAT with eleven values changed by
+patch.py, see its NOTICE) holding the changed values, the same way:
+
+  mkdir edges && gzip -dc NTUSER-edges.DAT.gz > edges/NTUSER-edges.DAT
+  (log2timeline and psort as above, on /data/edges, into edges.jsonl)
+  python3 -I gen_registry_keys.py edges.jsonl | grep -E \
+    '	HKEY_CURRENT_USER.(Control Panel.Appearance.New Schemes.0.Sizes.0|Control Panel.Desktop|Software.Microsoft.Cryptography.CertificateTemplateCache.Administrator)	' \
+    > plaso-registry-edges.tsv
+
+plaso-plist-keys.tsv: every event of the 27 files of plaso's
+test_data/plist/ at commit 91b6849503b125267d00ea134248e4fe59e5479c
+(tests/fixtures/plist-default/, Apache-2.0, see its NOTICE); one line per
+event, sorted: the file, the root, the key, the date in microseconds.
+
+  mkdir plist && cp tests/fixtures/plist-default/*.plist plist/
+  sudo docker run --rm -v "$PWD:/data" log2timeline/plaso:20260720 \
+    log2timeline --status_view none -q --parsers plist/plist_default \
+    --storage-file /data/plist.plaso /data/plist
+  sudo docker run --rm -v "$PWD:/data" log2timeline/plaso:20260720 \
+    psort --status_view none -q -a -o json_line -w /data/plist.jsonl /data/plist.plaso
+  python3 -I gen_plist_keys.py plist.jsonl > plaso-plist-keys.tsv
+
+(psort's -a keeps events it would drop as duplicates. With only the
+default plugin named, plaso's named plist plugins are off and its default
+one reads every file; the default Registry plugin reads every key.)
+
+What the comparison found:
+
+- Registry: all 494,349 keys of the eight fetched hives (247,358 of them in
+  the committed oracle) at the same path, with the same last write and the
+  same values line. Learnt from it, and done as plaso does: numbers are
+  signed (a REG_DWORD 0xFFFFFFFF is -1), read from the leading 4 or 8 bytes
+  of longer data (a REG_DWORD of 8 bytes is its first 4); a REG_MULTI_SZ
+  holds only the strings a NUL ends, up to the first empty one (a list
+  without a final NUL loses its last string, one without any NUL is []).
+- Registry, NTUSER-edges.DAT: as plaso, a REG_SZ of an odd size, a REG_DWORD
+  or REG_QWORD shorter than its type are "(n bytes)"; an odd last byte of a
+  REG_MULTI_SZ is ignored; a leading byte order mark is dropped; REG_LINK is
+  its text's length in characters, written "(n bytes)"; REG_DWORD_BE is read
+  big-endian, signed. Two differences, on purpose, which the test spells
+  out: an unpaired UTF-16 surrogate, which Python keeps, is U+FFFD (a Rust
+  string can't hold one); a name stored one byte per character is read as
+  Latin-1, as Windows writes it (its UTF-16 units truncated), where plaso
+  reads Windows-1252 (bytes 0x80 to 0x9F differ: 0x92 is U+0092 here,
+  U+2019 there).
+- Registry, not seen in any hive and done differently: plaso fails a hive
+  that fits two mappings of different roots (a RuntimeError in dfwinreg)
+  where this writes its keys rooted at "\"; and a key whose values plaso's
+  libregf can't read is lost in plaso, where this keeps the key, the values
+  it could read, and reports the others as skipped.
+- Property lists: all 66 events of plaso in the 27 files, same roots, keys
+  and dates to the microsecond. And three keys more: plaso (Python's
+  plistlib) refuses com.apple.security.KCN.plist for its date in the year 0
+  and loses the whole file; read as CoreFoundation reads it, its three
+  dates are records. empty.plist (no value) and truncated.plist (a binary
+  trailer pointing outside the file) give nothing, in plaso too. Not in the
+  test data and done differently: a dictionary repeating a key keeps the
+  last value (as plistlib) at the last place (plistlib, the first); a file
+  partly damaged gives what can be read, with the damage reported, where
+  plistlib gives up on it.

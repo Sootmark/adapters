@@ -8,7 +8,8 @@
 //! Messages; keychains' items (names, accounts, servers, times; never
 //! a secret), Spotlight's searched terms and indexed volumes; and the text
 //! logs of Wi-Fi (`wifi.log`, its years inferred) and launchd
-//! (`launchd.log`).
+//! (`launchd.log`). Any other property list is read as plaso's
+//! `plist_default` plugin reads it: one record per key holding a date.
 
 use macos::{
     Artifact, AslRecord, BackgroundItem, FsEvent, JobKind, KnowledgeEvent, LaunchJob, PrefEntry,
@@ -21,6 +22,7 @@ use crate::home::profile_owner;
 
 mod logs;
 mod personal;
+mod plist_dates;
 mod usage;
 
 /// Quarantine events.
@@ -75,6 +77,18 @@ pub const KEYCHAIN: Namespace = Namespace::new("macos.keychain");
 pub const WIFI_LOG: Namespace = Namespace::new("macos.wifi_log");
 /// Lines of launchd's log (`launchd.log`).
 pub const LAUNCHD_LOG: Namespace = Namespace::new("macos.launchd_log");
+/// Dates in property lists no named artifact reads, one per key.
+pub const PLIST: Namespace = Namespace::new("macos.plist");
+
+/// Whether a file starts as a property list does: `bplist00`, or XML (after
+/// a UTF-8 byte order mark and blank space) that names a `plist` early.
+fn is_plist(head: &[u8]) -> bool {
+    if head.starts_with(b"bplist00") {
+        return true;
+    }
+    let text = head.strip_prefix(b"\xEF\xBB\xBF").unwrap_or(head);
+    text.trim_ascii_start().starts_with(b"<") && text.windows(6).any(|w| w == b"<plist")
+}
 
 fn pref_namespace(kind: PrefKind) -> Namespace {
     match kind {
@@ -133,12 +147,15 @@ impl Adapter for MacosAdapter {
             KEYCHAIN,
             WIFI_LOG,
             LAUNCHD_LOG,
+            PLIST,
         ]
     }
 
     /// By name, and the SQLite signature (a property list's for launchd
     /// jobs and login items, gzip's or a page's for FSEvents, `kych` for
     /// keychains; for text logs, a first line that reads as one of theirs).
+    /// Any other property list, by its signature, maybe: an adapter sure
+    /// of it reads it instead.
     fn probe(&self, name: &str, head: &[u8]) -> Confidence {
         let signed = match macos::detect(name) {
             Some(Artifact::Launchd(_) | Artifact::Prefs(_)) => {
@@ -154,6 +171,7 @@ impl Adapter for MacosAdapter {
                 head.starts_with(&[0x1f, 0x8b]) || head.get(1..4) == Some(b"SLD")
             }
             Some(_) => head.starts_with(b"SQLite format 3\0"),
+            None if is_plist(head) => return Confidence::Maybe,
             None => false,
         };
         if signed {
@@ -264,7 +282,12 @@ impl Adapter for MacosAdapter {
                 let (problems, records) = self.logs(artifact, input);
                 emit(problems, records);
             }
-            None => return Err(ParseError::at(0, "not a macOS file this parser reads")),
+            None => {
+                let (problems, records) = self
+                    .plist_dates(input, owner.as_deref())
+                    .map_err(|e| ParseError::at(0, e.to_string()))?;
+                emit(problems, records);
+            }
         }
         Ok(())
     }
@@ -597,17 +620,31 @@ impl MacosAdapter {
             "VolumeMountPoint",
             item.volume_mount_point.as_deref(),
         );
+        // macOS 13+ stores keep an item's record beside its bookmark, and
+        // launch daemons there have no bookmark at all.
+        let item_record = item.record.as_ref();
+        if let Some(item_record) = item_record {
+            item_record_fields(&mut fields, item_record);
+        }
+        let name = item
+            .name
+            .as_deref()
+            .or(item_record.and_then(|r| r.name.as_deref()));
+        let program = item
+            .target_path
+            .as_deref()
+            .or(item_record.and_then(|r| r.executable_path.as_deref()));
         record.fields = fields;
         record.facets = Facets {
             user_name: owner.map(str::to_owned),
-            process_path: item.target_path.clone(),
+            process_path: program.map(str::to_owned),
             file_path: Some(input.name.to_owned()),
             ..Facets::default()
         };
         record.summary = format!(
             "login item {}: {}",
-            item.name.as_deref().unwrap_or("?"),
-            item.target_path.as_deref().unwrap_or("?")
+            name.unwrap_or("?"),
+            program.unwrap_or("?")
         );
         record
     }
@@ -702,5 +739,28 @@ fn pref_time_kind(name: &str) -> TimeKind {
 fn text(fields: &mut Fields, name: &str, value: Option<&str>) {
     if let Some(value) = value.filter(|v| !v.is_empty()) {
         fields.insert(name.into(), Value::from(value));
+    }
+}
+
+/// The fields of a macOS 13+ background item's record.
+fn item_record_fields(fields: &mut Fields, item: &macos::ItemRecord) {
+    text(fields, "ItemUser", Some(item.user.as_str()));
+    for (name, value) in [
+        ("ItemUuid", &item.uuid),
+        ("ItemName", &item.name),
+        ("Identifier", &item.identifier),
+        ("Url", &item.url),
+        ("ExecutablePath", &item.executable_path),
+        ("BundleIdentifier", &item.bundle_identifier),
+        ("TeamIdentifier", &item.team_identifier),
+        ("DeveloperName", &item.developer_name),
+        ("Container", &item.container),
+    ] {
+        text(fields, name, value.as_deref());
+    }
+    for (name, value) in [("ItemType", item.kind), ("Disposition", item.disposition)] {
+        if let Some(value) = value {
+            fields.insert(name.into(), Value::UInt(value));
+        }
     }
 }
