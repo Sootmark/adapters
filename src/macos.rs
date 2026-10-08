@@ -223,37 +223,14 @@ impl Adapter for MacosAdapter {
                     .collect();
                 emit(parsed.problems, records);
             }
-            Some(Artifact::AppUsage) => {
-                let parsed = macos::read_app_usage(input.data, log).map_err(failed)?;
-                let records = (0i64..)
-                    .zip(&parsed.uses)
-                    .map(|(index, used)| self.app_use(input, index, used))
-                    .collect();
-                emit(parsed.problems, records);
-            }
-            Some(Artifact::DocumentVersions) => {
-                let parsed = macos::read_document_versions(input.data, log).map_err(failed)?;
-                let records = (0i64..)
-                    .zip(&parsed.versions)
-                    .map(|(index, version)| self.document_version(input, index, version))
-                    .collect();
-                emit(parsed.problems, records);
-            }
-            Some(Artifact::Notes) => {
-                let parsed = macos::read_notes(input.data, log).map_err(failed)?;
-                let records = (0i64..)
-                    .zip(&parsed.notes)
-                    .map(|(index, note)| self.note(input, index, note))
-                    .collect();
-                emit(parsed.problems, records);
-            }
-            Some(Artifact::Notifications) => {
-                let parsed = macos::read_notifications(input.data, log).map_err(failed)?;
-                let records = (0i64..)
-                    .zip(&parsed.notifications)
-                    .map(|(index, notification)| self.notification(input, index, notification))
-                    .collect();
-                emit(parsed.problems, records);
+            Some(
+                artifact @ (Artifact::AppUsage
+                | Artifact::DocumentVersions
+                | Artifact::Notes
+                | Artifact::Notifications),
+            ) => {
+                let (problems, records) = self.usage(artifact, input, log).map_err(failed)?;
+                emit(problems, records);
             }
             None => return Err(ParseError::at(0, "not a macOS file this parser reads")),
         }

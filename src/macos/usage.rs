@@ -1,7 +1,7 @@
 //! Records of what was used and kept: app launches and quits, document
 //! versions, notes and notifications.
 
-use macos::{AppUse, DocumentVersion, Note, Notification};
+use macos::{AppUse, Artifact, DocumentVersion, Note, Notification};
 use model::adapter::Input;
 use model::{Facets, Fields, Record, RecordTime, TimeKind, Value};
 
@@ -11,7 +11,51 @@ use super::{text, MacosAdapter, APP_USAGE, DOCUMENT_VERSIONS, NOTES, NOTIFICATIO
 const SUMMARY_TEXT: usize = 200;
 
 impl MacosAdapter {
-    pub(super) fn app_use(self, input: &Input<'_>, index: i64, used: &AppUse) -> Record {
+    /// The records of a usage database and what couldn't be read.
+    pub(super) fn usage(
+        self,
+        artifact: Artifact,
+        input: &Input<'_>,
+        log: &[u8],
+    ) -> Result<(Vec<String>, Vec<Record>), macos::Error> {
+        let (data, indexes) = (input.data, 0i64..);
+        Ok(match artifact {
+            Artifact::AppUsage => {
+                let parsed = macos::read_app_usage(data, log)?;
+                let records: Vec<Record> = indexes
+                    .zip(&parsed.uses)
+                    .map(|(i, used)| self.app_use(input, i, used))
+                    .collect();
+                (parsed.problems, records)
+            }
+            Artifact::DocumentVersions => {
+                let parsed = macos::read_document_versions(data, log)?;
+                let records: Vec<Record> = indexes
+                    .zip(&parsed.versions)
+                    .map(|(i, version)| self.document_version(input, i, version))
+                    .collect();
+                (parsed.problems, records)
+            }
+            Artifact::Notes => {
+                let parsed = macos::read_notes(data, log)?;
+                let records: Vec<Record> = indexes
+                    .zip(&parsed.notes)
+                    .map(|(i, note)| self.note(input, i, note))
+                    .collect();
+                (parsed.problems, records)
+            }
+            _ => {
+                let parsed = macos::read_notifications(data, log)?;
+                let records: Vec<Record> = indexes
+                    .zip(&parsed.notifications)
+                    .map(|(i, notification)| self.notification(input, i, notification))
+                    .collect();
+                (parsed.problems, records)
+            }
+        })
+    }
+
+    fn app_use(self, input: &Input<'_>, index: i64, used: &AppUse) -> Record {
         let mut record = self.record(input, APP_USAGE, "application_usage", index);
         if let Some(time) = used.last_time {
             record
@@ -43,12 +87,7 @@ impl MacosAdapter {
         record
     }
 
-    pub(super) fn document_version(
-        self,
-        input: &Input<'_>,
-        index: i64,
-        version: &DocumentVersion,
-    ) -> Record {
+    fn document_version(self, input: &Input<'_>, index: i64, version: &DocumentVersion) -> Record {
         let mut record = self.record(input, DOCUMENT_VERSIONS, "generations", index);
         for (kind, name, time) in [
             (TimeKind::Created, "Saved", version.saved),
@@ -86,7 +125,7 @@ impl MacosAdapter {
         record
     }
 
-    pub(super) fn note(self, input: &Input<'_>, index: i64, note: &Note) -> Record {
+    fn note(self, input: &Input<'_>, index: i64, note: &Note) -> Record {
         let mut record = self.record(input, NOTES, "ZNOTE", index);
         for (kind, name, time) in [
             (TimeKind::Created, "Created", note.created),
@@ -108,12 +147,7 @@ impl MacosAdapter {
         record
     }
 
-    pub(super) fn notification(
-        self,
-        input: &Input<'_>,
-        index: i64,
-        notification: &Notification,
-    ) -> Record {
+    fn notification(self, input: &Input<'_>, index: i64, notification: &Notification) -> Record {
         let mut record = self.record(input, NOTIFICATIONS, "record", index);
         if let Some(time) = notification.delivered {
             record
