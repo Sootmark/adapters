@@ -6,7 +6,9 @@
 use conformance::assert_conforms;
 use model::adapter::{Adapter, Collected, Confidence, Input};
 use model::{EvidenceId, Record, Value};
-use sootmark_adapters::macos::{MacosAdapter, FSEVENTS, KNOWLEDGEC, LOGIN_ITEMS, QUARANTINE, TCC};
+use sootmark_adapters::macos::{
+    MacosAdapter, FSEVENTS, KNOWLEDGEC, LOGIN_ITEMS, QUARANTINE, TCC, USERS, WIFI,
+};
 
 fn read(name: &str) -> Vec<u8> {
     std::fs::read(format!(
@@ -139,5 +141,36 @@ fn login_items() {
     assert_eq!(
         item.fields.get("VolumeName"),
         Some(&Value::from("Macintosh HD"))
+    );
+}
+
+#[test]
+fn property_lists() {
+    let wifi = parse(
+        "com.apple.airport.preferences.plist",
+        "Library/Preferences/SystemConfiguration/com.apple.airport.preferences.plist",
+        &[],
+    );
+    assert_eq!(wifi.len(), 4);
+    assert!(wifi.iter().all(|r| r.namespace() == WIFI));
+    assert!(wifi
+        .iter()
+        .any(|r| r.summary == "macOS Wi-Fi network: europa"));
+    let users = parse(
+        "user.plist",
+        "private/var/db/dslocal/nodes/Default/users/user.plist",
+        &[],
+    );
+    assert_eq!(users[0].namespace(), USERS);
+    assert_eq!(users[0].facets.user_name.as_deref(), Some("user"));
+    assert!(users[0].fields.contains_key("Home"));
+    let items = parse(
+        "com.apple.loginitems.plist",
+        "Users/alice/Library/Preferences/com.apple.loginitems.plist",
+        &[],
+    );
+    assert_eq!(
+        items[0].facets.process_path.as_deref(),
+        Some("/Applications/iTunes.app/Contents/MacOS/iTunesHelper.app")
     );
 }

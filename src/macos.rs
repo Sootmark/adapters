@@ -6,8 +6,8 @@
 //! when) and KnowledgeC (app usage and device events over time).
 
 use macos::{
-    Artifact, BackgroundItem, FsEvent, JobKind, KnowledgeEvent, LaunchJob, QuarantineEvent, Scope,
-    TccEntry,
+    Artifact, BackgroundItem, FsEvent, JobKind, KnowledgeEvent, LaunchJob, PrefEntry, PrefKind,
+    QuarantineEvent, Scope, TccEntry,
 };
 use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
 use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Value};
@@ -24,8 +24,41 @@ pub const KNOWLEDGEC: Namespace = Namespace::new("macos.knowledgec");
 pub const LAUNCHD: Namespace = Namespace::new("macos.launchd");
 /// FSEvents changes.
 pub const FSEVENTS: Namespace = Namespace::new("macos.fsevents");
-/// Login items (background items).
+/// Login items (background items, legacy login items).
 pub const LOGIN_ITEMS: Namespace = Namespace::new("macos.login_items");
+/// Installations.
+pub const INSTALL_HISTORY: Namespace = Namespace::new("macos.install_history");
+/// Software Update's checks.
+pub const SOFTWARE_UPDATE: Namespace = Namespace::new("macos.software_update");
+/// Wi-Fi networks remembered.
+pub const WIFI: Namespace = Namespace::new("macos.wifi");
+/// Bluetooth devices.
+pub const BLUETOOTH: Namespace = Namespace::new("macos.bluetooth");
+/// Apple accounts signed in.
+pub const APPLE_ACCOUNTS: Namespace = Namespace::new("macos.apple_account");
+/// Login and logout hooks, login applications.
+pub const LOGIN_WINDOW: Namespace = Namespace::new("macos.login_window");
+/// Local accounts.
+pub const USERS: Namespace = Namespace::new("macos.user");
+/// Startup items.
+pub const STARTUP_ITEMS: Namespace = Namespace::new("macos.startup_item");
+/// Time Machine destinations and snapshots.
+pub const TIME_MACHINE: Namespace = Namespace::new("macos.time_machine");
+
+fn pref_namespace(kind: PrefKind) -> Namespace {
+    match kind {
+        PrefKind::InstallHistory => INSTALL_HISTORY,
+        PrefKind::SoftwareUpdate => SOFTWARE_UPDATE,
+        PrefKind::Airport => WIFI,
+        PrefKind::Bluetooth => BLUETOOTH,
+        PrefKind::AppleAccount => APPLE_ACCOUNTS,
+        PrefKind::LoginItems => LOGIN_ITEMS,
+        PrefKind::LoginWindow => LOGIN_WINDOW,
+        PrefKind::User => USERS,
+        PrefKind::StartupItem => STARTUP_ITEMS,
+        PrefKind::TimeMachine => TIME_MACHINE,
+    }
+}
 
 /// One record per quarantine event, TCC entry or KnowledgeC event.
 #[derive(Debug, Default, Clone, Copy)]
@@ -40,14 +73,30 @@ impl Adapter for MacosAdapter {
     }
 
     fn namespaces(&self) -> &'static [Namespace] {
-        &[QUARANTINE, TCC, KNOWLEDGEC, LAUNCHD, FSEVENTS, LOGIN_ITEMS]
+        &[
+            QUARANTINE,
+            TCC,
+            KNOWLEDGEC,
+            LAUNCHD,
+            FSEVENTS,
+            LOGIN_ITEMS,
+            INSTALL_HISTORY,
+            SOFTWARE_UPDATE,
+            WIFI,
+            BLUETOOTH,
+            APPLE_ACCOUNTS,
+            LOGIN_WINDOW,
+            USERS,
+            STARTUP_ITEMS,
+            TIME_MACHINE,
+        ]
     }
 
     /// By name, and the SQLite signature (a property list's for launchd
     /// jobs and login items, gzip's or a page's for FSEvents).
     fn probe(&self, name: &str, head: &[u8]) -> Confidence {
         let signed = match macos::detect(name) {
-            Some(Artifact::Launchd(_)) => {
+            Some(Artifact::Launchd(_) | Artifact::Prefs(_)) => {
                 head.starts_with(b"bplist") || head.trim_ascii_start().starts_with(b"<")
             }
             Some(Artifact::BackgroundItems) => head.starts_with(b"bplist"),
@@ -135,6 +184,14 @@ impl Adapter for MacosAdapter {
                 let records = (0u64..)
                     .zip(&parsed.items)
                     .map(|(index, item)| self.login_item(input, index, item, owner.as_deref()))
+                    .collect();
+                emit(parsed.problems, records);
+            }
+            Some(Artifact::Prefs(kind)) => {
+                let parsed = macos::read_prefs(kind, input.data);
+                let records = (0u64..)
+                    .zip(&parsed.entries)
+                    .map(|(index, entry)| self.pref(input, kind, index, entry, owner.as_deref()))
                     .collect();
                 emit(parsed.problems, records);
             }
@@ -285,6 +342,67 @@ impl MacosAdapter {
 }
 
 impl MacosAdapter {
+    /// An entry of a property list: its times and values, the account
+    /// whose home it is in.
+    fn pref(
+        self,
+        input: &Input<'_>,
+        kind: PrefKind,
+        index: u64,
+        entry: &PrefEntry,
+        owner: Option<&str>,
+    ) -> Record {
+        let mut record = Record::new(
+            input.evidence,
+            pref_namespace(kind),
+            Locator::TableRow {
+                table: kind.name().to_owned(),
+                row: index,
+            },
+            self.parser(),
+        );
+        for (name, time) in &entry.times {
+            record
+                .times
+                .push(RecordTime::new(pref_time_kind(name), *name, *time));
+        }
+        let mut fields = Fields::new();
+        for (name, value) in &entry.fields {
+            fields.insert((*name).into(), Value::from(value.as_str()));
+        }
+        record.fields = fields;
+        record.facets = Facets {
+            user_name: match kind {
+                PrefKind::User => entry.get("Name").map(str::to_owned),
+                _ => owner.map(str::to_owned),
+            },
+            process_path: match kind {
+                PrefKind::LoginItems => entry.get("TargetPath").map(str::to_owned),
+                PrefKind::LoginWindow => entry.get("Path").map(str::to_owned),
+                _ => None,
+            },
+            ..Facets::default()
+        };
+        let label = match kind {
+            PrefKind::InstallHistory => "installed",
+            PrefKind::SoftwareUpdate => "software update",
+            PrefKind::Airport => "Wi-Fi network",
+            PrefKind::Bluetooth => "Bluetooth device",
+            PrefKind::AppleAccount => "Apple account",
+            PrefKind::LoginItems => "login item",
+            PrefKind::LoginWindow => entry.get("Kind").unwrap_or("login window"),
+            PrefKind::User => "local account",
+            PrefKind::StartupItem => "startup item",
+            PrefKind::TimeMachine => "Time Machine destination",
+        };
+        let detail = entry
+            .get("Name")
+            .filter(|name| *name != entry.subject)
+            .map_or_else(String::new, |name| format!(" ({name})"));
+        record.summary = format!("macOS {label}: {}{detail}", entry.subject);
+        record
+    }
+
     /// A change: no time of its own, the log's modification time bounds it.
     fn fsevent(self, input: &Input<'_>, index: u64, event: &FsEvent) -> Record {
         let mut record = Record::new(
@@ -435,6 +553,18 @@ impl MacosAdapter {
             )
         };
         record
+    }
+}
+
+/// The kind of a property list entry's time, by its name.
+fn pref_time_kind(name: &str) -> TimeKind {
+    match name {
+        "Installed" | "Created" | "TargetCreated" | "Added" => TimeKind::Created,
+        "PasswordLastSet" => TimeKind::Modified,
+        "LastConnected" | "LastLogin" | "LastSuccessfulConnect" | "LastAutoJoin" => {
+            TimeKind::LastSeen
+        }
+        _ => TimeKind::Other,
     }
 }
 

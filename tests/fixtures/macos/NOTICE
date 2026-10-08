@@ -8,3 +8,6 @@ tests), MIT OR Apache-2.0.
 backgrounditems.btm and fsevents-0000000002d89b58: plaso's test_data
 (backgrounditems.btm, fsevents/), commit
 91b6849503b125267d00ea134248e4fe59e5479c, unmodified (same licence).
+com.apple.airport.preferences.plist, user.plist, com.apple.loginitems.plist:
+plaso's test_data/plist/, commit 91b6849503b125267d00ea134248e4fe59e5479c,
+unmodified (same licence).
