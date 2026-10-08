@@ -5,3 +5,23 @@ directory). Copyright the plaso authors. Source:
 https://github.com/log2timeline/plaso at commit
 91b6849503b125267d00ea134248e4fe59e5479c; stored gzip-compressed (gzip -9n),
 otherwise unmodified.
+
+Also from test_data/ at the same commit, under the same paths here,
+unmodified; those named .gz stored gzip-compressed (gzip -9n). SHA-256 of
+the originals:
+
+  firefox/firefox_2_cookies.sqlite      0b2cc4f0bb782b0be5160bbcf425d12d382903c1ae029b00bf2bfe4333205a95
+  load_statistics.db                    d5296e5f46db4fdb82b439c0b0aec63df40b399771282f6a383bd8d49000880d
+  Cookies.binarycookies                 fdb592b5cf52cffdca11bd5740564f7172d19435a89f5396ddeed7364564a9a5
+  global_history.dat                    910a4fd861f8343eecb1068fd1af07c4d3aac96d20cc6c56fab99fb02feb1b5d
+  typed_history.xml                     4593441d5d8ca82e50c3be41fba831baf5d1f18369475221aedbead27953db6f
+  java.idx                              ab6241d02631cad1e492285a896d9ad245b8bca15c3eb41f0cc925f9676c4b7a
+  chrome_cache/index                    963537b9429c0aefbdd170150971a7df9d2efeb4ce3313623aaa0913885f9c2a
+  chrome_cache/data_0                   2a3ff729e2942c362328b1b01989cb06eaba69e376fc1d3dd8299e32cddf5294
+  chrome_cache/data_1                   c5140537346778be899f8879812eb263e6acfe8c98e0164c3605e0e691bef9e3
+  chrome_cache/data_2                   4b965170b1df4530326d6dcaf5e1b7f95eca6066eed4c68b24375b7c48ff620c
+  firefox_cache/firefox3/_CACHE_001_    c5d5bee4fd75a301de830c784b853c890d1b361afab11b7896844037bd4d2eea
+  firefox_cache/cache2/1F4B3A4FC81FB19C530758231FA54313BE8F6FA2  8b63b6bb295fef015a4066157c36240f7940cb7a8b60a373769dbab769796a26
+
+Of the Chromium cache, only index, data_0, data_1 and data_2 are kept:
+data_3 and the f_ files hold the cached content.

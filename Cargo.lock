@@ -142,6 +142,7 @@ dependencies = [
  "sootmark-browser",
  "sootmark-bsm",
  "sootmark-cloudlogs",
+ "sootmark-cloudsync",
  "sootmark-common",
  "sootmark-conformance",
  "sootmark-containers",
@@ -159,6 +160,7 @@ dependencies = [
  "sootmark-indx",
  "sootmark-journal",
  "sootmark-macos",
+ "sootmark-messengers",
  "sootmark-mlocate",
  "sootmark-model",
  "sootmark-msiecf",
@@ -216,9 +218,9 @@ dependencies = [
 
 [[package]]
 name = "sootmark-browser"
-version = "0.6.0"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e8a1b0b90dcdba28f713e17fda1485c2405b194dbb059890168ee69ebb4d266"
+checksum = "19549a88a1ce827ded8553c5d2b30328c141117bcaceab1d2997541354dd6da3"
 dependencies = [
  "sootmark-common",
  "sootmark-ese",
@@ -242,6 +244,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "daf32a0518fe1dcbebae9781711e05ce197f7c3c3f18c56934c2025b2c5d1ee5"
 dependencies = [
  "sootmark-common",
+]
+
+[[package]]
+name = "sootmark-cloudsync"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3b3ae15b2c4b46163c1e13bd1b151421ec3243ea7cd31ff19f98132171f457d2"
+dependencies = [
+ "sootmark-common",
+ "sootmark-sqlite 0.2.0",
 ]
 
 [[package]]
@@ -392,6 +404,16 @@ checksum = "722fc84b4751242abbd438826c12bed1ebfde7401375dd527fe1a233e2f26870"
 dependencies = [
  "sootmark-common",
  "sootmark-plist",
+ "sootmark-sqlite 0.2.0",
+]
+
+[[package]]
+name = "sootmark-messengers"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7c49aea60d5c0a67e76b4bdf762eff6b4b466fc3f4c0d08aa78be4b7aeb5d7f5"
+dependencies = [
+ "sootmark-common",
  "sootmark-sqlite 0.2.0",
 ]
 

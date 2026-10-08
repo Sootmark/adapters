@@ -3,14 +3,23 @@
 //! `downloads.sqlite`, and Internet Explorer and legacy Edge's
 //! `WebCacheV01.dat`. One record per visit (the page, how it was reached)
 //! and one per download (from where, to where, how it ended), with the
-//! account whose profile it is from the path. Safari's history too; and
-//! cookies, form history, installed extensions with their activity, and
-//! the sites given permissions, each in its own namespace.
+//! account whose profile it is from the path. Safari's history and
+//! Opera's (12 and older) too; and cookies (Google Analytics' decoded),
+//! form history, installed extensions with their activity, the sites given
+//! permissions, Edge's load statistics, Opera's typed history, the entries
+//! of the Chromium and Firefox disk caches and of Java's deployment cache,
+//! each in its own namespace.
+//!
+//! A Chromium cache's `index` is read with the block files beside it
+//! (`data_0` to `data_3`), which the caller hands over as companion files;
+//! without them its entries can't be read, and the gap is reported.
 
+mod analytics;
+mod cache;
 mod extras;
 
 use browser::{Download, History, Kind, PageState, Provenance, RecoveredPage, Visit};
-use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
+use model::adapter::{Adapter, Companion, Confidence, Input, ParseError, Sink, Skipped};
 
 use crate::home::profile_owner;
 use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Value};
@@ -27,6 +36,18 @@ pub const EXTENSIONS: Namespace = Namespace::new("browser.extensions");
 pub const EXTENSION_ACTIVITY: Namespace = Namespace::new("browser.extension_activity");
 /// Sites given (or refused) permissions (Chromium's `Preferences`).
 pub const SITE_PERMISSIONS: Namespace = Namespace::new("browser.site_permissions");
+/// Resources pages loaded, by host (Edge's `load_statistics.db`).
+pub const LOAD_STATISTICS: Namespace = Namespace::new("browser.load_statistics");
+/// Hosts redirected to others (Edge's `load_statistics.db`).
+pub const REDIRECT_STATISTICS: Namespace = Namespace::new("browser.redirect_statistics");
+/// What was typed in the address bar (Opera's `typed_history.xml`).
+pub const TYPED_URLS: Namespace = Namespace::new("browser.typed_urls");
+/// Entries of the disk caches (Chromium's block files, Firefox's
+/// versions 1 and 2).
+pub const CACHE: Namespace = Namespace::new("browser.cache");
+/// Files Java downloaded for applets and Web Start (its cache's `.idx`
+/// files).
+pub const JAVA_CACHE: Namespace = Namespace::new("browser.java_cache");
 
 const SUMMARY_URL: usize = 200;
 
@@ -50,17 +71,48 @@ impl Adapter for BrowserAdapter {
             EXTENSIONS,
             EXTENSION_ACTIVITY,
             SITE_PERMISSIONS,
+            LOAD_STATISTICS,
+            REDIRECT_STATISTICS,
+            TYPED_URLS,
+            CACHE,
+            JAVA_CACHE,
         ]
     }
 
     /// An SQLite database with a browser's tables or named as one, or an
-    /// ESE database named as a WebCache.
+    /// ESE database named as a WebCache. The files told by a short
+    /// signature (Safari's cookies, a Java cache index, a Chromium cache's
+    /// `index`, Opera's histories) only under their own names; a Firefox
+    /// cache2 entry by its name and folder too, as its metadata is found
+    /// from its end, past the head.
     fn probe(&self, name: &str, head: &[u8]) -> Confidence {
-        if browser::detect(name, head).is_some() {
+        let recognised = match browser::detect(name, head) {
+            Some(kind) => named_as(kind, name),
+            None => cache::is_cache2_entry(name),
+        };
+        if recognised {
             Confidence::Certain
         } else {
             Confidence::No
         }
+    }
+
+    fn companions(&self, name: &str) -> Vec<String> {
+        cache::companions(name)
+    }
+
+    /// A Chromium cache's `index` with its block files; anything else as
+    /// [`Adapter::parse`].
+    fn parse_with_companions(
+        &self,
+        input: &Input<'_>,
+        companions: &[Companion<'_>],
+        sink: &mut dyn Sink,
+    ) -> Result<(), ParseError> {
+        if browser::detect(input.name, input.data) == Some(Kind::ChromeCache) {
+            return self.chrome_cache(input, companions, sink);
+        }
+        self.parse(input, sink)
     }
 
     fn parse(&self, input: &Input<'_>, sink: &mut dyn Sink) -> Result<(), ParseError> {
@@ -82,6 +134,26 @@ impl Adapter for BrowserAdapter {
                 let rows = browser::read_cookies(input.data, log).map_err(failed)?;
                 self.cookies(input, &rows, user.as_deref(), sink);
                 return Ok(());
+            }
+            Some(Kind::SafariCookies) => {
+                let rows = browser::read_binary_cookies(input.data).map_err(failed)?;
+                self.cookies(input, &rows, user.as_deref(), sink);
+                return Ok(());
+            }
+            Some(Kind::LoadStatistics) => {
+                let statistics = browser::read_load_statistics(input.data, log).map_err(failed)?;
+                self.load_statistics(input, &statistics, user.as_deref(), sink);
+                return Ok(());
+            }
+            Some(Kind::OperaTypedHistory) => {
+                let rows = browser::read_opera_typed_history(input.data).map_err(failed)?;
+                self.typed_urls(input, &rows, user.as_deref(), sink);
+                return Ok(());
+            }
+            Some(Kind::JavaIdx) => return self.java_cache(input, user.as_deref(), sink),
+            Some(Kind::ChromeCache) => return self.chrome_cache(input, &[], sink),
+            Some(kind @ (Kind::FirefoxCache1 | Kind::FirefoxCache2)) => {
+                return self.firefox_cache(input, kind, user.as_deref(), sink);
             }
             Some(Kind::Autofill) => {
                 let rows = browser::read_autofill(input.data, log).map_err(failed)?;
@@ -224,6 +296,7 @@ impl BrowserAdapter {
         number(&mut fields, "FromVisit", visit.from_visit);
         number(&mut fields, "VisitCount", visit.visit_count);
         number(&mut fields, "TypedCount", visit.typed_count);
+        number(&mut fields, "Frecency", visit.frecency);
         text(&mut fields, "Account", visit.user.as_deref());
         // WebCache records neither: absent, not false.
         if history.kind != Kind::WebCache {
@@ -295,6 +368,19 @@ impl BrowserAdapter {
     }
 }
 
+/// Whether `name` is one a file of `kind` has, for the kinds whose
+/// signature is too short to be told by alone.
+fn named_as(kind: Kind, name: &str) -> bool {
+    match kind {
+        Kind::SafariCookies
+        | Kind::JavaIdx
+        | Kind::OperaGlobalHistory
+        | Kind::OperaTypedHistory => Kind::from_name(name) == Some(kind),
+        Kind::ChromeCache => cache::is_chrome_cache_index(name),
+        _ => true,
+    }
+}
+
 /// Where a recovered record was: `deleted visits` (or `… wal frame 7`),
 /// row = page and offset.
 fn recovered_locator(from: &Provenance) -> Locator {
@@ -340,10 +426,20 @@ fn browser_name(kind: Kind) -> &'static str {
         | Kind::Cookies
         | Kind::Autofill
         | Kind::ExtensionActivity
-        | Kind::Preferences => "chromium",
-        Kind::FirefoxPlaces | Kind::FirefoxDownloads => "firefox",
+        | Kind::Preferences
+        | Kind::ChromeCache => "chromium",
+        Kind::FirefoxPlaces
+        | Kind::FirefoxDownloads
+        | Kind::FirefoxCache1
+        | Kind::FirefoxCache2 => "firefox",
         Kind::WebCache => "internet explorer",
-        Kind::SafariHistory | Kind::SafariHistoryPlist | Kind::SafariDownloads => "safari",
+        Kind::LoadStatistics => "edge",
+        Kind::SafariHistory
+        | Kind::SafariHistoryPlist
+        | Kind::SafariDownloads
+        | Kind::SafariCookies => "safari",
+        Kind::OperaGlobalHistory | Kind::OperaTypedHistory => "opera",
+        Kind::JavaIdx => "java",
     }
 }
 

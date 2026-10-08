@@ -1,0 +1,15 @@
+These files are plaso's test files, under the Apache License 2.0 (LICENSE, in
+this directory). Copyright the plaso authors. Source:
+https://github.com/log2timeline/plaso at commit
+91b6849503b125267d00ea134248e4fe59e5479c.
+
+- dropbox_sync_history.db is test_data/sqlite/dropbox_sync_history.db,
+  unmodified (SHA-256
+  70a8bb01fa84e07220cc1f422af5cbbc1d147ffd5d68c24aac1feddef91aa769).
+- snapshot.db.gz is test_data/sqlite/snapshot.db, stored gzip-compressed
+  (gzip -9n), otherwise unmodified (SHA-256 of the uncompressed file
+  82324ff668dbf6ad97e2f85894cbdd729881464355006528c19bc4b50f1e5264).
+- sync_log.log.gz is test_data/gdrive_synclog/sync_log.log, stored
+  gzip-compressed (gzip -9n), otherwise unmodified (SHA-256 of the
+  uncompressed file
+  a4cae0b93c699fdbab7f85b10cd1959bc4dd2f9bc744fca012513807691cb771).

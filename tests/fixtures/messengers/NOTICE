@@ -1,0 +1,8 @@
+These files are plaso's test files, under the Apache License 2.0 (LICENSE, in
+this directory). Copyright the plaso authors. Source:
+https://github.com/log2timeline/plaso at commit
+91b6849503b125267d00ea134248e4fe59e5479c.
+
+- skype_main.db.gz is test_data/sqlite/skype_main.db, stored gzip-compressed
+  (gzip -9n), otherwise unmodified (SHA-256 of the uncompressed file
+  fb52eae51d359b2ed060416dcf9725442fa0b495db32972529e9e75b34c533bb).
