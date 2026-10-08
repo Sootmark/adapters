@@ -4,10 +4,11 @@ version = 3
 
 [[package]]
 name = "sootmark-adapters"
-version = "0.2.35"
+version = "0.2.36"
 dependencies = [
  "sootmark-audit",
  "sootmark-browser",
+ "sootmark-cloudlogs",
  "sootmark-common",
  "sootmark-conformance",
  "sootmark-defender",
@@ -55,6 +56,15 @@ dependencies = [
  "sootmark-common",
  "sootmark-ese",
  "sootmark-sqlite 0.2.0",
+]
+
+[[package]]
+name = "sootmark-cloudlogs"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4a692c49a61ad5994751e8eba0ce9be8e61a0864a828aebd6842ce1608e2bbe9"
+dependencies = [
+ "sootmark-common",
 ]
 
 [[package]]

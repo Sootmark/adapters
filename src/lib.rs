@@ -6,6 +6,7 @@
 
 pub mod audit;
 pub mod browser;
+pub mod cloudlogs;
 mod csv;
 pub mod defender;
 pub mod evtx;
