@@ -5,7 +5,10 @@
 //! file came from), TCC (which apps were granted privacy permissions, and
 //! when) and KnowledgeC (app usage and device events over time).
 
-use macos::{Artifact, JobKind, KnowledgeEvent, LaunchJob, QuarantineEvent, Scope, TccEntry};
+use macos::{
+    Artifact, BackgroundItem, FsEvent, JobKind, KnowledgeEvent, LaunchJob, QuarantineEvent, Scope,
+    TccEntry,
+};
 use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
 use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Value};
 
@@ -19,6 +22,10 @@ pub const TCC: Namespace = Namespace::new("macos.tcc");
 pub const KNOWLEDGEC: Namespace = Namespace::new("macos.knowledgec");
 /// launchd jobs.
 pub const LAUNCHD: Namespace = Namespace::new("macos.launchd");
+/// FSEvents changes.
+pub const FSEVENTS: Namespace = Namespace::new("macos.fsevents");
+/// Login items (background items).
+pub const LOGIN_ITEMS: Namespace = Namespace::new("macos.login_items");
 
 /// One record per quarantine event, TCC entry or KnowledgeC event.
 #[derive(Debug, Default, Clone, Copy)]
@@ -33,15 +40,19 @@ impl Adapter for MacosAdapter {
     }
 
     fn namespaces(&self) -> &'static [Namespace] {
-        &[QUARANTINE, TCC, KNOWLEDGEC, LAUNCHD]
+        &[QUARANTINE, TCC, KNOWLEDGEC, LAUNCHD, FSEVENTS, LOGIN_ITEMS]
     }
 
-    /// By name, and the SQLite signature (or a property list's, for
-    /// launchd jobs).
+    /// By name, and the SQLite signature (a property list's for launchd
+    /// jobs and login items, gzip's or a page's for FSEvents).
     fn probe(&self, name: &str, head: &[u8]) -> Confidence {
         let signed = match macos::detect(name) {
             Some(Artifact::Launchd(_)) => {
                 head.starts_with(b"bplist") || head.trim_ascii_start().starts_with(b"<")
+            }
+            Some(Artifact::BackgroundItems) => head.starts_with(b"bplist"),
+            Some(Artifact::FsEvents) => {
+                head.starts_with(&[0x1f, 0x8b]) || head.get(1..4) == Some(b"SLD")
             }
             Some(_) => head.starts_with(b"SQLite format 3\0"),
             None => false,
@@ -110,6 +121,22 @@ impl Adapter for MacosAdapter {
                 let read = macos::read_launchd(input.data, input.name).map_err(failed)?;
                 let record = self.launchd(input, &read.job, kind, owner.as_deref());
                 emit(read.problems, vec![record]);
+            }
+            Some(Artifact::FsEvents) => {
+                let parsed = macos::read_fsevents(input.data);
+                let records = (0u64..)
+                    .zip(&parsed.events)
+                    .map(|(index, event)| self.fsevent(input, index, event))
+                    .collect();
+                emit(parsed.problems, records);
+            }
+            Some(Artifact::BackgroundItems) => {
+                let parsed = macos::read_background_items(input.data);
+                let records = (0u64..)
+                    .zip(&parsed.items)
+                    .map(|(index, item)| self.login_item(input, index, item, owner.as_deref()))
+                    .collect();
+                emit(parsed.problems, records);
             }
             None => return Err(ParseError::at(0, "not a macOS file this parser reads")),
         }
@@ -258,6 +285,84 @@ impl MacosAdapter {
 }
 
 impl MacosAdapter {
+    /// A change: no time of its own, the log's modification time bounds it.
+    fn fsevent(self, input: &Input<'_>, index: u64, event: &FsEvent) -> Record {
+        let mut record = Record::new(
+            input.evidence,
+            FSEVENTS,
+            Locator::TableRow {
+                table: "records".to_owned(),
+                row: index,
+            },
+            self.parser(),
+        );
+        if let Some(modified) = input.modified {
+            record
+                .times
+                .push(RecordTime::new(TimeKind::Other, "log_modified", modified));
+        }
+        let flags = event.flag_names();
+        let mut fields = Fields::new();
+        text(&mut fields, "Path", Some(&event.path));
+        fields.insert("EventId".into(), Value::UInt(event.id));
+        text(&mut fields, "Flags", Some(&flags.join("; ")));
+        if let Some(node) = event.node {
+            fields.insert("NodeId".into(), Value::UInt(node));
+        }
+        record.fields = fields;
+        record.facets.file_path = Some(format!("/{}", event.path)).filter(|p| p.len() > 1);
+        record.summary = format!("FSEvents {}: /{}", flags.join(", "), event.path);
+        record
+    }
+
+    fn login_item(
+        self,
+        input: &Input<'_>,
+        index: u64,
+        item: &BackgroundItem,
+        owner: Option<&str>,
+    ) -> Record {
+        let mut record = Record::new(
+            input.evidence,
+            LOGIN_ITEMS,
+            Locator::TableRow {
+                table: "items".to_owned(),
+                row: index,
+            },
+            self.parser(),
+        );
+        for (kind, name, time) in [
+            (TimeKind::Created, "TargetCreated", item.target_created),
+            (TimeKind::Other, "VolumeCreated", item.volume_created),
+        ] {
+            if let Some(time) = time {
+                record.times.push(RecordTime::new(kind, name, time));
+            }
+        }
+        let mut fields = Fields::new();
+        text(&mut fields, "Name", item.name.as_deref());
+        text(&mut fields, "TargetPath", item.target_path.as_deref());
+        text(&mut fields, "VolumeName", item.volume_name.as_deref());
+        text(
+            &mut fields,
+            "VolumeMountPoint",
+            item.volume_mount_point.as_deref(),
+        );
+        record.fields = fields;
+        record.facets = Facets {
+            user_name: owner.map(str::to_owned),
+            process_path: item.target_path.clone(),
+            file_path: Some(input.name.to_owned()),
+            ..Facets::default()
+        };
+        record.summary = format!(
+            "login item {}: {}",
+            item.name.as_deref().unwrap_or("?"),
+            item.target_path.as_deref().unwrap_or("?")
+        );
+        record
+    }
+
     fn launchd(
         self,
         input: &Input<'_>,

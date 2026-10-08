@@ -5,3 +5,6 @@ knowledgeC.db and its -wal: synthetic, from the sootmark-macos repository
 launchd.plist: plaso's test_data/plist/launchd.plist (same licence and commit).
 com.example.updater.bplist: from the sootmark-plist repository (authored for its
 tests), MIT OR Apache-2.0.
+backgrounditems.btm and fsevents-0000000002d89b58: plaso's test_data
+(backgrounditems.btm, fsevents/), commit
+91b6849503b125267d00ea134248e4fe59e5479c, unmodified (same licence).

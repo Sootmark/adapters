@@ -1,11 +1,12 @@
-//! The macOS adapter on plaso's quarantine and TCC databases (Apache-2.0)
+//! The macOS adapter on plaso's quarantine and TCC databases, FSEvents log
+//! and background items (Apache-2.0)
 //! and a synthetic KnowledgeC database with its write-ahead log
 //! (`tests/fixtures/macos/`): the contract, recognition, records.
 
 use conformance::assert_conforms;
 use model::adapter::{Adapter, Collected, Confidence, Input};
 use model::{EvidenceId, Record, Value};
-use sootmark_adapters::macos::{MacosAdapter, KNOWLEDGEC, QUARANTINE, TCC};
+use sootmark_adapters::macos::{MacosAdapter, FSEVENTS, KNOWLEDGEC, LOGIN_ITEMS, QUARANTINE, TCC};
 
 fn read(name: &str) -> Vec<u8> {
     std::fs::read(format!(
@@ -97,5 +98,46 @@ fn launchd_jobs() {
     assert_eq!(
         agent[0].fields.get("Kind"),
         Some(&Value::from("launch agent"))
+    );
+}
+
+#[test]
+fn fsevents_logs() {
+    let records = parse(
+        "fsevents-0000000002d89b58",
+        "Volumes/Data/.fseventsd/0000000002d89b58",
+        &[],
+    );
+    assert_eq!(records.len(), 12);
+    assert!(records.iter().all(|r| r.namespace() == FSEVENTS));
+    let folder = records
+        .iter()
+        .find(|r| r.facets.file_path.as_deref() == Some("/Test folder"))
+        .unwrap();
+    assert_eq!(
+        folder.summary,
+        "FSEvents Renamed, IsDirectory: /Test folder"
+    );
+}
+
+#[test]
+fn login_items() {
+    let records = parse(
+        "backgrounditems.btm",
+        "Users/alice/Library/Application Support/com.apple.backgroundtaskmanagementagent/backgrounditems.btm",
+        &[],
+    );
+    let [item] = &records[..] else {
+        panic!("{} records", records.len());
+    };
+    assert_eq!(item.namespace(), LOGIN_ITEMS);
+    assert_eq!(
+        item.summary,
+        "login item iTunesHelper: /Applications/iTunes.app/Contents/MacOS/iTunesHelper.app"
+    );
+    assert_eq!(item.facets.user_name.as_deref(), Some("alice"));
+    assert_eq!(
+        item.fields.get("VolumeName"),
+        Some(&Value::from("Macintosh HD"))
     );
 }
