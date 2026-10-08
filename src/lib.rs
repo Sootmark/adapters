@@ -25,6 +25,7 @@ pub mod live;
 pub mod lnk;
 pub mod macos;
 pub mod mft;
+pub mod mplog;
 pub mod packages;
 pub mod persistence;
 pub mod plaso;
