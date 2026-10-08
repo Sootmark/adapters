@@ -13,6 +13,7 @@ pub mod cloudlogs;
 pub mod containers;
 mod csv;
 pub mod defender;
+pub mod esxi;
 pub mod eventtranscript;
 pub mod evtx;
 pub mod ez;

@@ -1,0 +1,17 @@
+<ConfigRoot>
+  <ConfigEntry id="0000">
+    <objID>1</objID>
+    <secDomain>23</secDomain>
+    <vmxCfgPath>/vmfs/volumes/65a1b2c3-11111111-2222-005056010203/dc01/dc01.vmx</vmxCfgPath>
+  </ConfigEntry>
+  <ConfigEntry id="0001">
+    <objID>2</objID>
+    <secDomain>24</secDomain>
+    <vmxCfgPath>/vmfs/volumes/65a1b2c3-11111111-2222-005056010203/files &amp; backups/fs01.vmx</vmxCfgPath>
+  </ConfigEntry>
+  <ConfigEntry id="0002">
+    <objID>3</objID>
+    <secDomain>25</secDomain>
+    <vmxCfgPath>/vmfs/volumes/datastore2/ubuntu-jump/ubuntu-jump.vmx</vmxCfgPath>
+  </ConfigEntry>
+</ConfigRoot>

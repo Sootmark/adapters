@@ -17,6 +17,7 @@ dependencies = [
  "sootmark-defender",
  "sootmark-disk",
  "sootmark-ese",
+ "sootmark-esxi",
  "sootmark-eventtranscript",
  "sootmark-evtx",
  "sootmark-history",
@@ -137,6 +138,15 @@ name = "sootmark-ese"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4d9c42c816e3f6f07c5c4794cc1bd4661977e9b2443a894b3ae3adbbbe45bdf"
+
+[[package]]
+name = "sootmark-esxi"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "42d673f7fe6c86d8c9300d407b26c991437f6dda1ce767a3a5d890b3a33c6a81"
+dependencies = [
+ "sootmark-common",
+]
 
 [[package]]
 name = "sootmark-eventtranscript"
