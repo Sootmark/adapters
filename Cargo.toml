@@ -36,7 +36,7 @@ utmp = { package = "sootmark-utmp", version = "0.4.0" }
 wintimeline = { package = "sootmark-wintimeline", version = "0.1.0" }
 wmi = { package = "sootmark-wmi", version = "0.1.1" }
 ual = { package = "sootmark-ual", version = "0.1.0" }
-winlogs = { package = "sootmark-winlogs", version = "0.3.0" }
+winlogs = { package = "sootmark-winlogs", version = "0.4.0" }
 defender = { package = "sootmark-defender", version = "0.2.0" }
 tasks = { package = "sootmark-tasks", version = "0.1.0" }
 weblogs = { package = "sootmark-weblogs", version = "0.3.0" }
@@ -62,6 +62,7 @@ office = { package = "sootmark-office", version = "0.2.0" }
 spotlight = { package = "sootmark-spotlight", version = "0.1.0" }
 messengers = { package = "sootmark-messengers", version = "0.1.0" }
 cloudsync = { package = "sootmark-cloudsync", version = "0.1.0" }
+bits = { package = "sootmark-bits", version = "0.1.0" }
 
 [dev-dependencies]
 conformance = { package = "sootmark-conformance", version = "0.2.0" }

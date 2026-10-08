@@ -139,6 +139,7 @@ dependencies = [
  "sootmark-applogs",
  "sootmark-audit",
  "sootmark-avlogs",
+ "sootmark-bits",
  "sootmark-browser",
  "sootmark-bsm",
  "sootmark-cloudlogs",
@@ -214,6 +215,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "29d598b1a18daad1560a81425956831fa6a232eb0a85a6364428237b2067edf8"
 dependencies = [
  "sootmark-common",
+]
+
+[[package]]
+name = "sootmark-bits"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9ab794450d817d9bb0e82cc913a5c1815b2359c3a51b57ee4fa6b8e52f357cda"
+dependencies = [
+ "sootmark-common",
+ "sootmark-ese",
 ]
 
 [[package]]
@@ -648,11 +659,12 @@ dependencies = [
 
 [[package]]
 name = "sootmark-winlogs"
-version = "0.3.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f881428bdc2bf53833e7d8db2a6e868d97109f33413a019c8f1684222a12c7e2"
+checksum = "364f83afb28571b26c1961083e23be8a0a9d24e533e70cda9b7a4f81fb9ea269"
 dependencies = [
  "sootmark-common",
+ "sootmark-sqlite",
 ]
 
 [[package]]

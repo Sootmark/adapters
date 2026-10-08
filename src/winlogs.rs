@@ -3,15 +3,25 @@
 //! (`windows.iis`), Windows Firewall entries (`windows.firewall`),
 //! PowerShell transcripts (`windows.powershell_transcript`, a record per
 //! block of commands), TeamViewer's log and sessions (`windows.teamviewer`),
-//! SetupAPI sections (`windows.setupapi`) and Configuration Manager client
-//! logs (`windows.sccm`).
+//! SetupAPI sections (`windows.setupapi`), Configuration Manager client
+//! logs (`windows.sccm`), and ConnectWise ScreenConnect's client settings
+//! (`remote.screenconnect_config`) and server session database
+//! (`Session.db`, read with its `-wal` file when the caller hands it over:
+//! `remote.screenconnect_sessions`, `remote.screenconnect_connections`,
+//! `remote.screenconnect_events`, deleted events included).
+
+use std::collections::HashMap;
+use std::net::IpAddr;
 
 use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
 use model::{
     Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Ts, Value,
 };
+use winlogs::screenconnect::{self, Connection, Event, EventSource, LaunchParameters, Session};
 use winlogs::w3c::Source;
 use winlogs::Kind;
+
+use crate::home::profile_owner;
 
 /// The Program Compatibility Assistant.
 pub const PCA: Namespace = Namespace::new("windows.pca");
@@ -31,9 +41,20 @@ pub const SCCM: Namespace = Namespace::new("windows.sccm");
 pub const ANYDESK: Namespace = Namespace::new("windows.anydesk");
 /// Windows Error Reporting reports.
 pub const WER: Namespace = Namespace::new("windows.wer");
+/// ScreenConnect clients' settings: the relay and session they connect to.
+pub const SCREENCONNECT_CONFIG: Namespace = Namespace::new("remote.screenconnect_config");
+/// A ScreenConnect server's sessions.
+pub const SCREENCONNECT_SESSIONS: Namespace = Namespace::new("remote.screenconnect_sessions");
+/// Connections to a ScreenConnect server's sessions.
+pub const SCREENCONNECT_CONNECTIONS: Namespace = Namespace::new("remote.screenconnect_connections");
+/// Events of a ScreenConnect server's sessions and connections: commands,
+/// transfers, messages.
+pub const SCREENCONNECT_EVENTS: Namespace = Namespace::new("remote.screenconnect_events");
 
 /// Characters of a message kept in a summary.
 const SUMMARY_TEXT: usize = 200;
+/// The published name of a ScreenConnect event whose data is a command.
+const QUEUED_COMMAND: &str = "QueuedCommand";
 
 /// One record per entry of a Windows text log.
 #[derive(Debug, Default, Clone, Copy)]
@@ -49,12 +70,25 @@ impl Adapter for WinlogsAdapter {
 
     fn namespaces(&self) -> &'static [Namespace] {
         &[
-            PCA, IIS, FIREWALL, TRANSCRIPT, TEAMVIEWER, SETUPAPI, SCCM, ANYDESK, WER,
+            PCA,
+            IIS,
+            FIREWALL,
+            TRANSCRIPT,
+            TEAMVIEWER,
+            SETUPAPI,
+            SCCM,
+            ANYDESK,
+            WER,
+            SCREENCONNECT_CONFIG,
+            SCREENCONNECT_SESSIONS,
+            SCREENCONNECT_CONNECTIONS,
+            SCREENCONNECT_EVENTS,
         ]
     }
 
     /// By name and first lines (`#Fields:`, `<![LOG[`, a transcript's
-    /// banner).
+    /// banner, ScreenConnect's settings section, `Session.db`'s SQLite
+    /// header).
     fn probe(&self, name: &str, head: &[u8]) -> Confidence {
         if winlogs::detect(name, head).is_some() {
             Confidence::Certain
@@ -64,6 +98,17 @@ impl Adapter for WinlogsAdapter {
     }
 
     fn parse(&self, input: &Input<'_>, sink: &mut dyn Sink) -> Result<(), ParseError> {
+        self.parse_with_log(input, &[], sink)
+    }
+
+    /// ScreenConnect's `Session.db` read with its `-wal` file; the text
+    /// logs have none.
+    fn parse_with_log(
+        &self,
+        input: &Input<'_>,
+        log: &[u8],
+        sink: &mut dyn Sink,
+    ) -> Result<(), ParseError> {
         let kind = winlogs::detect(input.name, input.data)
             .ok_or_else(|| ParseError::at(0, "not a Windows text log this parser reads"))?;
         let mut out = Out {
@@ -84,6 +129,8 @@ impl Adapter for WinlogsAdapter {
             Kind::AnyDeskTrace => out.anydesk_trace(),
             Kind::AnyDeskConnections => out.anydesk_connections(),
             Kind::WerReport => out.wer(),
+            Kind::ScreenConnectConfig => out.screenconnect_config(),
+            Kind::ScreenConnectSessions => out.screenconnect_sessions(log)?,
         }
         Ok(())
     }
@@ -98,10 +145,14 @@ struct Out<'a, 'b> {
 
 impl Out<'_, '_> {
     fn record(&self, namespace: Namespace, line: usize) -> Record {
+        self.located(namespace, Locator::Line(line as u64))
+    }
+
+    fn located(&self, namespace: Namespace, locator: Locator) -> Record {
         Record::new(
             self.input.evidence,
             namespace,
-            Locator::Line(line as u64),
+            locator,
             self.adapter.parser(),
         )
     }
@@ -493,6 +544,334 @@ impl Out<'_, '_> {
             self.sink.record(record);
         }
         self.problems(parsed.problems);
+    }
+
+    /// One record per settings file: its relay, session and launch
+    /// parameters, and every setting.
+    fn screenconnect_config(&mut self) {
+        let config = screenconnect::config(self.input.data);
+        let mut record = self.located(SCREENCONNECT_CONFIG, Locator::ByteOffset(0));
+        record.facets.user_name = profile_owner(self.input.name);
+        let mut fields = Fields::new();
+        for setting in &config.settings {
+            let name = field_name(&setting.name);
+            if !name.is_empty() {
+                text(&mut fields, &format!("Setting.{name}"), &setting.value);
+            }
+        }
+        record.summary = match &config.launch {
+            Some(launch) => {
+                launch_fields(&mut fields, launch);
+                record.facets.destination_ip = launch
+                    .relay_host
+                    .clone()
+                    .filter(|host| host.parse::<IpAddr>().is_ok());
+                launch_summary(launch)
+            }
+            None => format!(
+                "ScreenConnect client settings ({} settings, no launch parameters)",
+                config.settings.len()
+            ),
+        };
+        record.fields = fields;
+        self.sink.record(record);
+        self.problems(config.problems);
+    }
+
+    /// One record per session, connection and event (live, then deleted)
+    /// of `Session.db`, read with its `-wal` file `log`.
+    fn screenconnect_sessions(&mut self, log: &[u8]) -> Result<(), ParseError> {
+        let db = screenconnect::sessions(self.input.data, log)
+            .map_err(|e| ParseError::at(0, e.to_string()))?;
+        let lookup = Lookup::new(&db.sessions, &db.connections);
+        for session in &db.sessions {
+            let record = self.screenconnect_session(session);
+            self.sink.record(record);
+        }
+        for connection in &db.connections {
+            let record = self.screenconnect_connection(&lookup, connection);
+            self.sink.record(record);
+        }
+        for event in &db.events {
+            let locator = row_locator(event_table(event), event.rowid.unwrap_or_default());
+            let record = self.screenconnect_event(&lookup, event, locator);
+            self.sink.record(record);
+        }
+        // A deleted event's rowid may be a live row's, or another deleted
+        // version's: they are numbered in the order recovery found them.
+        for (found, event) in (0u64..).zip(&db.deleted_events) {
+            let locator = Locator::TableRow {
+                table: format!("deleted {}", event_table(event)),
+                row: found,
+            };
+            let mut record = self.screenconnect_event(&lookup, event, locator);
+            record.flags.recovered = true;
+            record.fields.insert("Deleted".into(), Value::Bool(true));
+            record.summary = format!("Deleted {}", record.summary);
+            self.sink.record(record);
+        }
+        self.problems(db.problems);
+        Ok(())
+    }
+
+    fn screenconnect_session(&self, session: &Session) -> Record {
+        let mut record = self.located(
+            SCREENCONNECT_SESSIONS,
+            row_locator("Session", session.rowid),
+        );
+        record.facets.user_name.clone_from(&session.host);
+        let mut fields = Fields::new();
+        optional_texts(
+            &mut fields,
+            [
+                ("SessionId", &session.id),
+                ("Name", &session.name),
+                ("SessionType", &session.session_type),
+                ("Host", &session.host),
+            ],
+        );
+        for (column, value) in &session.custom_properties {
+            text(&mut fields, column, value);
+        }
+        record.fields = fields;
+        record.summary = format!(
+            "ScreenConnect {} session {} owned by {}",
+            session.session_type.as_deref().unwrap_or("?"),
+            session
+                .name
+                .as_deref()
+                .or(session.id.as_deref())
+                .unwrap_or("?"),
+            session.host.as_deref().unwrap_or("?")
+        );
+        record
+    }
+
+    fn screenconnect_connection(&self, lookup: &Lookup<'_>, connection: &Connection) -> Record {
+        let mut record = self.located(
+            SCREENCONNECT_CONNECTIONS,
+            row_locator("SessionConnection", connection.rowid),
+        );
+        time(
+            &mut record,
+            TimeKind::FirstSeen,
+            "ConnectedTime",
+            connection.connected,
+        );
+        time(
+            &mut record,
+            TimeKind::LastSeen,
+            "DisconnectedTime",
+            connection.disconnected,
+        );
+        record
+            .facets
+            .user_name
+            .clone_from(&connection.participant_name);
+        record
+            .facets
+            .source_ip
+            .clone_from(&connection.network_address);
+        let session = lookup.session_name(connection.session_id.as_deref());
+        let mut fields = Fields::new();
+        optional_texts(
+            &mut fields,
+            [
+                ("SessionId", &connection.session_id),
+                ("ConnectionId", &connection.id),
+                ("ProcessType", &connection.process_type),
+                ("ParticipantName", &connection.participant_name),
+                ("NetworkAddress", &connection.network_address),
+                ("ClientType", &connection.client_type),
+                ("ClientVersion", &connection.client_version),
+            ],
+        );
+        if let Some(name) = session {
+            text(&mut fields, "SessionName", name);
+        }
+        record.fields = fields;
+        record.summary = format!(
+            "ScreenConnect {} {} connected from {} to session {}",
+            connection.process_type.as_deref().unwrap_or("participant"),
+            connection.participant_name.as_deref().unwrap_or("?"),
+            connection.network_address.as_deref().unwrap_or("?"),
+            session.or(connection.session_id.as_deref()).unwrap_or("?")
+        );
+        record
+    }
+
+    fn screenconnect_event(&self, lookup: &Lookup<'_>, event: &Event, locator: Locator) -> Record {
+        let mut record = self.located(SCREENCONNECT_EVENTS, locator);
+        time(&mut record, TimeKind::Logged, "Time", event.time);
+        let connection = lookup.connection(event.connection_id.as_deref());
+        let session = lookup.session_name(event.session_id.as_deref());
+        let command = event.event_name.as_deref() == Some(QUEUED_COMMAND);
+        record.facets = Facets {
+            user_name: event
+                .host
+                .clone()
+                .or_else(|| connection.and_then(|c| c.participant_name.clone())),
+            source_ip: connection.and_then(|c| c.network_address.clone()),
+            process_command_line: event.data.clone().filter(|_| command),
+            ..Facets::default()
+        };
+        let mut fields = Fields::new();
+        text(&mut fields, "Table", event_table(event));
+        optional_texts(
+            &mut fields,
+            [
+                ("SessionId", &event.session_id),
+                ("ConnectionId", &event.connection_id),
+                ("EventId", &event.id),
+                ("EventName", &event.event_name),
+                ("Host", &event.host),
+                ("Data", &event.data),
+            ],
+        );
+        if let Some(number) = event.event_type {
+            fields.insert("EventType".into(), Value::Int(number));
+        }
+        if let Some(name) = session {
+            text(&mut fields, "SessionName", name);
+        }
+        if let Some(participant) = connection.and_then(|c| c.participant_name.as_deref()) {
+            text(&mut fields, "ParticipantName", participant);
+        }
+        record.fields = fields;
+        let what = match (&event.event_name, event.event_type) {
+            (Some(name), _) => name.clone(),
+            (None, Some(number)) => format!("event {number}"),
+            (None, None) => "event".to_owned(),
+        };
+        let by = record
+            .facets
+            .user_name
+            .as_deref()
+            .map(|user| format!(" by {user}"))
+            .unwrap_or_default();
+        let data = event
+            .data
+            .as_deref()
+            .map(|data| format!(": {}", shorten(&data.replace('\n', " "))))
+            .unwrap_or_default();
+        record.summary = format!(
+            "ScreenConnect {what} in session {}{by}{data}",
+            session.or(event.session_id.as_deref()).unwrap_or("?")
+        );
+        record
+    }
+}
+
+/// A ScreenConnect database's session names and connections, by id.
+struct Lookup<'d> {
+    session_names: HashMap<&'d str, &'d str>,
+    connections: HashMap<&'d str, &'d Connection>,
+}
+
+impl<'d> Lookup<'d> {
+    fn new(sessions: &'d [Session], connections: &'d [Connection]) -> Self {
+        Self {
+            session_names: sessions
+                .iter()
+                .filter_map(|s| Some((s.id.as_deref()?, s.name.as_deref()?)))
+                .collect(),
+            connections: connections
+                .iter()
+                .filter_map(|c| Some((c.id.as_deref()?, c)))
+                .collect(),
+        }
+    }
+
+    fn session_name(&self, id: Option<&str>) -> Option<&'d str> {
+        self.session_names.get(id?).copied()
+    }
+
+    fn connection(&self, id: Option<&str>) -> Option<&'d Connection> {
+        self.connections.get(id?).copied()
+    }
+}
+
+/// The table an event was read from.
+fn event_table(event: &Event) -> &'static str {
+    match event.source {
+        EventSource::Session => "SessionEvent",
+        EventSource::Connection => "SessionConnectionEvent",
+    }
+}
+
+fn row_locator(table: &str, rowid: i64) -> Locator {
+    Locator::TableRow {
+        table: table.to_owned(),
+        row: rowid as u64,
+    }
+}
+
+/// The launch parameters as fields: those with a meaning by name, the
+/// custom properties in order, and every parameter as `name=value`.
+fn launch_fields(fields: &mut Fields, launch: &LaunchParameters) {
+    optional_texts(
+        fields,
+        [
+            ("RelayHost", &launch.relay_host),
+            ("RelayPort", &launch.relay_port),
+            ("SessionId", &launch.session_id),
+            ("SessionType", &launch.session_type),
+            ("ProcessType", &launch.process_type),
+            ("Key", &launch.key),
+        ],
+    );
+    if !launch.custom_properties.is_empty() {
+        let values = launch
+            .custom_properties
+            .iter()
+            .map(|v| Value::from(v.as_str()));
+        fields.insert("CustomProperties".into(), Value::List(values.collect()));
+    }
+    let all = launch
+        .all
+        .iter()
+        .map(|(name, value)| Value::from(format!("{name}={value}")));
+    fields.insert("LaunchParameters".into(), Value::List(all.collect()));
+}
+
+/// `ScreenConnect client relays to relay.example.net:8041, session …
+/// (Access, Guest)`.
+fn launch_summary(launch: &LaunchParameters) -> String {
+    let relay = match (&launch.relay_host, &launch.relay_port) {
+        (Some(host), Some(port)) => format!("{host}:{port}"),
+        (Some(host), None) => host.clone(),
+        (None, _) => "?".to_owned(),
+    };
+    let session = launch
+        .session_id
+        .as_deref()
+        .map(|id| format!(", session {id}"))
+        .unwrap_or_default();
+    let kinds: Vec<&str> = [&launch.session_type, &launch.process_type]
+        .into_iter()
+        .filter_map(Option::as_deref)
+        .collect();
+    let kinds = if kinds.is_empty() {
+        String::new()
+    } else {
+        format!(" ({})", kinds.join(", "))
+    };
+    format!("ScreenConnect client relays to {relay}{session}{kinds}")
+}
+
+/// `name` with only the characters field names allow (letters, digits,
+/// `_`, `-`, `.`).
+fn field_name(name: &str) -> String {
+    name.chars()
+        .filter(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.'))
+        .collect()
+}
+
+fn optional_texts<const N: usize>(fields: &mut Fields, values: [(&str, &Option<String>); N]) {
+    for (name, value) in values {
+        if let Some(value) = value {
+            text(fields, name, value);
+        }
     }
 }
 

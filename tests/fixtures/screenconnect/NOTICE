@@ -1,0 +1,10 @@
+system.config, user.config, Session.db and deleted.tsv were written for
+the sootmark-winlogs tests (https://github.com/Sootmark/winlogs,
+tests/fixtures/written/screenconnect/) by make.py, copied here with them;
+no openly licensed ScreenConnect files were found. The settings files
+follow the .NET settings layout public scripts read from real clients;
+Session.db has the tables and columns ScreenConnect's documentation and
+reports name, with assumed column types (ConnectWise doesn't publish its
+schema), and 242 command events deleted (deleted.tsv lists them). Made-up
+names, identifiers and documentation-range addresses. Under this crate's
+licences.
