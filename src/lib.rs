@@ -58,6 +58,7 @@ pub mod syslog;
 pub mod tasks;
 mod timestamp;
 pub mod ual;
+pub mod unifiedlog;
 pub mod usn;
 pub mod utmp;
 pub mod velociraptor;

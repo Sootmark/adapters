@@ -24,6 +24,7 @@ Native parsers:
 - `jumplist` (`windows.jumplist`): jump lists, one record per entry. Automatic: last use, pin, access count, machine and MAC, path and link; custom: the category and the link (target and arguments). The application identifier is the file name.
 - `audit` (`linux.audit`): Linux audit logs (`audit.log`, rotated copies included): one record per event, and commands (with their login user), sudo, SSH and other logins and failures, account and group changes and network connections read from them in the words the syslog records use. Checked on plaso's audit log and a lab log made for the `audit` crate.
 - `evtx`: Windows event logs. One record per event, located by file offset, timed by `TimeCreated`, facets from `System` and `EventData`, descriptive timeline summaries.
+- `unifiedlog` (`macos.unified_log`): macOS unified logs, each tracev3 file (`/private/var/db/diagnostics/{Persist,Special,Signpost,HighVolume}/`, or the same in a `.logarchive`) read with the timesync files and the `uuidtext` and shared cache strings files its format strings are in, looked up in the collection (`parse_with_collection`): one record per entry (log, activity, trace, signpost, loss, simpledump, statedump) with its UTC time, process (path and pid as facets) and library with their UUIDs, subsystem, category, event and log type (Default, Info, Debug, Error, Fault, …), effective user, thread, activity, signpost identifier, boot, format string and message as Apple's `log` shows it, and `Missing` saying why a format string or value could not be found. Without those files the entries still come, without times or text. Checked on the `unifiedlog` crate's fixtures: as many entries as that crate and Mandiant's reader give, messages as Apple's `log show` gives them.
 
 Importers of other tools' output:
 
@@ -74,6 +75,7 @@ Adapters pass the `conformance` suite. Every fixture is open data or our own syn
 - BITS: go-ese's `qmgr.db` (Apache-2.0) and the `qmgr0.dat`, `qmgr1.dat` of NIST CFReDS's Data Leakage Case (public domain), from `sootmark-bits` (`tests/fixtures/bits/`).
 - Image caches: `sootmark-imagecache`'s synthetic thumbnail caches (formats 20, 21, 30, 31, 32, with indexes and an iconcache) and `.bmc` file, and tesserae's `Cache0001.bin` (MIT, generated from a known image), in `tests/fixtures/imagecache/`.
 - ScreenConnect: the settings files and `Session.db` written by `sootmark-winlogs`'s generator (`tests/fixtures/screenconnect/make.py`).
+- macOS unified logs: the `unifiedlog` crate's five small log archives cut from Mandiant's macos-UnifiedLogs test data (Apache-2.0, `tests/fixtures/unifiedlog/`, gzipped; see its `NOTICE`), with Apple's `log show` (macOS 26) messages for a few entries.
 - The synthetic FIN-WKS-07 artifacts (MFT, USN journal, LNK, jump lists, recycle bin; generated, no real data): EZ Tools, plaso 20260720 and Velociraptor 0.77.2, with the analysis machine's paths replaced.
 
 ## Quality

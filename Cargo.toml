@@ -22,7 +22,7 @@ history = { package = "sootmark-history", version = "0.3.0" }
 imagecache = { package = "sootmark-imagecache", version = "0.1.0" }
 journal = { package = "sootmark-journal", version = "0.1.0" }
 macos = { package = "sootmark-macos", version = "0.9.0" }
-model = { package = "sootmark-model", version = "0.2.3" }
+model = { package = "sootmark-model", version = "0.2.4" }
 packages = { package = "sootmark-packages", version = "0.2.0" }
 persistence = { package = "sootmark-persistence", version = "0.4.1" }
 prefetch = { package = "sootmark-prefetch", version = "0.1.0" }
@@ -64,6 +64,7 @@ spotlight = { package = "sootmark-spotlight", version = "0.1.0" }
 messengers = { package = "sootmark-messengers", version = "0.1.0" }
 cloudsync = { package = "sootmark-cloudsync", version = "0.1.0" }
 bits = { package = "sootmark-bits", version = "0.1.0" }
+unifiedlog = { package = "sootmark-unifiedlog", version = "0.1.0" }
 
 [dev-dependencies]
 conformance = { package = "sootmark-conformance", version = "0.2.0" }
@@ -85,4 +86,8 @@ cast_precision_loss = "allow"
 [profile.dev.package.sootmark-common]
 opt-level = 3
 [profile.dev.package.sootmark-ese]
+opt-level = 3
+# The unified log tests read shared cache strings files of up to 160 MB: an
+# optimised reader keeps the run short.
+[profile.dev.package.sootmark-unifiedlog]
 opt-level = 3

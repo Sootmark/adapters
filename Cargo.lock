@@ -183,6 +183,7 @@ dependencies = [
  "sootmark-syslog",
  "sootmark-tasks",
  "sootmark-ual",
+ "sootmark-unifiedlog",
  "sootmark-usn",
  "sootmark-utmp",
  "sootmark-weblogs",
@@ -449,9 +450,9 @@ dependencies = [
 
 [[package]]
 name = "sootmark-model"
-version = "0.2.3"
+version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "270f905afe734e8e8ce667c4f75e57c1dea5f5344ebe8e946150501350a082d0"
+checksum = "7eb926d7c1ecff94ef9bfb37659a8f182be558308e62ef4bd82831e212dfae56"
 dependencies = [
  "sootmark-common",
 ]
@@ -637,6 +638,15 @@ checksum = "b71a3bbd0c66c69e2de0ae939200bcb180a050c710ccc7cbbefdbf1f94a028ee"
 dependencies = [
  "sootmark-common",
  "sootmark-ese",
+]
+
+[[package]]
+name = "sootmark-unifiedlog"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "60d42b91a8ccdc6593d520359d312282789f8522a1660963f9aa58716c3325dc"
+dependencies = [
+ "sootmark-common",
 ]
 
 [[package]]
