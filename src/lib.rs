@@ -12,6 +12,7 @@ pub mod cloudlogs;
 pub mod containers;
 mod csv;
 pub mod defender;
+pub mod eventtranscript;
 pub mod evtx;
 pub mod ez;
 pub mod hayabusa;

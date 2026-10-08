@@ -1,6 +1,6 @@
 [package]
 name = "sootmark-adapters"
-version = "0.2.43"
+version = "0.2.44"
 edition = "2021"
 rust-version = "1.80"
 description = "One adapter per parser dependency: the parser's native output mapped into the Sootmark model."
@@ -43,6 +43,7 @@ weblogs = { package = "sootmark-weblogs", version = "0.1.0" }
 cloudlogs = { package = "sootmark-cloudlogs", version = "0.1.0" }
 avlogs = { package = "sootmark-avlogs", version = "0.1.1" }
 containers = { package = "sootmark-containers", version = "0.1.0" }
+eventtranscript = { package = "sootmark-eventtranscript", version = "0.1.0" }
 
 [dev-dependencies]
 conformance = { package = "sootmark-conformance", version = "0.2.0" }

@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "sootmark-adapters"
-version = "0.2.43"
+version = "0.2.44"
 dependencies = [
  "sootmark-audit",
  "sootmark-avlogs",
@@ -16,6 +16,7 @@ dependencies = [
  "sootmark-defender",
  "sootmark-disk",
  "sootmark-ese",
+ "sootmark-eventtranscript",
  "sootmark-evtx",
  "sootmark-history",
  "sootmark-journal",
@@ -126,6 +127,16 @@ name = "sootmark-ese"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4d9c42c816e3f6f07c5c4794cc1bd4661977e9b2443a894b3ae3adbbbe45bdf"
+
+[[package]]
+name = "sootmark-eventtranscript"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "39b8223c670b29d40db34de56f677cd659d8ab3df8215322a1fac23ff491a70c"
+dependencies = [
+ "sootmark-common",
+ "sootmark-sqlite 0.2.0",
+]
 
 [[package]]
 name = "sootmark-evtx"

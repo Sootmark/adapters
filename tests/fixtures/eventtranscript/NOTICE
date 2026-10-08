@@ -1,0 +1,4 @@
+EventTranscript.db: derived from plaso's test_data/windows/EventTranscript.db
+(Apache-2.0, LICENSE here; commit 91b6849503b125267d00ea134248e4fe59e5479c):
+all but 30 events, and the tags of other events, deleted, then vacuumed,
+with the sqlite3 shell.
