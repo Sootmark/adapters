@@ -43,6 +43,7 @@ weblogs = { package = "sootmark-weblogs", version = "0.1.0" }
 cloudlogs = { package = "sootmark-cloudlogs", version = "0.3.0" }
 esxi = { package = "sootmark-esxi", version = "0.1.0" }
 fwlogs = { package = "sootmark-fwlogs", version = "0.1.0" }
+ntfslog = { package = "sootmark-ntfslog", version = "0.1.0" }
 avlogs = { package = "sootmark-avlogs", version = "0.1.1" }
 containers = { package = "sootmark-containers", version = "0.1.0" }
 eventtranscript = { package = "sootmark-eventtranscript", version = "0.1.0" }

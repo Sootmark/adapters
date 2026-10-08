@@ -25,6 +25,7 @@ dependencies = [
  "sootmark-journal",
  "sootmark-macos",
  "sootmark-model",
+ "sootmark-ntfslog",
  "sootmark-packages",
  "sootmark-persistence",
  "sootmark-prefetch",
@@ -211,6 +212,15 @@ name = "sootmark-model"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "270f905afe734e8e8ce667c4f75e57c1dea5f5344ebe8e946150501350a082d0"
+dependencies = [
+ "sootmark-common",
+]
+
+[[package]]
+name = "sootmark-ntfslog"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a168d720c549bb67c3a4380b07731ac5aa58b8dd8a7792100e9f9a4bd8c062bb"
 dependencies = [
  "sootmark-common",
 ]
