@@ -98,3 +98,13 @@ fn safari_history() {
     assert_eq!(history.records.len(), 25);
     assert!(history.records.iter().all(|r| r.namespace() == NAMESPACE));
 }
+
+#[test]
+fn safari_downloads() {
+    let downloads = collect(
+        "Downloads.plist",
+        "Users/alice/Library/Safari/Downloads.plist",
+    );
+    assert_eq!(downloads.records.len(), 4);
+    assert!(downloads.records.iter().all(|r| r.namespace() == NAMESPACE));
+}

@@ -59,9 +59,9 @@ dependencies = [
 
 [[package]]
 name = "sootmark-browser"
-version = "0.5.0"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "01f8299bdeb351366c0a0902b3bc0882377fc206cbf7ada4753cdc595cb6c122"
+checksum = "1e8a1b0b90dcdba28f713e17fda1485c2405b194dbb059890168ee69ebb4d266"
 dependencies = [
  "sootmark-common",
  "sootmark-ese",

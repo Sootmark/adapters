@@ -343,7 +343,7 @@ fn browser_name(kind: Kind) -> &'static str {
         | Kind::Preferences => "chromium",
         Kind::FirefoxPlaces | Kind::FirefoxDownloads => "firefox",
         Kind::WebCache => "internet explorer",
-        Kind::SafariHistory | Kind::SafariHistoryPlist => "safari",
+        Kind::SafariHistory | Kind::SafariHistoryPlist | Kind::SafariDownloads => "safari",
     }
 }
 

@@ -1,6 +1,6 @@
 These are plaso's test_data files of the same names (chrome/Web Data,
 firefox/firefox_10_cookies.sqlite, chrome/Extension Activity, Preferences,
-safari/History.db), under the Apache License 2.0 (LICENSE, in this
+safari/History.db, plist/Downloads.plist), under the Apache License 2.0 (LICENSE, in this
 directory). Copyright the plaso authors. Source:
 https://github.com/log2timeline/plaso at commit
 91b6849503b125267d00ea134248e4fe59e5479c; stored gzip-compressed (gzip -9n),
