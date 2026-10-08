@@ -9,6 +9,7 @@ dependencies = [
  "sootmark-audit",
  "sootmark-avlogs",
  "sootmark-browser",
+ "sootmark-bsm",
  "sootmark-cloudlogs",
  "sootmark-common",
  "sootmark-conformance",
@@ -69,6 +70,15 @@ dependencies = [
  "sootmark-ese",
  "sootmark-plist",
  "sootmark-sqlite 0.2.0",
+]
+
+[[package]]
+name = "sootmark-bsm"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ac119f667babb8648a88dd70d420fe176f5a694325aca93a5f378f515fe554a5"
+dependencies = [
+ "sootmark-common",
 ]
 
 [[package]]

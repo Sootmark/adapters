@@ -8,6 +8,7 @@ pub mod audit;
 pub mod avlogs;
 pub mod bodyfile;
 pub mod browser;
+pub mod bsm;
 pub mod cloudlogs;
 pub mod containers;
 mod csv;
