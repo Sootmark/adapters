@@ -1,0 +1,12 @@
+SystemIdentity.mdb.gz and {C519A76A-D9B5-4F85-B667-5FAC08E0E1B4}.mdb.gz are
+plaso's test_data/SystemIdentity.mdb and
+test_data/{C519A76A-D9B5-4F85-B667-5FAC08E0E1B4}.mdb (User Access Logging
+databases of a Windows Server 2019 domain controller), under the Apache
+License 2.0 (LICENSE, in this directory). Copyright the plaso authors.
+
+Source: https://github.com/log2timeline/plaso, test_data/, at commit
+91b6849503b125267d00ea134248e4fe59e5479c. Stored gzip-compressed
+(gzip -9n), otherwise unmodified. SHA-256 of the uncompressed files:
+
+  SystemIdentity.mdb                            c247fd88f20399edae69ae7bcdc84e0f9e8183af2ea95153e16ca1538172641f
+  {C519A76A-D9B5-4F85-B667-5FAC08E0E1B4}.mdb    7c6f5f403e06af5c9833cae7a316c34270212830d15890feb9e6315c35d752da

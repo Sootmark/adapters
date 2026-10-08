@@ -28,6 +28,7 @@ pub mod search;
 pub mod srum;
 pub mod syslog;
 mod timestamp;
+pub mod ual;
 pub mod usn;
 pub mod utmp;
 pub mod velociraptor;
