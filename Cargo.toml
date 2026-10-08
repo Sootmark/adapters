@@ -45,6 +45,7 @@ esxi = { package = "sootmark-esxi", version = "0.1.0" }
 cups = { package = "sootmark-cups", version = "0.1.0" }
 mlocate = { package = "sootmark-mlocate", version = "0.1.0" }
 fwlogs = { package = "sootmark-fwlogs", version = "0.1.0" }
+indx = { package = "sootmark-indx", version = "0.1.0" }
 ntfslog = { package = "sootmark-ntfslog", version = "0.1.0" }
 avlogs = { package = "sootmark-avlogs", version = "0.1.1" }
 containers = { package = "sootmark-containers", version = "0.1.0" }

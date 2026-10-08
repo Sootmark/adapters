@@ -1,0 +1,5 @@
+docs_I30.bin.gz is docs_I30.bin from sootmark-indx's tests, gzipped: the
+$INDEX_ALLOCATION:$I30 of a folder `docs` on an NTFS volume written for
+those tests on Linux (mkntfs, ntfs-3g), filled with report_001.txt to
+report_300.txt, then report_050..069 and report_200..219 deleted. Under
+this crate's licences.

@@ -24,6 +24,7 @@ pub mod fwlogs;
 pub mod hayabusa;
 pub mod history;
 mod home;
+pub mod indx;
 pub mod journal;
 pub mod jumplist;
 mod key;
