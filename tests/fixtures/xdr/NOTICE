@@ -1,0 +1,4 @@
+timeline.csv and hunting.csv were written for these tests after the columns
+Microsoft documents for Defender XDR's device timeline export and advanced
+hunting tables, with example addresses and made-up identifiers. Under this
+crate's licences.

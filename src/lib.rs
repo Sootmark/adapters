@@ -39,3 +39,4 @@ pub mod weblogs;
 pub mod winlogs;
 pub mod wintimeline;
 pub mod wmi;
+pub mod xdr;

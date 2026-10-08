@@ -1,0 +1,2 @@
+Timestamp,DeviceName,ActionType,FileName,FolderPath,ProcessCommandLine,AccountName,InitiatingProcessFileName,InitiatingProcessCommandLine
+2024-03-05T09:40:01.1234567Z,fin-wks-07,ProcessCreated,whoami.exe,C:\Windows\System32\whoami.exe,whoami /all,bob,powershell.exe,powershell.exe -NoP

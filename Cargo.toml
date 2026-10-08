@@ -1,6 +1,6 @@
 [package]
 name = "sootmark-adapters"
-version = "0.2.36"
+version = "0.2.37"
 edition = "2021"
 rust-version = "1.80"
 description = "One adapter per parser dependency: the parser's native output mapped into the Sootmark model."
