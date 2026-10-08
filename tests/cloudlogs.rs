@@ -5,7 +5,7 @@
 use conformance::assert_conforms;
 use model::adapter::{Adapter, Collected, Confidence, Input};
 use model::{EvidenceId, Value};
-use sootmark_adapters::cloudlogs::{CloudlogsAdapter, CLOUDTRAIL, ENTRA_SIGNIN, M365};
+use sootmark_adapters::cloudlogs::{CloudlogsAdapter, CLOUDTRAIL, ENTRA_SIGNIN, M365, WORKSPACE};
 
 fn collect(name: &str) -> Collected {
     let data = std::fs::read(format!(
@@ -72,6 +72,24 @@ fn microsoft_365_and_entra() {
     assert_eq!(
         sink.records[1].fields.get("Result"),
         Some(&Value::from("Success"))
+    );
+}
+
+#[test]
+fn google_workspace_activities() {
+    let sink = collect("workspace-reports.json");
+    assert_eq!(sink.records.len(), 5);
+    assert!(sink.records.iter().all(|r| r.namespace() == WORKSPACE));
+    let shared = &sink.records[1];
+    assert_eq!(
+        shared.fields.get("event.parameters.visibility"),
+        Some(&Value::from("shared_externally"))
+    );
+    assert_eq!(shared.facets.source_ip.as_deref(), Some("203.0.113.50"));
+    assert!(
+        sink.records[3].summary.contains("CREATE_USER"),
+        "{}",
+        sink.records[3].summary
     );
 }
 

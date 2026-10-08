@@ -1,6 +1,7 @@
 //! Cloud and SaaS audit logs, via the `cloudlogs` parser: AWS CloudTrail,
 //! Microsoft 365's unified audit log, Entra ID sign-ins and audits,
-//! Azure's activity log, Google Cloud logging; one record per event, its
+//! Azure's activity log, Google Cloud logging, Google Workspace's audit
+//! activities; one record per event, its
 //! main fields named alike across providers (`Operation`, `Actor`,
 //! `SourceIp`, `Target`, `Result`, …) and every value of the provider's
 //! record kept under its dotted path (`userIdentity.arn`).
@@ -21,6 +22,8 @@ pub const ENTRA_AUDIT: Namespace = Namespace::new("cloud.entra_audit");
 pub const AZURE_ACTIVITY: Namespace = Namespace::new("cloud.azure_activity");
 /// Records of Google Cloud logging.
 pub const GCP: Namespace = Namespace::new("cloud.gcp");
+/// Google Workspace audit activities.
+pub const WORKSPACE: Namespace = Namespace::new("cloud.workspace");
 
 /// One record per event.
 #[derive(Debug, Default, Clone, Copy)]
@@ -42,6 +45,7 @@ impl Adapter for CloudlogsAdapter {
             ENTRA_AUDIT,
             AZURE_ACTIVITY,
             GCP,
+            WORKSPACE,
         ]
     }
 
@@ -88,12 +92,13 @@ impl CloudlogsAdapter {
             Source::EntraAudit => (ENTRA_AUDIT, "Entra audit"),
             Source::AzureActivity => (AZURE_ACTIVITY, "Azure"),
             Source::GoogleCloud => (GCP, "Google Cloud"),
+            Source::GoogleWorkspace => (WORKSPACE, "Google Workspace"),
         };
         let mut record = Record::new(
             input.evidence,
             namespace,
             Locator::TableRow {
-                table: source.name().to_owned(),
+                table: table(source, event.part),
                 row: event.position as u64,
             },
             self.parser(),
@@ -144,5 +149,14 @@ impl CloudlogsAdapter {
             event.operation.as_deref().unwrap_or("?"),
         );
         record
+    }
+}
+
+/// The locator's table: the source's name, and for a record's later
+/// events (a Workspace activity's) their place, so each has its own.
+fn table(source: Source, part: usize) -> String {
+    match part {
+        0 => source.name().to_owned(),
+        part => format!("{} event {part}", source.name()),
     }
 }

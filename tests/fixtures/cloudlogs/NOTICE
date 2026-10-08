@@ -1,4 +1,5 @@
-cloudtrail-s3.json, m365-purview.csv and entra-signins.json were written for
+cloudtrail-s3.json, m365-purview.csv, entra-signins.json and
+workspace-reports.json were written for
 the sootmark-cloudlogs tests (https://github.com/Sootmark/cloudlogs), after
 the providers' documented formats, with example addresses and made-up
 identifiers. Under this crate's licences.

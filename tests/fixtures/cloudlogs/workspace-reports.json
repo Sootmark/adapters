@@ -1,0 +1,55 @@
+{
+  "kind": "admin#reports#activities",
+  "etag": "\"example-etag\"",
+  "items": [
+    {
+      "kind": "admin#reports#activity",
+      "id": {"time": "2024-03-05T09:12:44.512Z", "uniqueQualifier": "-1234567890123456789", "applicationName": "drive", "customerId": "C0example"},
+      "actor": {"callerType": "USER", "email": "mallory@example.com", "profileId": "100000000000000000001"},
+      "ipAddress": "203.0.113.50",
+      "events": [
+        {"type": "access", "name": "download", "parameters": [
+          {"name": "doc_id", "value": "1AbCdEfGhIjKlMnOp"},
+          {"name": "doc_title", "value": "Payroll 2024.xlsx"},
+          {"name": "doc_type", "value": "spreadsheet"},
+          {"name": "owner", "value": "alice@example.com"},
+          {"name": "primary_event", "boolValue": true}
+        ]},
+        {"type": "acl_change", "name": "change_user_access", "parameters": [
+          {"name": "doc_id", "value": "1AbCdEfGhIjKlMnOp"},
+          {"name": "doc_title", "value": "Payroll 2024.xlsx"},
+          {"name": "target_user", "value": "outside@example.net"},
+          {"name": "visibility", "value": "shared_externally"}
+        ]}
+      ]
+    },
+    {
+      "kind": "admin#reports#activity",
+      "id": {"time": "2024-03-05T09:20:01Z", "uniqueQualifier": "555", "applicationName": "token", "customerId": "C0example"},
+      "actor": {"email": "mallory@example.com", "profileId": "100000000000000000001"},
+      "ipAddress": "203.0.113.50",
+      "events": [
+        {"type": "auth", "name": "authorize", "parameters": [
+          {"name": "client_id", "value": "123456.apps.googleusercontent.com"},
+          {"name": "app_name", "value": "Mail Sync Helper"},
+          {"name": "scope", "multiValue": ["https://mail.google.com/", "https://www.googleapis.com/auth/drive"]}
+        ]}
+      ]
+    },
+    {
+      "kind": "admin#reports#activity",
+      "id": {"time": "2024-03-05T10:02:13.004Z", "uniqueQualifier": "777", "applicationName": "admin", "customerId": "C0example"},
+      "actor": {"callerType": "USER", "email": "admin@example.com", "profileId": "100000000000000000002"},
+      "ipAddress": "198.51.100.7",
+      "events": [
+        {"type": "USER_SETTINGS", "name": "CREATE_USER", "parameters": [
+          {"name": "USER_EMAIL", "value": "backdoor@example.com"}
+        ]},
+        {"type": "DELEGATED_ADMIN_SETTINGS", "name": "ASSIGN_ROLE", "parameters": [
+          {"name": "ROLE_NAME", "value": "_SEED_ADMIN_ROLE"},
+          {"name": "USER_EMAIL", "value": "backdoor@example.com"}
+        ]}
+      ]
+    }
+  ]
+}
