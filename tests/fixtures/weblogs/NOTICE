@@ -5,3 +5,11 @@ Jira, Confluence and Bitbucket access logs), under the Apache License 2.0
 Source: https://github.com/log2timeline/plaso at commit
 91b6849503b125267d00ea134248e4fe59e5479c. Stored gzip-compressed (gzip -9n),
 otherwise unmodified.
+
+aws_elb_access.log.gz and azure_application_gateway_access.json.gz are
+plaso's test_data files of the same names (AWS Elastic Load Balancing and
+Azure Application Gateway access logs), from the same commit and under the
+same licence, stored the same way. SHA-256 of each file as published:
+
+2e7a9f24a66e5f9dcb6d13da722115134c10738efd31f7889c38b4c26d6ebad2  test_data/aws_elb_access.log
+927398287ae0dab20c1f204fbd0fb1b6a9ce2fcacc55f65253098d8804ea0f77  test_data/azure_application_gateway_access.json

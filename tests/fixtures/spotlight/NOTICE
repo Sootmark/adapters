@@ -1,0 +1,35 @@
+These files are plaso's test data, under the Apache License 2.0 (LICENSE,
+in this directory). Copyright the plaso authors.
+
+Source: https://github.com/log2timeline/plaso, test_data/, at commit
+91b6849503b125267d00ea134248e4fe59e5479c.
+
+  859631-store.db.gz  859631-store.db (a CoreSpotlight store), stored
+                      gzip-compressed (gzip -9n)
+
+  spotlight-12/       copied from the HFS+ volume (GPT partition 1) of
+                      spotlight.12.dmg, folder
+                      .Spotlight-V100/Store-V2/B8A60235-5AE9-4A1A-9004-3F40B6FF4C28/:
+                      store.db and the streams maps
+                      dbStr-{1,2,4,5}.map.{header,offsets,data}
+
+The files are otherwise unmodified. SHA-256 of the image:
+
+  spotlight.12.dmg  69593b344df7ba5704488128a6bf43faba6dd0f282843c6555d47b8733db2aba
+
+and of the files, uncompressed:
+
+  859631-store.db                   38a3fa9b183a4ed2d890aabde84c9926ba28c68c2bde188978d87d8b31d50b48
+  spotlight-12/store.db             f748145c22af819cfb6c5ad50df57337879164a957fcd30507bc5b5a631850a3
+  spotlight-12/dbStr-1.map.header   bc1f382196555797419925edc47763421126fe3e42d1bed46c25bac1dea555b8
+  spotlight-12/dbStr-1.map.offsets  5c95315107205f9f8c4e6fd5c93074f609ca45cea702deeab0a239aa762364f6
+  spotlight-12/dbStr-1.map.data     8d0f51b878d0d161df2ed1f7a01f11846f5c7a31cd90a889adb3c11c1de987df
+  spotlight-12/dbStr-2.map.header   76019822e8ce1dcd3be440c1a75aa176ffc861a78c3740e2b5c09c50541cf452
+  spotlight-12/dbStr-2.map.offsets  883090a3a7cee5f53c28b598dff599aa2194919bf164abcca325046b67505aea
+  spotlight-12/dbStr-2.map.data     c7b76eda65e1eed6e31b17e92ebc512eb37d249eedf2711a55a325810d6b8fbb
+  spotlight-12/dbStr-4.map.header   eb7176f852ea4496a496dc691b7a0acab2000c08a206ce8f799334536ccaf8c7
+  spotlight-12/dbStr-4.map.offsets  11a2b9fc49a6f58e228fc8c2ac32d9ee08b20f7088a1cd3edd164ba40b5439bf
+  spotlight-12/dbStr-4.map.data     8fa543aab2fb1d13ef47aa76c8b89feb60149e6528e6d385d88697934262b39c
+  spotlight-12/dbStr-5.map.header   34df3c36b7e5331a76633f73146af8d1ec1568bf327af5af1fec656f1e8fc3e8
+  spotlight-12/dbStr-5.map.offsets  298dc613fca1476fc774b2d4c380b4f26992b8f7f801bca3360db2047037e0bf
+  spotlight-12/dbStr-5.map.data     4c4f9cff0f7eddd1822ea7da0b7a811270fc82dbaee9048d1a3c9900faf126b9

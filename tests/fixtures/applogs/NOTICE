@@ -1,0 +1,19 @@
+These are plaso's test_data files of the same names (vsftpd, PostgreSQL,
+popularity-contest, Snort and Suricata fast alert, glog, Santa, macOS
+securityd and application firewall logs), under the Apache License 2.0
+(LICENSE, in this directory). Copyright the plaso authors.
+
+Source: https://github.com/log2timeline/plaso at commit
+91b6849503b125267d00ea134248e4fe59e5479c, unmodified; santa.log stored
+gzip-compressed (gzip -9n). SHA-256 of each file as published:
+
+74dd5a6ffefc70dc7ba3d97832476473a6346a2c3a6713ecbaee0f340b6c2890  test_data/appfirewall.log
+4b43ba45345f87b66489d89a46c104c417c269ba00fc750aa0bea727ab034daa  test_data/googlelog_test.INFO
+1f1d35cb24a60ecfbc33a15e1427fb08596f8c0b843db9077fb02ad8b75b78c8  test_data/popcontest1.log
+5e08acd9c781e6307ceab082e8c339a3c5d096a85e7d8e43b81ccd5423888c70  test_data/postgresql.log
+cbedb50dac2fe8a4487e2b6228e2fbfd43913ba9debbf93c4d4c47a77470d517  test_data/santa.log
+04b4ff5d19282a6e82020f8054b7eb23b21354e73875bb428f44a2059f1fd4ee  test_data/santa2.log
+b42d71e883b03781b6c32afbb58690ee93973101a4f8989494ca5b1e56ff4a7e  test_data/security.log
+a81dcebbdda8a15c9aa791080c7b0e006230f75192467314c4580cca7f009fc7  test_data/snort3_alert_fast.log
+ea2e41db68fe292c87b8e4df060db7ec338a9cee74fa56898dfc01a368aaf16d  test_data/suricata_alert_fast.log
+c24da8b269e77d0afd2813e45ad93e6f6c4fe4afa45038275e2b74630e04f41d  test_data/vsftpd.log

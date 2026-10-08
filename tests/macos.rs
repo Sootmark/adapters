@@ -1,22 +1,37 @@
-//! The macOS adapter on plaso's quarantine and TCC databases, FSEvents log
-//! and background items (Apache-2.0)
+//! The macOS adapter on plaso's quarantine and TCC databases, FSEvents log,
+//! background items, Spotlight preferences, Messages database and keychain
+//! (Apache-2.0)
 //! and a synthetic KnowledgeC database with its write-ahead log
 //! (`tests/fixtures/macos/`): the contract, recognition, records.
 
 use conformance::assert_conforms;
 use model::adapter::{Adapter, Collected, Confidence, Input};
-use model::{EvidenceId, Record, Value};
+use std::io::Read;
+
+use model::{EvidenceId, Record, TimeKind, Value};
 use sootmark_adapters::macos::{
-    MacosAdapter, APP_USAGE, ASL, DOCUMENT_VERSIONS, FSEVENTS, KNOWLEDGEC, LOGIN_ITEMS, NOTES,
-    NOTIFICATIONS, QUARANTINE, TCC, USERS, WIFI,
+    MacosAdapter, APP_USAGE, ASL, DOCUMENT_VERSIONS, FSEVENTS, KEYCHAIN, KNOWLEDGEC, LOGIN_ITEMS,
+    MESSAGES, NOTES, NOTIFICATIONS, QUARANTINE, SPOTLIGHT_SEARCHES, SPOTLIGHT_VOLUME, TCC, USERS,
+    WIFI,
 };
 
 fn read(name: &str) -> Vec<u8> {
-    std::fs::read(format!(
+    let raw = std::fs::read(format!(
         "{}/tests/fixtures/macos/{name}",
         env!("CARGO_MANIFEST_DIR")
     ))
-    .unwrap()
+    .unwrap();
+    if !std::path::Path::new(name)
+        .extension()
+        .is_some_and(|e| e.eq_ignore_ascii_case("gz"))
+    {
+        return raw;
+    }
+    let mut data = Vec::new();
+    common::gzip::Decoder::new(raw.as_slice())
+        .read_to_end(&mut data)
+        .unwrap();
+    data
 }
 
 fn parse(fixture: &str, path: &str, log: &[u8]) -> Vec<Record> {
@@ -234,4 +249,89 @@ fn usage_databases() {
         notifications[0].summary,
         "Notification from com.google.santagui: Santa - KeePassXC can now be run"
     );
+}
+
+#[test]
+fn spotlight_preferences() {
+    let searches = parse(
+        "com.apple.spotlight.plist",
+        "Users/alice/Library/Preferences/com.apple.spotlight.plist",
+        &[],
+    );
+    assert_eq!(searches.len(), 9);
+    assert!(searches.iter().all(|r| r.namespace() == SPOTLIGHT_SEARCHES));
+    let wifi = searches
+        .iter()
+        .find(|r| r.fields.get("Term") == Some(&Value::from("wifi")))
+        .unwrap();
+    assert_eq!(
+        wifi.summary,
+        "macOS Spotlight search: wifi -> /Users/moxilo/RHUL/Project/Parsers/wifi/wifi.py"
+    );
+    assert_eq!(wifi.times[0].kind, TimeKind::LastSeen);
+    assert_eq!(wifi.facets.user_name.as_deref(), Some("alice"));
+    assert_eq!(
+        wifi.facets.file_path.as_deref(),
+        Some("/Users/moxilo/RHUL/Project/Parsers/wifi/wifi.py")
+    );
+    let stores = parse(
+        "VolumeConfiguration.plist",
+        ".Spotlight-V100/VolumeConfiguration.plist",
+        &[],
+    );
+    assert_eq!(stores.len(), 2);
+    assert!(stores.iter().all(|r| r.namespace() == SPOTLIGHT_VOLUME));
+    assert!(stores.iter().any(|r| r.summary
+        == "macOS Spotlight store: 4D4BFEB5-7FE6-4033-AAAA-AAAABBBBCCCCDDDD -> /.MobileBackups"));
+}
+
+#[test]
+fn messages() {
+    let records = parse(
+        "imessage_chat.db.gz",
+        "Users/alice/Library/Messages/chat.db",
+        &[],
+    );
+    assert_eq!(records.len(), 10);
+    assert!(records.iter().all(|r| r.namespace() == MESSAGES));
+    let sent = &records[1];
+    assert!(sent
+        .summary
+        .starts_with("iMessage to 447775455555: Hi Eireanne, I would get one"));
+    assert_eq!(sent.fields.get("FromMe"), Some(&Value::Bool(true)));
+    assert_eq!(sent.facets.user_name.as_deref(), Some("alice"));
+    let received = &records[0];
+    assert_eq!(
+        received.times.iter().map(|t| t.kind).collect::<Vec<_>>(),
+        [TimeKind::Logged, TimeKind::Other, TimeKind::Accessed]
+    );
+}
+
+#[test]
+fn keychain_items_without_secrets() {
+    let records = parse(
+        "login.keychain",
+        "Users/alice/Library/Keychains/login.keychain",
+        &[],
+    );
+    assert_eq!(records.len(), 8);
+    assert!(records.iter().all(|r| r.namespace() == KEYCHAIN));
+    let gmail = records
+        .iter()
+        .find(|r| r.fields.get("Server") == Some(&Value::from("imap.gmail.com")))
+        .unwrap();
+    assert_eq!(
+        gmail.summary,
+        "Keychain internet password: imap.gmail.com moxilo at imap.gmail.com"
+    );
+    assert_eq!(gmail.fields.get("Account"), Some(&Value::from("moxilo")));
+    assert_eq!(
+        gmail.times.iter().map(|t| t.kind).collect::<Vec<_>>(),
+        [TimeKind::Created, TimeKind::Modified]
+    );
+    // A key's binary label is no name.
+    assert!(records
+        .iter()
+        .filter(|r| r.fields.get("Kind") == Some(&Value::from("symmetric key")))
+        .all(|r| !r.fields.contains_key("Name")));
 }

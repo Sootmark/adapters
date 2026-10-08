@@ -3,9 +3,140 @@
 version = 3
 
 [[package]]
-name = "sootmark-adapters"
-version = "0.2.47"
+name = "aes"
+version = "0.8.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b169f7a6d4742236a0a00c541b845991d0ac43e546831af1249753ab4c3aa3a0"
 dependencies = [
+ "cfg-if",
+ "cipher",
+ "cpufeatures",
+]
+
+[[package]]
+name = "block-buffer"
+version = "0.10.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3078c7629b62d3f0439517fa394996acacc5cbc91c5a20d8c658e77abd503a71"
+dependencies = [
+ "generic-array",
+]
+
+[[package]]
+name = "cfg-if"
+version = "1.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4e7648175b45a9a48536d676f68d918270699102aa8dab5496df06904c914600"
+
+[[package]]
+name = "cipher"
+version = "0.4.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "773f3b9af64447d2ce9850330c473515014aa235e6a783b02db81ff39e4a3dad"
+dependencies = [
+ "crypto-common",
+ "inout",
+]
+
+[[package]]
+name = "cpufeatures"
+version = "0.2.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "59ed5838eebb26a2bb2e58f6d5b5316989ae9d08bab10e0e6d103e656d1b0280"
+dependencies = [
+ "libc",
+]
+
+[[package]]
+name = "crypto-common"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "78c8292055d1c1df0cce5d180393dc8cce0abec0a7102adb6c7b1eef6016d60a"
+dependencies = [
+ "generic-array",
+ "typenum",
+]
+
+[[package]]
+name = "ctr"
+version = "0.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0369ee1ad671834580515889b80f2ea915f23b8be8d0daa4bbaf2ac5c7590835"
+dependencies = [
+ "cipher",
+]
+
+[[package]]
+name = "digest"
+version = "0.10.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9ed9a281f7bc9b7576e61468ba615a66a5c8cfdff42420a70aa82701a3b1e292"
+dependencies = [
+ "block-buffer",
+ "crypto-common",
+ "subtle",
+]
+
+[[package]]
+name = "generic-array"
+version = "0.14.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "85649ca51fd72272d7821adaf274ad91c288277713d9c18820d8499a7ff69e9a"
+dependencies = [
+ "typenum",
+ "version_check",
+]
+
+[[package]]
+name = "hmac"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6c49c37c09c17a53d937dfbb742eb3a961d65a994e6bcdcf37e7399d0cc8ab5e"
+dependencies = [
+ "digest",
+]
+
+[[package]]
+name = "inout"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "879f10e63c20629ecabbb64a8010319738c66a5cd0c29b02d63d272b03751d01"
+dependencies = [
+ "generic-array",
+]
+
+[[package]]
+name = "libc"
+version = "0.2.190"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ce5d3ddc6d3fa000eb1536d85e147bfe31aacaba692ed6a876f95cb7c855be78"
+
+[[package]]
+name = "pbkdf2"
+version = "0.12.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f8ed6a7761f76e3b9f92dfb0a60a6a6477c61024b775147ff0973a02653abaf2"
+dependencies = [
+ "digest",
+ "hmac",
+]
+
+[[package]]
+name = "sha1"
+version = "0.10.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a978451301f4db1d02937a4ab3ccce137717b81826e79b7d49ffe3244a13c3b8"
+dependencies = [
+ "cfg-if",
+ "cpufeatures",
+ "digest",
+]
+
+[[package]]
+name = "sootmark-adapters"
+version = "0.2.48"
+dependencies = [
+ "sootmark-applogs",
  "sootmark-audit",
  "sootmark-avlogs",
  "sootmark-browser",
@@ -20,21 +151,29 @@ dependencies = [
  "sootmark-ese",
  "sootmark-esxi",
  "sootmark-eventtranscript",
+ "sootmark-evt",
  "sootmark-evtx",
+ "sootmark-filehistory",
  "sootmark-fwlogs",
  "sootmark-history",
  "sootmark-journal",
  "sootmark-macos",
  "sootmark-mlocate",
  "sootmark-model",
+ "sootmark-msiecf",
+ "sootmark-notifications",
  "sootmark-ntfslog",
+ "sootmark-office",
+ "sootmark-onedrive",
  "sootmark-packages",
+ "sootmark-pe",
  "sootmark-persistence",
  "sootmark-prefetch",
  "sootmark-recyclebin",
  "sootmark-registry",
  "sootmark-search",
  "sootmark-shell",
+ "sootmark-spotlight",
  "sootmark-srum",
  "sootmark-syslog",
  "sootmark-tasks",
@@ -45,6 +184,15 @@ dependencies = [
  "sootmark-winlogs",
  "sootmark-wintimeline",
  "sootmark-wmi",
+]
+
+[[package]]
+name = "sootmark-applogs"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68a12c9ce03bbb323e6d7eaa28a1dd33f5e9097f8f9f99c780e71eff197de56b"
+dependencies = [
+ "sootmark-common",
 ]
 
 [[package]]
@@ -172,12 +320,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "sootmark-evt"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af893cc4b196b9f47a96d87e5528cc219abbce45f4bddbd9275ff07643a06929"
+dependencies = [
+ "sootmark-common",
+]
+
+[[package]]
 name = "sootmark-evtx"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a2f25e75bdbe98bb81378b377c0cfaa61c9cd06b75af8b89ee5987fabe8a835"
 dependencies = [
  "sootmark-common",
+]
+
+[[package]]
+name = "sootmark-filehistory"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "066b2b81be1c63a1e9936eeecc1ef0d61f5660ac226f51e86b693c911df7a0d3"
+dependencies = [
+ "sootmark-common",
+ "sootmark-ese",
 ]
 
 [[package]]
@@ -209,9 +376,9 @@ dependencies = [
 
 [[package]]
 name = "sootmark-macos"
-version = "0.7.0"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f868418f77d9831a5e4ce0d87fa0e3d006ca465c77de172474b4296036f315e3"
+checksum = "722fc84b4751242abbd438826c12bed1ebfde7401375dd527fe1a233e2f26870"
 dependencies = [
  "sootmark-common",
  "sootmark-plist",
@@ -237,10 +404,49 @@ dependencies = [
 ]
 
 [[package]]
+name = "sootmark-msiecf"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "37139f1889492cb6a3057274b7f61ab8a4a5a765f959e7c7ac926418c25b23d9"
+dependencies = [
+ "sootmark-common",
+]
+
+[[package]]
+name = "sootmark-notifications"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "264b7af2a118fe35516269b3711c36c54e03403f8a68769df2d1a6bcf6ae396d"
+dependencies = [
+ "sootmark-common",
+ "sootmark-sqlite 0.2.0",
+]
+
+[[package]]
 name = "sootmark-ntfslog"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a168d720c549bb67c3a4380b07731ac5aa58b8dd8a7792100e9f9a4bd8c062bb"
+dependencies = [
+ "sootmark-common",
+]
+
+[[package]]
+name = "sootmark-office"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e62cdd4edbb92d39b8b649e4fd2a0673a56d2b2adad048a265fa6f7c8f95f1a"
+dependencies = [
+ "sootmark-common",
+ "sootmark-shell",
+ "sootmark-zip",
+]
+
+[[package]]
+name = "sootmark-onedrive"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "27619de984640f9f98785d6e5128b6870720e1ec31272be0db5da1e2c2eadceb"
 dependencies = [
  "sootmark-common",
 ]
@@ -253,6 +459,15 @@ checksum = "982c9ac15b2f9bf372e04658f55cc00afaed79bbb9134ec843a067ea0263829b"
 dependencies = [
  "sootmark-common",
  "sootmark-sqlite 0.2.0",
+]
+
+[[package]]
+name = "sootmark-pe"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2c4fea784d13c1d2a50ed19d897ce507bedd980cd755d9c69e40207f0b2bdfdc"
+dependencies = [
+ "sootmark-common",
 ]
 
 [[package]]
@@ -314,6 +529,15 @@ name = "sootmark-shell"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "727dfc198e8216a4ad5f0fa5bef028f59148999782fc0c5f7c1056b6924759f7"
+
+[[package]]
+name = "sootmark-spotlight"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c70f7776fd3f0c8508ffbe3225657454637835f4ff9eb4e98660541ef2e42a3e"
+dependencies = [
+ "sootmark-common",
+]
 
 [[package]]
 name = "sootmark-sqlite"
@@ -386,9 +610,9 @@ dependencies = [
 
 [[package]]
 name = "sootmark-weblogs"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f408b20c041bcbf280a0de42ff104d3d195c4ea42d5b9ecf081af14f0b465392"
+checksum = "81c41b3eda753eea230a8b2026fe6434e5a47b525589af9253c304b91b2f2df2"
 dependencies = [
  "sootmark-common",
 ]
@@ -420,3 +644,35 @@ checksum = "e8e1d286440d2813a6ad23945f68696936807ed8adecfad7940a0300f0c07510"
 dependencies = [
  "sootmark-common",
 ]
+
+[[package]]
+name = "sootmark-zip"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7830e9a920fd2fdf17eeb095599b8dec0861a82a7f99210c78fdd896e3afe547"
+dependencies = [
+ "aes",
+ "ctr",
+ "hmac",
+ "pbkdf2",
+ "sha1",
+ "sootmark-common",
+]
+
+[[package]]
+name = "subtle"
+version = "2.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
+
+[[package]]
+name = "typenum"
+version = "1.20.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b6f5e870be6c3b371b77fe0ee0bafb859fa4964b4404c27de1d380043c4dda20"
+
+[[package]]
+name = "version_check"
+version = "0.9.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"

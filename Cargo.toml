@@ -1,6 +1,6 @@
 [package]
 name = "sootmark-adapters"
-version = "0.2.47"
+version = "0.2.48"
 edition = "2021"
 rust-version = "1.80"
 description = "One adapter per parser dependency: the parser's native output mapped into the Sootmark model."
@@ -20,7 +20,7 @@ ese = { package = "sootmark-ese", version = "0.1.1" }
 evtx = { package = "sootmark-evtx", version = "0.2.0" }
 history = { package = "sootmark-history", version = "0.3.0" }
 journal = { package = "sootmark-journal", version = "0.1.0" }
-macos = { package = "sootmark-macos", version = "0.7.0" }
+macos = { package = "sootmark-macos", version = "0.8.0" }
 model = { package = "sootmark-model", version = "0.2.3" }
 packages = { package = "sootmark-packages", version = "0.2.0" }
 persistence = { package = "sootmark-persistence", version = "0.4.1" }
@@ -39,7 +39,7 @@ ual = { package = "sootmark-ual", version = "0.1.0" }
 winlogs = { package = "sootmark-winlogs", version = "0.3.0" }
 defender = { package = "sootmark-defender", version = "0.2.0" }
 tasks = { package = "sootmark-tasks", version = "0.1.0" }
-weblogs = { package = "sootmark-weblogs", version = "0.1.0" }
+weblogs = { package = "sootmark-weblogs", version = "0.2.0" }
 cloudlogs = { package = "sootmark-cloudlogs", version = "0.3.0" }
 esxi = { package = "sootmark-esxi", version = "0.1.0" }
 cups = { package = "sootmark-cups", version = "0.1.0" }
@@ -50,6 +50,15 @@ avlogs = { package = "sootmark-avlogs", version = "0.1.1" }
 containers = { package = "sootmark-containers", version = "0.1.0" }
 eventtranscript = { package = "sootmark-eventtranscript", version = "0.1.0" }
 bsm = { package = "sootmark-bsm", version = "0.1.0" }
+evt = { package = "sootmark-evt", version = "0.1.0" }
+filehistory = { package = "sootmark-filehistory", version = "0.1.0" }
+notifications = { package = "sootmark-notifications", version = "0.1.0" }
+onedrive = { package = "sootmark-onedrive", version = "0.1.0" }
+msiecf = { package = "sootmark-msiecf", version = "0.1.0" }
+pe = { package = "sootmark-pe", version = "0.1.0" }
+applogs = { package = "sootmark-applogs", version = "0.1.0" }
+office = { package = "sootmark-office", version = "0.1.0" }
+spotlight = { package = "sootmark-spotlight", version = "0.1.0" }
 
 [dev-dependencies]
 conformance = { package = "sootmark-conformance", version = "0.2.0" }

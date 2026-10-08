@@ -1,0 +1,7 @@
+test_pe.exe and test_driver.sys are plaso's test_data/test_pe.exe and
+test_data/test_driver.sys, under the Apache License 2.0 (LICENSE, in this
+directory). Copyright the plaso authors. Source:
+https://github.com/log2timeline/plaso at commit
+91b6849503b125267d00ea134248e4fe59e5479c; unmodified. SHA-256:
+e2fef8c075ae07cf0370165accadfd8765db3797f0c523742c914f397e191d09  test_pe.exe
+891141f8e30708831e6cf3d482d8491b3b3fd3971b509b1ca6005c3d25833bbf  test_driver.sys

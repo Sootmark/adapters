@@ -4,7 +4,9 @@
 //! when the caller hands it over: quarantine events (where each downloaded
 //! file came from), TCC (which apps were granted privacy permissions, and
 //! when), KnowledgeC (app usage and device events over time), crankd's
-//! application usage, document versions, Notes and Notification Center.
+//! application usage, document versions, Notes, Notification Center and
+//! Messages; and keychains' items (names, accounts, servers, times; never
+//! a secret), Spotlight's searched terms and indexed volumes.
 
 use macos::{
     Artifact, AslRecord, BackgroundItem, FsEvent, JobKind, KnowledgeEvent, LaunchJob, PrefEntry,
@@ -15,6 +17,7 @@ use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, 
 
 use crate::home::profile_owner;
 
+mod personal;
 mod usage;
 
 /// Quarantine events.
@@ -57,6 +60,14 @@ pub const DOCUMENT_VERSIONS: Namespace = Namespace::new("macos.document_versions
 pub const NOTES: Namespace = Namespace::new("macos.notes");
 /// Notification Center notifications.
 pub const NOTIFICATIONS: Namespace = Namespace::new("macos.notifications");
+/// Terms searched for with Spotlight and the items opened from them.
+pub const SPOTLIGHT_SEARCHES: Namespace = Namespace::new("macos.spotlight_searches");
+/// Spotlight's stores on a volume and the paths it doesn't index.
+pub const SPOTLIGHT_VOLUME: Namespace = Namespace::new("macos.spotlight_volume");
+/// iMessage and SMS messages.
+pub const MESSAGES: Namespace = Namespace::new("macos.messages");
+/// Keychain items, without their secrets.
+pub const KEYCHAIN: Namespace = Namespace::new("macos.keychain");
 
 fn pref_namespace(kind: PrefKind) -> Namespace {
     match kind {
@@ -70,6 +81,8 @@ fn pref_namespace(kind: PrefKind) -> Namespace {
         PrefKind::User => USERS,
         PrefKind::StartupItem => STARTUP_ITEMS,
         PrefKind::TimeMachine => TIME_MACHINE,
+        PrefKind::SpotlightShortcuts => SPOTLIGHT_SEARCHES,
+        PrefKind::SpotlightVolume => SPOTLIGHT_VOLUME,
     }
 }
 
@@ -107,11 +120,16 @@ impl Adapter for MacosAdapter {
             DOCUMENT_VERSIONS,
             NOTES,
             NOTIFICATIONS,
+            SPOTLIGHT_SEARCHES,
+            SPOTLIGHT_VOLUME,
+            MESSAGES,
+            KEYCHAIN,
         ]
     }
 
     /// By name, and the SQLite signature (a property list's for launchd
-    /// jobs and login items, gzip's or a page's for FSEvents).
+    /// jobs and login items, gzip's or a page's for FSEvents, `kych` for
+    /// keychains).
     fn probe(&self, name: &str, head: &[u8]) -> Confidence {
         let signed = match macos::detect(name) {
             Some(Artifact::Launchd(_) | Artifact::Prefs(_)) => {
@@ -119,6 +137,7 @@ impl Adapter for MacosAdapter {
             }
             Some(Artifact::BackgroundItems) => head.starts_with(b"bplist"),
             Some(Artifact::Asl) => macos::is_asl(head),
+            Some(Artifact::Keychain) => head.starts_with(b"kych"),
             Some(Artifact::FsEvents) => {
                 head.starts_with(&[0x1f, 0x8b]) || head.get(1..4) == Some(b"SLD")
             }
@@ -230,6 +249,12 @@ impl Adapter for MacosAdapter {
                 | Artifact::Notifications),
             ) => {
                 let (problems, records) = self.usage(artifact, input, log).map_err(failed)?;
+                emit(problems, records);
+            }
+            Some(artifact @ (Artifact::Messages | Artifact::Keychain)) => {
+                let (problems, records) = self
+                    .personal(artifact, input, log, owner.as_deref())
+                    .map_err(failed)?;
                 emit(problems, records);
             }
             None => return Err(ParseError::at(0, "not a macOS file this parser reads")),
@@ -462,6 +487,13 @@ impl MacosAdapter {
                 PrefKind::LoginWindow => entry.get("Path").map(str::to_owned),
                 _ => None,
             },
+            file_path: match kind {
+                PrefKind::SpotlightShortcuts | PrefKind::SpotlightVolume => entry
+                    .get("Path")
+                    .or_else(|| entry.get("PartialPath"))
+                    .map(str::to_owned),
+                _ => None,
+            },
             ..Facets::default()
         };
         let label = match kind {
@@ -475,12 +507,23 @@ impl MacosAdapter {
             PrefKind::User => "local account",
             PrefKind::StartupItem => "startup item",
             PrefKind::TimeMachine => "Time Machine destination",
+            PrefKind::SpotlightShortcuts => "Spotlight search",
+            PrefKind::SpotlightVolume => match entry.get("Kind") {
+                Some("exclusion") => "Spotlight exclusion",
+                _ => "Spotlight store",
+            },
         };
         let detail = entry
             .get("Name")
             .filter(|name| *name != entry.subject)
             .map_or_else(String::new, |name| format!(" ({name})"));
-        record.summary = format!("macOS {label}: {}{detail}", entry.subject);
+        let target = match kind {
+            PrefKind::SpotlightShortcuts => entry.get("Path"),
+            PrefKind::SpotlightVolume => entry.get("PartialPath"),
+            _ => None,
+        }
+        .map_or_else(String::new, |path| format!(" -> {path}"));
+        record.summary = format!("macOS {label}: {}{detail}{target}", entry.subject);
         record
     }
 
@@ -642,7 +685,7 @@ fn pref_time_kind(name: &str) -> TimeKind {
     match name {
         "Installed" | "Created" | "TargetCreated" | "Added" => TimeKind::Created,
         "PasswordLastSet" => TimeKind::Modified,
-        "LastConnected" | "LastLogin" | "LastSuccessfulConnect" | "LastAutoJoin" => {
+        "LastConnected" | "LastLogin" | "LastSuccessfulConnect" | "LastAutoJoin" | "LastUsed" => {
             TimeKind::LastSeen
         }
         _ => TimeKind::Other,

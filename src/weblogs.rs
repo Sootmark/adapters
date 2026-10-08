@@ -1,10 +1,13 @@
 //! Web server access logs, via the `weblogs` parser: Apache and nginx,
-//! Jira and Confluence, Bitbucket; one record per request, with the
-//! client, user, request, status, bytes, referer and user agent.
+//! Jira and Confluence, Bitbucket, AWS Elastic Load Balancing and Azure
+//! Application Gateway; one record per request, with the client, user,
+//! request, status, bytes, referer and user agent.
 
 use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
 use model::{Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Value};
 use weblogs::{Kind, Request};
+
+use crate::key::field_name;
 
 /// Records of Apache and nginx access logs.
 pub const ACCESS: Namespace = Namespace::new("web.access");
@@ -12,6 +15,10 @@ pub const ACCESS: Namespace = Namespace::new("web.access");
 pub const ATLASSIAN: Namespace = Namespace::new("web.atlassian");
 /// Records of Bitbucket access logs.
 pub const BITBUCKET: Namespace = Namespace::new("web.bitbucket");
+/// Records of AWS Elastic Load Balancing access logs.
+pub const ELB: Namespace = Namespace::new("web.elb");
+/// Records of Azure Application Gateway access logs.
+pub const AZURE_GATEWAY: Namespace = Namespace::new("web.azure_gateway");
 
 /// One record per request.
 #[derive(Debug, Default, Clone, Copy)]
@@ -26,7 +33,7 @@ impl Adapter for WeblogsAdapter {
     }
 
     fn namespaces(&self) -> &'static [Namespace] {
-        &[ACCESS, ATLASSIAN, BITBUCKET]
+        &[ACCESS, ATLASSIAN, BITBUCKET, ELB, AZURE_GATEWAY]
     }
 
     /// By the first lines' shape.
@@ -45,6 +52,8 @@ impl Adapter for WeblogsAdapter {
             Kind::Access => ACCESS,
             Kind::Atlassian => ATLASSIAN,
             Kind::Bitbucket => BITBUCKET,
+            Kind::Elb => ELB,
+            Kind::AzureGateway => AZURE_GATEWAY,
         };
         let log = weblogs::read(kind, input.data);
         for request in &log.requests {
@@ -72,6 +81,11 @@ impl WeblogsAdapter {
             record
                 .times
                 .push(RecordTime::new(TimeKind::Logged, "Time", time));
+        }
+        if let Some(started) = request.started {
+            record
+                .times
+                .push(RecordTime::new(TimeKind::Other, "Started", started));
         }
         let mut fields = Fields::new();
         for (name, value) in [
@@ -116,14 +130,16 @@ impl WeblogsAdapter {
     }
 }
 
-/// `forwarded_for` as `ForwardedFor`.
+/// `forwarded_for` as `ForwardedFor`, as a field name.
 fn pascal(name: &str) -> String {
-    name.split('_')
+    let pascal: String = name
+        .split('_')
         .map(|word| {
             let mut chars = word.chars();
             chars.next().map_or_else(String::new, |first| {
                 first.to_ascii_uppercase().to_string() + chars.as_str()
             })
         })
-        .collect()
+        .collect();
+    field_name(&pascal)
 }

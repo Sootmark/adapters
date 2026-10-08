@@ -1,13 +1,16 @@
 //! The access log adapter on plaso's test logs (Apache-2.0,
 //! `tests/fixtures/weblogs/`, stored gzip-compressed): recognition and
-//! the records.
+//! the records, AWS Elastic Load Balancing's and Azure Application
+//! Gateway's too.
 
 use std::io::Read;
 
 use conformance::assert_conforms;
 use model::adapter::{Adapter, Collected, Confidence, Input};
-use model::{EvidenceId, Value};
-use sootmark_adapters::weblogs::{WeblogsAdapter, ACCESS, ATLASSIAN, BITBUCKET};
+use model::{EvidenceId, TimeKind, Value};
+use sootmark_adapters::weblogs::{
+    WeblogsAdapter, ACCESS, ATLASSIAN, AZURE_GATEWAY, BITBUCKET, ELB,
+};
 
 fn fixture(name: &str) -> Vec<u8> {
     let path = format!(
@@ -93,6 +96,41 @@ fn atlassian_requests() {
         Some(&Value::from("/stash/stash.git"))
     );
     assert_eq!(ssh.fields.get("Labels"), Some(&Value::from("push")));
+}
+
+#[test]
+fn load_balancer_and_gateway_requests() {
+    let sink = collect(
+        "AWSLogs/123456789012/elasticloadbalancing/us-east-2/aws_elb_access.log",
+        &fixture("aws_elb_access.log"),
+    );
+    assert_eq!(sink.records.len(), 16);
+    assert!(sink.records.iter().all(|r| r.namespace() == ELB));
+    let first = &sink.records[0];
+    assert_eq!(
+        first.summary,
+        "192.168.1.10 GET https://www.domain.name:443/ HTTP/1.1 200"
+    );
+    assert_eq!(first.facets.source_ip.as_deref(), Some("192.168.1.10"));
+    assert_eq!(first.fields.get("ClientPort"), Some(&Value::from("44325")));
+    // An application load balancer says when the request came in.
+    assert_eq!(
+        first.times.iter().map(|t| t.kind).collect::<Vec<_>>(),
+        [TimeKind::Logged, TimeKind::Other]
+    );
+    assert_eq!(first.times[1].field, "Started");
+
+    let sink = collect(
+        "PT1H.json",
+        &fixture("azure_application_gateway_access.json"),
+    );
+    assert_eq!(sink.records.len(), 2);
+    assert!(sink.records.iter().all(|r| r.namespace() == AZURE_GATEWAY));
+    assert_eq!(sink.records[0].summary, "185.42.129.24 GET / HTTP/1.1 200");
+    assert_eq!(
+        sink.records[0].fields.get("InstanceId"),
+        Some(&Value::from("appgw_2"))
+    );
 }
 
 #[test]

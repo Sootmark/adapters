@@ -1,0 +1,8 @@
+Catalog1.edb.gz is plaso's test_data/Catalog1.edb, under the Apache License
+2.0 (LICENSE, in this directory). Copyright the plaso authors.
+
+Source: https://github.com/log2timeline/plaso, test_data/, at commit
+91b6849503b125267d00ea134248e4fe59e5479c. Stored gzip-compressed
+(gzip -9n), otherwise unmodified. SHA-256 of the uncompressed file:
+
+  Catalog1.edb  8a6ca11fad99b39620f45e2420172e2c9ed137ad8a9c415a5e10bd9080e7ad78

@@ -1,0 +1,12 @@
+These files are plaso's test files, under the Apache License 2.0 (LICENSE, in
+this directory). Copyright the plaso authors. Source:
+https://github.com/log2timeline/plaso at commit
+91b6849503b125267d00ea134248e4fe59e5479c.
+
+- Content.IE5/index.dat is test_data/msiecf/Content.IE5/index.dat, unmodified
+  (SHA-256 d6f7d3c4cd1b05b637dca8d41fcb652cc3809a0650181e447bf609bbc81d7db9).
+- History.IE5/index.dat is test_data/msiecf/History.IE5/index.dat, unmodified
+  (SHA-256 d54847adc8be889cb687bd7c60af50153d310eb3fc32a79d20c93eecb655bfc1).
+- MSHist012013031020130311-index.dat is
+  test_data/MSHist012013031020130311-index.dat, unmodified
+  (SHA-256 e2a4034e50beb669dbd9dddfecfde756e106c32629eefa8330e3cde7af6fceef).

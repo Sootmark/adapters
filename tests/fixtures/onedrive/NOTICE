@@ -1,0 +1,14 @@
+These files are plaso's test data, under the Apache License 2.0 (LICENSE, in
+this directory). Copyright the plaso authors. Source:
+https://github.com/log2timeline/plaso at commit
+91b6849503b125267d00ea134248e4fe59e5479c; stored unmodified (the .odlgz is
+compressed as plaso keeps it):
+
+- SyncEngine-2022-11-24.2341.10688.1.odlgz: test_data/SyncEngine-2022-11-24.2341.10688.1.odlgz
+  (SHA-256 c15a4597a12074fcf352cd8abc7873ba4a7b6a773cfa32f6a80349226170f417)
+- ObfuscationStringMap.txt: test_data/ObfuscationStringMap.txt
+  (SHA-256 710f954bbd056adeb2190b7166c2321485bf395e661c76cd7a91940f6c4db2a2)
+- skydrive.log: test_data/skydrive.log
+  (SHA-256 4d8bd880453c1c9d6d4b4e9de57934db8944c33df9c14d7cf4be494b64228012)
+- skydrive_v1.log: test_data/skydrive_v1.log
+  (SHA-256 644e15270bbeef6c05ca9790d0254e3044a1adde6dab5736194c3b7057372ef7)

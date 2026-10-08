@@ -21,3 +21,14 @@ commit 91b6849503b125267d00ea134248e4fe59e5479c, unmodified (SHA-256):
   document_versions.sql  1160023277e56a2c33e8099c7e7167ada0bd965e5134b8ab2eb83da7df64524e
   NotesV7.storedata  a383e583e81a9615b44397615dc78549939aedea5b9408057f4103741393cb4c
   mac_notificationcenter.db  c32d7afb0d1f63d430a6fa5ecf2cff2cea6300ec61a9f3bb9aad561ae14b8ae9
+
+Also from plaso's test_data/plist/ (the first two), test_data/sqlite/ (the
+third) and test_data/ (the last) at commit
+91b6849503b125267d00ea134248e4fe59e5479c (same licence); imessage_chat.db is
+stored gzip-compressed (gzip -9n), the others are unmodified (SHA-256 of the
+uncompressed files):
+
+  com.apple.spotlight.plist  10ee78c07176052492476b2ef262d384f0bff0bb54e25aad3cd37f276a646031
+  VolumeConfiguration.plist  480874ef63bd92dd07b4b4b8c96ad929a060fe13cd1de8c5c9d75297024aaa9d
+  imessage_chat.db  2931db3b556e33728867726f5bfd56464c4c2955cbe2e795660bda2ad631127d
+  login.keychain  c18c01687fcbc4cc9a4bf0e4c5bffa0f55ba80dc3746a9caf34e01d2f6bdb690

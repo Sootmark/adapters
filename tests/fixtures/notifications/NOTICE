@@ -1,0 +1,5 @@
+wpndatabase.db.gz is plaso's test_data/windows/wpndatabase.db, under the
+Apache License 2.0 (LICENSE, in this directory). Copyright the plaso
+authors. Source: https://github.com/log2timeline/plaso at commit
+91b6849503b125267d00ea134248e4fe59e5479c; stored gzip-compressed (gzip -9n),
+otherwise unmodified (SHA-256 9bcbc457db5a424da059ee48d6113256abd90365cd55c95588775e25e5627020).

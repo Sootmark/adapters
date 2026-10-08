@@ -4,6 +4,7 @@
 //! module here wraps one of them and maps its output into [`model::Record`]s,
 //! keeping the promises of [`model::adapter`].
 
+pub mod applogs;
 pub mod audit;
 pub mod avlogs;
 pub mod bodyfile;
@@ -15,22 +16,30 @@ mod csv;
 pub mod defender;
 pub mod esxi;
 pub mod eventtranscript;
+pub mod evt;
 pub mod evtx;
 pub mod ez;
+pub mod filehistory;
 pub mod fwlogs;
 pub mod hayabusa;
 pub mod history;
 mod home;
 pub mod journal;
 pub mod jumplist;
+mod key;
 pub mod live;
 pub mod lnk;
 pub mod macos;
 pub mod mft;
 pub mod mlocate;
 pub mod mplog;
+pub mod msiecf;
+pub mod notifications;
 pub mod ntfslog;
+pub mod office;
+pub mod onedrive;
 pub mod packages;
+pub mod pe;
 pub mod persistence;
 pub mod plaso;
 pub mod prefetch;
@@ -38,6 +47,7 @@ pub mod printing;
 pub mod recyclebin;
 pub mod registry;
 pub mod search;
+pub mod spotlight;
 pub mod srum;
 pub mod syslog;
 pub mod tasks;
