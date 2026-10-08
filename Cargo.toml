@@ -36,12 +36,13 @@ utmp = { package = "sootmark-utmp", version = "0.4.0" }
 wintimeline = { package = "sootmark-wintimeline", version = "0.1.0" }
 wmi = { package = "sootmark-wmi", version = "0.1.1" }
 ual = { package = "sootmark-ual", version = "0.1.0" }
-winlogs = { package = "sootmark-winlogs", version = "0.2.0" }
+winlogs = { package = "sootmark-winlogs", version = "0.3.0" }
 defender = { package = "sootmark-defender", version = "0.2.0" }
 tasks = { package = "sootmark-tasks", version = "0.1.0" }
 weblogs = { package = "sootmark-weblogs", version = "0.1.0" }
 cloudlogs = { package = "sootmark-cloudlogs", version = "0.3.0" }
 esxi = { package = "sootmark-esxi", version = "0.1.0" }
+fwlogs = { package = "sootmark-fwlogs", version = "0.1.0" }
 avlogs = { package = "sootmark-avlogs", version = "0.1.1" }
 containers = { package = "sootmark-containers", version = "0.1.0" }
 eventtranscript = { package = "sootmark-eventtranscript", version = "0.1.0" }

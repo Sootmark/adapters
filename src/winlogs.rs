@@ -29,6 +29,8 @@ pub const SETUPAPI: Namespace = Namespace::new("windows.setupapi");
 pub const SCCM: Namespace = Namespace::new("windows.sccm");
 /// AnyDesk.
 pub const ANYDESK: Namespace = Namespace::new("windows.anydesk");
+/// Windows Error Reporting reports.
+pub const WER: Namespace = Namespace::new("windows.wer");
 
 /// Characters of a message kept in a summary.
 const SUMMARY_TEXT: usize = 200;
@@ -47,7 +49,7 @@ impl Adapter for WinlogsAdapter {
 
     fn namespaces(&self) -> &'static [Namespace] {
         &[
-            PCA, IIS, FIREWALL, TRANSCRIPT, TEAMVIEWER, SETUPAPI, SCCM, ANYDESK,
+            PCA, IIS, FIREWALL, TRANSCRIPT, TEAMVIEWER, SETUPAPI, SCCM, ANYDESK, WER,
         ]
     }
 
@@ -81,6 +83,7 @@ impl Adapter for WinlogsAdapter {
             Kind::Sccm => out.sccm(),
             Kind::AnyDeskTrace => out.anydesk_trace(),
             Kind::AnyDeskConnections => out.anydesk_connections(),
+            Kind::WerReport => out.wer(),
         }
         Ok(())
     }
@@ -344,6 +347,56 @@ impl Out<'_, '_> {
             }
             record.fields = fields;
             record.summary = format!("AnyDesk {}: {}", line.module, shorten(&line.message));
+            self.sink.record(record);
+        }
+        self.problems(parsed.problems);
+    }
+
+    fn wer(&mut self) {
+        let parsed = winlogs::wer::report(self.input.data);
+        for report in &parsed.entries {
+            let mut record = self.record(WER, 1);
+            time(&mut record, TimeKind::Executed, "EventTime", report.time);
+            time(
+                &mut record,
+                TimeKind::Logged,
+                "UploadTime",
+                report.upload_time,
+            );
+            let mut fields = Fields::new();
+            for (name, value) in [
+                ("EventType", &report.event_type),
+                ("FriendlyEventName", &report.friendly_event_name),
+                ("ReportId", &report.report_id),
+                ("AppName", &report.app_name),
+                ("AppPath", &report.app_path),
+                ("NsAppName", &report.ns_app_name),
+            ] {
+                text(&mut fields, name, value.as_deref().unwrap_or_default());
+            }
+            for (name, value) in &report.signature {
+                let key: String = name.chars().filter(char::is_ascii_alphanumeric).collect();
+                text(&mut fields, &key, value);
+            }
+            text(
+                &mut fields,
+                "LoadedModules",
+                &report.loaded_modules.join(", "),
+            );
+            record.fields = fields;
+            record.facets.process_path = report
+                .app_path
+                .clone()
+                .or_else(|| report.ns_app_name.clone());
+            record.summary = format!(
+                "WER {}: {}{}",
+                report.event_type.as_deref().unwrap_or("report"),
+                record.facets.process_path.as_deref().unwrap_or("?"),
+                report
+                    .signature("Fault Module Name")
+                    .map(|m| format!(" (faulting module {m})"))
+                    .unwrap_or_default()
+            );
             self.sink.record(record);
         }
         self.problems(parsed.problems);

@@ -1,0 +1,3 @@
+Report.wer was written for the sootmark-winlogs tests
+(https://github.com/Sootmark/winlogs) as Windows Error Reporting writes
+reports, with made-up identifiers. Under this crate's licences.

@@ -20,6 +20,7 @@ dependencies = [
  "sootmark-esxi",
  "sootmark-eventtranscript",
  "sootmark-evtx",
+ "sootmark-fwlogs",
  "sootmark-history",
  "sootmark-journal",
  "sootmark-macos",
@@ -163,6 +164,15 @@ name = "sootmark-evtx"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a2f25e75bdbe98bb81378b377c0cfaa61c9cd06b75af8b89ee5987fabe8a835"
+dependencies = [
+ "sootmark-common",
+]
+
+[[package]]
+name = "sootmark-fwlogs"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a9554d52fc7af67797a3f9fc18c8d2c328120c6233c3b1700d96ef78cce07778"
 dependencies = [
  "sootmark-common",
 ]
@@ -355,9 +365,9 @@ dependencies = [
 
 [[package]]
 name = "sootmark-winlogs"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "07aac0f139c21fe07a132884996f6ba5510d4f670a8727ba40b0d66f60ccda8f"
+checksum = "f881428bdc2bf53833e7d8db2a6e868d97109f33413a019c8f1684222a12c7e2"
 dependencies = [
  "sootmark-common",
 ]

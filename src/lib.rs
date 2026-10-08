@@ -17,6 +17,7 @@ pub mod esxi;
 pub mod eventtranscript;
 pub mod evtx;
 pub mod ez;
+pub mod fwlogs;
 pub mod hayabusa;
 pub mod history;
 mod home;

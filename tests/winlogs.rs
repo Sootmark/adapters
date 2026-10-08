@@ -1,14 +1,16 @@
 //! The Windows text logs adapter on plaso's test logs (Apache-2.0,
 //! `tests/fixtures/winlogs/`, gzip-compressed): a record per entry, in the
-//! right namespace, with the facets hunts use.
+//! right namespace, with the facets hunts use; and a Windows Error
+//! Reporting report written for the sootmark-winlogs tests
+//! (`tests/fixtures/wer/`).
 
 use std::io::Read;
 
 use conformance::assert_conforms;
 use model::adapter::{Adapter, Collected, Confidence, Input};
-use model::{EvidenceId, Record};
+use model::{EvidenceId, Record, Value};
 use sootmark_adapters::winlogs::{
-    WinlogsAdapter, ANYDESK, FIREWALL, IIS, PCA, SCCM, SETUPAPI, TEAMVIEWER, TRANSCRIPT,
+    WinlogsAdapter, ANYDESK, FIREWALL, IIS, PCA, SCCM, SETUPAPI, TEAMVIEWER, TRANSCRIPT, WER,
 };
 
 fn records(name: &str) -> Vec<Record> {
@@ -105,5 +107,35 @@ fn anydesk_logs() {
     assert_eq!(
         sessions[2].summary,
         "AnyDesk session out to 377110044 (Token)"
+    );
+}
+
+#[test]
+fn error_reports() {
+    let data = std::fs::read(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/fixtures/wer/Report.wer"
+    ))
+    .unwrap();
+    let name = r"C\ProgramData\Microsoft\Windows\WER\ReportArchive\AppCrash_lsass.exe_1\Report.wer";
+    assert_eq!(WinlogsAdapter.probe(name, &data), Confidence::Certain);
+    assert_conforms(&WinlogsAdapter, name, &data);
+    let input = Input {
+        evidence: EvidenceId::of_content(&data),
+        name,
+        data: &data,
+        modified: None,
+    };
+    let mut sink = Collected::default();
+    WinlogsAdapter.parse(&input, &mut sink).unwrap();
+    let report = &sink.records[0];
+    assert_eq!(report.namespace(), WER);
+    assert_eq!(
+        report.summary,
+        r"WER APPCRASH: C:\Windows\system32\lsass.exe (faulting module dbghelp.dll)"
+    );
+    assert_eq!(
+        report.fields.get("FaultModuleName"),
+        Some(&Value::from("dbghelp.dll"))
     );
 }

@@ -1,0 +1,14 @@
+pan_screenconnect_traffic.log and asa_generic.log are from Splunk's
+attack_data (https://github.com/splunk/attack_data), under the Apache License
+2.0 (LICENSE, in this directory), at commit
+4389fa7a4e74a7c083c0fbe448fa2c7c32378981, renamed, otherwise unmodified
+(SHA-256):
+
+  pan_screenconnect_traffic.log  74227d27c3e789965613a6dc997c9a6374bd19a8b74193a3720bf0944ca5b0ca
+    from datasets/attack_techniques/T1219/screenconnect/screenconnect_palo_traffic.log
+  asa_generic.log  b42d51b1f09c7d447ebf3ca1c1a594a886bbf529b06a4300c9a5a58d191a2385
+    from datasets/cisco_asa/generic/cisco_asa_generic_logs.log
+
+fortigate-kv.log was written for the sootmark-fwlogs tests
+(https://github.com/Sootmark/fwlogs) in FortiGate's format, with example
+addresses and made-up names. Under this crate's licences.
