@@ -1,0 +1,8 @@
+wintask.job.gz is plaso's test_data/wintask.job (a Windows .job file), under
+the Apache License 2.0 (LICENSE-plaso, in this directory). Copyright the
+plaso authors. Source: https://github.com/log2timeline/plaso at commit
+91b6849503b125267d00ea134248e4fe59e5479c. Stored gzip-compressed (gzip -9n),
+otherwise unmodified.
+
+OneDriveSync.gz is a task XML file written for the sootmark-tasks tests
+(https://github.com/Sootmark/tasks), under this crate's licences.

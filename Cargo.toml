@@ -1,6 +1,6 @@
 [package]
 name = "sootmark-adapters"
-version = "0.2.33"
+version = "0.2.34"
 edition = "2021"
 rust-version = "1.80"
 description = "One adapter per parser dependency: the parser's native output mapped into the Sootmark model."
@@ -38,6 +38,7 @@ wmi = { package = "sootmark-wmi", version = "0.1.1" }
 ual = { package = "sootmark-ual", version = "0.1.0" }
 winlogs = { package = "sootmark-winlogs", version = "0.1.1" }
 defender = { package = "sootmark-defender", version = "0.1.0" }
+tasks = { package = "sootmark-tasks", version = "0.1.0" }
 
 [dev-dependencies]
 conformance = { package = "sootmark-conformance", version = "0.2.0" }

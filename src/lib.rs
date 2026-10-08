@@ -28,6 +28,7 @@ pub mod registry;
 pub mod search;
 pub mod srum;
 pub mod syslog;
+pub mod tasks;
 mod timestamp;
 pub mod ual;
 pub mod usn;
