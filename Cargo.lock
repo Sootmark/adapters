@@ -4,12 +4,13 @@ version = 3
 
 [[package]]
 name = "sootmark-adapters"
-version = "0.2.32"
+version = "0.2.33"
 dependencies = [
  "sootmark-audit",
  "sootmark-browser",
  "sootmark-common",
  "sootmark-conformance",
+ "sootmark-defender",
  "sootmark-disk",
  "sootmark-ese",
  "sootmark-evtx",
@@ -67,6 +68,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cc88bbc58b6cd7367e524c2aeec9fd03bfef53da6fd946c13f1e44ecea275489"
 dependencies = [
  "sootmark-model",
+]
+
+[[package]]
+name = "sootmark-defender"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eb03decc7991f6528d4057460096c3b8e1ab8173ccdb423bae2a2be53cff7793"
+dependencies = [
+ "sootmark-common",
 ]
 
 [[package]]

@@ -7,6 +7,7 @@
 pub mod audit;
 pub mod browser;
 mod csv;
+pub mod defender;
 pub mod evtx;
 pub mod ez;
 pub mod hayabusa;
