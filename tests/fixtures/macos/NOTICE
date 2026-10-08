@@ -11,3 +11,5 @@ backgrounditems.btm and fsevents-0000000002d89b58: plaso's test_data
 com.apple.airport.preferences.plist, user.plist, com.apple.loginitems.plist:
 plaso's test_data/plist/, commit 91b6849503b125267d00ea134248e4fe59e5479c,
 unmodified (same licence).
+applesystemlog.asl: plaso's test_data, commit 91b6849503b125267d00ea134248e4fe59e5479c,
+unmodified (same licence).

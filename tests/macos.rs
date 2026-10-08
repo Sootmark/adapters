@@ -7,7 +7,7 @@ use conformance::assert_conforms;
 use model::adapter::{Adapter, Collected, Confidence, Input};
 use model::{EvidenceId, Record, Value};
 use sootmark_adapters::macos::{
-    MacosAdapter, FSEVENTS, KNOWLEDGEC, LOGIN_ITEMS, QUARANTINE, TCC, USERS, WIFI,
+    MacosAdapter, ASL, FSEVENTS, KNOWLEDGEC, LOGIN_ITEMS, QUARANTINE, TCC, USERS, WIFI,
 };
 
 fn read(name: &str) -> Vec<u8> {
@@ -173,4 +173,16 @@ fn property_lists() {
         items[0].facets.process_path.as_deref(),
         Some("/Applications/iTunes.app/Contents/MacOS/iTunesHelper.app")
     );
+}
+
+#[test]
+fn apple_system_log() {
+    let records = parse(
+        "applesystemlog.asl",
+        "private/var/log/asl/applesystemlog.asl",
+        &[],
+    );
+    assert_eq!(records.len(), 2);
+    assert!(records.iter().all(|r| r.namespace() == ASL));
+    assert!(records.iter().all(|r| !r.times.is_empty()));
 }

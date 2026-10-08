@@ -6,8 +6,8 @@
 //! when) and KnowledgeC (app usage and device events over time).
 
 use macos::{
-    Artifact, BackgroundItem, FsEvent, JobKind, KnowledgeEvent, LaunchJob, PrefEntry, PrefKind,
-    QuarantineEvent, Scope, TccEntry,
+    Artifact, AslRecord, BackgroundItem, FsEvent, JobKind, KnowledgeEvent, LaunchJob, PrefEntry,
+    PrefKind, QuarantineEvent, Scope, TccEntry,
 };
 use model::adapter::{Adapter, Confidence, Input, ParseError, Sink, Skipped};
 use model::{Facets, Fields, Locator, Namespace, ParserInfo, Record, RecordTime, TimeKind, Value};
@@ -44,6 +44,8 @@ pub const USERS: Namespace = Namespace::new("macos.user");
 pub const STARTUP_ITEMS: Namespace = Namespace::new("macos.startup_item");
 /// Time Machine destinations and snapshots.
 pub const TIME_MACHINE: Namespace = Namespace::new("macos.time_machine");
+/// Apple System Log messages.
+pub const ASL: Namespace = Namespace::new("macos.asl");
 
 fn pref_namespace(kind: PrefKind) -> Namespace {
     match kind {
@@ -89,6 +91,7 @@ impl Adapter for MacosAdapter {
             USERS,
             STARTUP_ITEMS,
             TIME_MACHINE,
+            ASL,
         ]
     }
 
@@ -100,6 +103,7 @@ impl Adapter for MacosAdapter {
                 head.starts_with(b"bplist") || head.trim_ascii_start().starts_with(b"<")
             }
             Some(Artifact::BackgroundItems) => head.starts_with(b"bplist"),
+            Some(Artifact::Asl) => macos::is_asl(head),
             Some(Artifact::FsEvents) => {
                 head.starts_with(&[0x1f, 0x8b]) || head.get(1..4) == Some(b"SLD")
             }
@@ -192,6 +196,15 @@ impl Adapter for MacosAdapter {
                 let records = (0u64..)
                     .zip(&parsed.entries)
                     .map(|(index, entry)| self.pref(input, kind, index, entry, owner.as_deref()))
+                    .collect();
+                emit(parsed.problems, records);
+            }
+            Some(Artifact::Asl) => {
+                let parsed = macos::read_asl(input.data);
+                let records = parsed
+                    .records
+                    .iter()
+                    .map(|message| self.asl(input, message))
                     .collect();
                 emit(parsed.problems, records);
             }
@@ -342,6 +355,50 @@ impl MacosAdapter {
 }
 
 impl MacosAdapter {
+    /// An Apple System Log message.
+    fn asl(self, input: &Input<'_>, message: &AslRecord) -> Record {
+        let mut record = Record::new(
+            input.evidence,
+            ASL,
+            Locator::ByteOffset(message.offset),
+            self.parser(),
+        );
+        if let Some(time) = message.time {
+            record
+                .times
+                .push(RecordTime::new(TimeKind::Logged, "Time", time));
+        }
+        let mut fields = Fields::new();
+        text(&mut fields, "Sender", message.sender.as_deref());
+        text(&mut fields, "Facility", message.facility.as_deref());
+        text(&mut fields, "Host", message.host.as_deref());
+        text(&mut fields, "Message", message.message.as_deref());
+        fields.insert("Level".into(), Value::UInt(u64::from(message.level)));
+        fields.insert("Uid".into(), Value::Int(i64::from(message.uid)));
+        fields.insert("Gid".into(), Value::Int(i64::from(message.gid)));
+        for (key, value) in &message.extra {
+            text(&mut fields, key, Some(value));
+        }
+        record.fields = fields;
+        record.facets = Facets {
+            host_name: message.host.clone(),
+            process_id: Some(u64::from(message.pid)),
+            ..Facets::default()
+        };
+        record.summary = format!(
+            "{}: {}",
+            message.sender.as_deref().unwrap_or("?"),
+            message
+                .message
+                .as_deref()
+                .unwrap_or_default()
+                .chars()
+                .take(200)
+                .collect::<String>()
+        );
+        record
+    }
+
     /// An entry of a property list: its times and values, the account
     /// whose home it is in.
     fn pref(
