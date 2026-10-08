@@ -27,6 +27,8 @@ pub const TEAMVIEWER: Namespace = Namespace::new("windows.teamviewer");
 pub const SETUPAPI: Namespace = Namespace::new("windows.setupapi");
 /// Configuration Manager client logs.
 pub const SCCM: Namespace = Namespace::new("windows.sccm");
+/// AnyDesk.
+pub const ANYDESK: Namespace = Namespace::new("windows.anydesk");
 
 /// Characters of a message kept in a summary.
 const SUMMARY_TEXT: usize = 200;
@@ -44,7 +46,9 @@ impl Adapter for WinlogsAdapter {
     }
 
     fn namespaces(&self) -> &'static [Namespace] {
-        &[PCA, IIS, FIREWALL, TRANSCRIPT, TEAMVIEWER, SETUPAPI, SCCM]
+        &[
+            PCA, IIS, FIREWALL, TRANSCRIPT, TEAMVIEWER, SETUPAPI, SCCM, ANYDESK,
+        ]
     }
 
     /// By name and first lines (`#Fields:`, `<![LOG[`, a transcript's
@@ -75,6 +79,8 @@ impl Adapter for WinlogsAdapter {
             Kind::TeamViewerOutgoing => out.teamviewer_connections(false),
             Kind::SetupApi => out.setupapi(),
             Kind::Sccm => out.sccm(),
+            Kind::AnyDeskTrace => out.anydesk_trace(),
+            Kind::AnyDeskConnections => out.anydesk_connections(),
         }
         Ok(())
     }
@@ -309,6 +315,75 @@ impl Out<'_, '_> {
                     session.account, session.kind
                 )
             };
+            self.sink.record(record);
+        }
+        self.problems(parsed.problems);
+    }
+
+    fn anydesk_trace(&mut self) {
+        let parsed = winlogs::anydesk::trace(self.input.data);
+        for line in &parsed.entries {
+            let mut record = self.record(ANYDESK, line.line);
+            time(&mut record, TimeKind::Logged, "time", Some(line.time));
+            record.facets.process_id = Some(u64::from(line.process));
+            record.facets.source_ip.clone_from(&line.address);
+            let mut fields = Fields::new();
+            text(&mut fields, "Level", &line.level);
+            text(&mut fields, "Role", &line.role);
+            text(&mut fields, "Module", &line.module);
+            text(&mut fields, "Message", &line.message);
+            fields.insert("Thread".into(), Value::UInt(u64::from(line.thread)));
+            for (name, value) in [
+                ("RemoteId", &line.remote_id),
+                ("RemoteName", &line.remote_name),
+                ("Address", &line.address),
+            ] {
+                if let Some(value) = value {
+                    text(&mut fields, name, value);
+                }
+            }
+            record.fields = fields;
+            record.summary = format!("AnyDesk {}: {}", line.module, shorten(&line.message));
+            self.sink.record(record);
+        }
+        self.problems(parsed.problems);
+    }
+
+    fn anydesk_connections(&mut self) {
+        let parsed = winlogs::anydesk::connections(self.input.data);
+        for session in &parsed.entries {
+            let mut record = self.record(ANYDESK, session.line);
+            time(
+                &mut record,
+                TimeKind::FirstSeen,
+                "Start",
+                Some(session.time),
+            );
+            let remote = session.ids.first().cloned().unwrap_or_default();
+            let mut fields = Fields::new();
+            text(&mut fields, "Direction", &session.direction);
+            text(&mut fields, "Authorisation", &session.authorisation);
+            text(&mut fields, "RemoteId", &remote);
+            fields.insert(
+                "Ids".into(),
+                Value::List(
+                    session
+                        .ids
+                        .iter()
+                        .map(|id| Value::from(id.as_str()))
+                        .collect(),
+                ),
+            );
+            record.fields = fields;
+            record.summary = format!(
+                "AnyDesk session {} {remote} ({})",
+                if session.direction == "Outgoing" {
+                    "out to"
+                } else {
+                    "in from"
+                },
+                session.authorisation
+            );
             self.sink.record(record);
         }
         self.problems(parsed.problems);

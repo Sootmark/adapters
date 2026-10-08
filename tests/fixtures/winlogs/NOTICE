@@ -6,3 +6,8 @@ License 2.0 (LICENSE, in this directory). Copyright the plaso authors.
 Source: https://github.com/log2timeline/plaso at commit
 91b6849503b125267d00ea134248e4fe59e5479c. Stored gzip-compressed (gzip -9n),
 otherwise unmodified.
+
+ad_svc.trace.gz and connection_trace.txt.gz were written for the
+sootmark-winlogs tests (https://github.com/Sootmark/winlogs) in AnyDesk's
+formats, with example addresses and made-up IDs; under this crate's
+licences.

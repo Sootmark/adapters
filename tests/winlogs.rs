@@ -8,7 +8,7 @@ use conformance::assert_conforms;
 use model::adapter::{Adapter, Collected, Confidence, Input};
 use model::{EvidenceId, Record};
 use sootmark_adapters::winlogs::{
-    WinlogsAdapter, FIREWALL, IIS, PCA, SCCM, SETUPAPI, TEAMVIEWER, TRANSCRIPT,
+    WinlogsAdapter, ANYDESK, FIREWALL, IIS, PCA, SCCM, SETUPAPI, TEAMVIEWER, TRANSCRIPT,
 };
 
 fn records(name: &str) -> Vec<Record> {
@@ -88,4 +88,22 @@ fn every_log_family() {
     let sccm = records("sccm_various.log");
     assert_eq!(sccm.len(), 10);
     assert!(sccm.iter().all(|r| r.namespace() == SCCM));
+}
+
+#[test]
+fn anydesk_logs() {
+    let trace = records("ad_svc.trace");
+    assert_eq!(trace.len(), 7);
+    assert!(trace.iter().all(|r| r.namespace() == ANYDESK));
+    let login = &trace[1];
+    assert_eq!(login.facets.source_ip.as_deref(), Some("198.51.100.4"));
+    let sessions = records("connection_trace.txt");
+    assert_eq!(
+        sessions[0].summary,
+        "AnyDesk session in from 221436813 (User)"
+    );
+    assert_eq!(
+        sessions[2].summary,
+        "AnyDesk session out to 377110044 (Token)"
+    );
 }
