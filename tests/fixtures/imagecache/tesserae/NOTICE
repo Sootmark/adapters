@@ -1,0 +1,18 @@
+Cache0001.bin.gz is Cache0001.bin, a sample of tesserae, gzip-compressed
+(gzip -9 -n), under the MIT License (LICENSE, in this directory).
+Copyright (c) 2026 mikmok5.
+
+Source: https://github.com/mikmok5/tesserae, samples/, at commit
+25b991de6acd36a050cf08d4e67a4d9f82359cb7 (the file last changed in
+1616dd7f1f05a310b0e05d5538e7ce961bdfd24a).
+
+It is synthetic: `tesserae synth` cut a source image into 64x64 tiles and
+wrote them as a Cache????.bin (RDP8bmp header, 32-bit BGRX, rows
+top-down). No RDP client wrote it. 51 tiles.
+
+SHA-256 (uncompressed):
+
+  c3db77450256b568fe33064d96933932e902bcb0a082c6ba27c1118fb77577a6  Cache0001.bin
+
+Copied from the sootmark-imagecache tests
+(https://github.com/Sootmark/imagecache, tests/fixtures/tesserae/).

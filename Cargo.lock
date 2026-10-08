@@ -158,6 +158,7 @@ dependencies = [
  "sootmark-filehistory",
  "sootmark-fwlogs",
  "sootmark-history",
+ "sootmark-imagecache",
  "sootmark-indx",
  "sootmark-journal",
  "sootmark-macos",
@@ -385,6 +386,15 @@ name = "sootmark-history"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f03adec44bc708ee71fccf31aeeb15caf15fa1285065dae6131b2c326338e1a"
+dependencies = [
+ "sootmark-common",
+]
+
+[[package]]
+name = "sootmark-imagecache"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0553b3e212fd7137728f839f1eb8c9b82ef804b558e17f6d43fc528bbb92d790"
 dependencies = [
  "sootmark-common",
 ]
