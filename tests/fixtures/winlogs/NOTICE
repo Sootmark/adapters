@@ -1,0 +1,8 @@
+The *.gz files here are a selection of plaso's test_data files of the same names (PCA,
+IIS, Windows Firewall, PowerShell transcript, TeamViewer, SetupAPI and SCCM
+logs: test_data/, test_data/iis/, test_data/teamviewer/), under the Apache
+License 2.0 (LICENSE, in this directory). Copyright the plaso authors.
+
+Source: https://github.com/log2timeline/plaso at commit
+91b6849503b125267d00ea134248e4fe59e5479c. Stored gzip-compressed (gzip -9n),
+otherwise unmodified.
